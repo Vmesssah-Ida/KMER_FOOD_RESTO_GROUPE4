@@ -1,0 +1,29 @@
+# Base de données
+*.sqlite3
+db.sqlite3
+*.sql
+Base_Restaurant.sql
+._Base_Restaurant.sql
+
+# MySQL dumps
+*.sql
+*.dump
+
+# Variables d'environnement
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+*.egg-info/
+
+# Django
+/media/
+
+# IDE
+.vscode/
+.idea/
