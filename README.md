@@ -1,11 +1,4 @@
-# 🍽️ KMER FOOD — Système de Gestion de Restaurant
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Django-4.x-green?style=for-the-badge&logo=django" />
-  <img src="https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python" />
-  <img src="https://img.shields.io/badge/MySQL-8.0-orange?style=for-the-badge&logo=mysql" />
-  <img src="https://img.shields.io/badge/Status-En%20développement-yellow?style=for-the-badge" />
-</p>
+# KMER FOOD — Système de Gestion de Restaurant
 
 > **KMER FOOD** est une application web complète de gestion de restaurant camerounais, développée avec Django. Elle couvre l'ensemble du cycle opérationnel : de la prise de commande à la gestion de la caisse, en passant par le suivi des stocks et l'analyse des ventes.
 
@@ -91,7 +84,7 @@ KMER_FOOD/
 
 ---
 
-## ⚙️ Prérequis
+##  Prérequis
 
 Avant de commencer, assurez-vous d'avoir installé :
 
@@ -110,7 +103,7 @@ git --version
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### 1. Cloner le dépôt
 
@@ -149,7 +142,7 @@ pip install Pillow
 
 ---
 
-## 🔧 Configuration
+##  Configuration
 
 ### 1. Créer le fichier `.env`
 
@@ -191,7 +184,7 @@ EXIT;
 
 ---
 
-## ▶️ Lancement
+##  Lancement
 
 ### 1. Appliquer les migrations
 
@@ -217,9 +210,9 @@ L'interface d'administration : **http://127.0.0.1:8000/admin/**
 
 ---
 
-## 📦 Structure des modules
+##  Structure des modules
 
-### 🔐 Module 1 — Authentification & Rôles
+###  Module 1 — Authentification & Rôles
 
 Point d'entrée sécurisé de toute l'application.
 
@@ -229,7 +222,7 @@ Point d'entrée sécurisé de toute l'application.
 - Contrôle d'accès par rôle (permissions granulaires sur chaque module)
 - Journal des connexions et activités utilisateurs
 
-### 🍲 Module 2 — Recettes
+###  Module 2 — Recettes
 
 Référentiel des recettes utilisées pour la préparation des plats.
 
@@ -238,7 +231,7 @@ Référentiel des recettes utilisées pour la préparation des plats.
 - Association recette ↔ produit du menu
 - Versioning des recettes (historique des modifications)
 
-### 🛒 Module 3 — Produits
+###  Module 3 — Produits
 
 Catalogue complet des plats et boissons proposés.
 
@@ -247,7 +240,7 @@ Catalogue complet des plats et boissons proposés.
 - Association produit ↔ recette pour le calcul de marge
 - Gestion des menus et formules spéciales
 
-### 📋 Module 4 — Commandes & Facturation
+###  Module 4 — Commandes & Facturation
 
 Cœur opérationnel du restaurant.
 
@@ -257,7 +250,7 @@ Cœur opérationnel du restaurant.
 - Support des paiements : espèces, Mobile Money (MTN/Orange)
 - Historique complet et recherche avancée
 
-### 📦 Module 5 — Inventaire & Alertes Stock
+###  Module 5 — Inventaire & Alertes Stock
 
 Maîtrise des consommables et approvisionnements.
 
@@ -267,17 +260,17 @@ Maîtrise des consommables et approvisionnements.
 - Historique des entrées, sorties et ajustements de stock
 - Gestion des fournisseurs et bons de commande
 
-### 👥 Module 6 — Ressources Humaines & Paie
+###  Module 6 — Ressources Humaines & Paie
 
 Administration du personnel du restaurant.
 
 - Fiche employé (informations personnelles, poste, contrat)
 - Suivi des présences, absences et congés
 - Calcul automatique de la paie mensuelle (salaire de base + heures sup)
-- Génération des fiches de paie en PDF
+- Génération des fiches de paie en PDF (optionnel)
 - Historique des mouvements RH
 
-### 📊 Module 7 — Dashboard & Rapports
+###  Module 7 — Dashboard & Rapports
 
 Vision globale et aide à la décision.
 
@@ -289,7 +282,7 @@ Vision globale et aide à la décision.
 
 ---
 
-## 🗄️ Base de données
+##  Base de données
 
 **SGBD :** MySQL 8.0  
 **Encodage :** UTF-8 MB4 (support des caractères spéciaux et emojis)
@@ -321,21 +314,9 @@ python3 manage.py migrate nom_app zero
 mysqldump -u root -p kmer_food_db > backup_$(date +%Y%m%d).sql
 ```
 
----
 
-## 🐛 Problèmes courants
 
-| Erreur | Cause | Solution |
-|--------|-------|----------|
-| `ModuleNotFoundError: decouple` | Module manquant | `pip install python-decouple` |
-| `ModuleNotFoundError: django` | Venv non activé ou Django absent | `source env/bin/activate` puis `pip install django` |
-| `django.db.OperationalError` | Connexion MySQL échouée | Vérifier `.env` et démarrer MySQL |
-| `ModuleNotFoundError: mysqlclient` | Driver MySQL manquant | `pip install mysqlclient` |
-| `TemplateDoesNotExist` | Template introuvable | Vérifier `TEMPLATES` dans `settings.py` |
-
----
-
-## 👩‍💻 Équipe
+##  Équipe
 
 | Nom | Matricule | Rôle |
 |-----|-----------|------|
@@ -347,7 +328,7 @@ mysqldump -u root -p kmer_food_db > backup_$(date +%Y%m%d).sql
 
 ---
 
-## 🎓 Encadrement
+##  Encadrement
 
 **Superviseur :** Mr. Mbietieu Amos Mb.  
 **Institution :** École Nationale Supérieure Polytechnique (ENSP) de Yaoundé  
@@ -355,13 +336,12 @@ mysqldump -u root -p kmer_food_db > backup_$(date +%Y%m%d).sql
 
 ---
 
-## 📄 Licence
+##  Licence
 
 Ce projet est développé dans un cadre académique à l'ENSP Yaoundé.  
 Tous droits réservés © 2025 — Équipe KMER FOOD.
 
 ---
-
 <p align="center">
   Fait à Yaoundé, Cameroun 
 </p>
