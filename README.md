@@ -28,7 +28,7 @@ KMER FOOD est né du besoin de digitaliser la gestion des restaurants au Camerou
 **Contexte académique :**
 - Établissement : École Nationale Supérieure Polytechnique (ENSP) de Yaoundé
 - Filière : Génie des Télécommunications (3GTEL)
-- Année académique : 2024–2025
+- Année académique : 2025–2026
 
 ---
 
@@ -339,7 +339,7 @@ mysqldump -u root -p kmer_food_db > backup_$(date +%Y%m%d).sql
 ##  Licence
 
 Ce projet est développé dans un cadre académique à l'ENSP Yaoundé.  
-Tous droits réservés © 2025 — Équipe KMER FOOD.
+Tous droits réservés © 2026 — Équipe KMER FOOD.
 
 ---
 <p align="center">
