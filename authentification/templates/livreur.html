@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Livreur — Gestion Restaurant</title>
+  <style>
+    :root {
+      --primary: #4c1d95;
+      --primary-light: #7c3aed;
+      --primary-dark: #2e1065;
+      --accent: #ddd6fe;
+      --bg: #f5f3ff;
+      --sidebar-w: 250px;
+      --white: #ffffff;
+      --text: #1a1523;
+      --muted: #6b7280;
+      --border: #ede9fe;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --card-shadow: 0 2px 14px rgba(76,29,149,0.07);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    .sidebar { width: var(--sidebar-w); background: var(--primary-dark); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+    .sidebar-logo { padding: 26px 20px 18px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    /* TODO: Remplacez src="" par le logo du restaurant (ex: src="assets/logo.png") */
+    .sidebar-logo img { width: 40px; height: 40px; border-radius: 9px; background: rgba(255,255,255,0.1); object-fit: cover; }
+    .sidebar-logo span { color: #fff; font-size: 0.95rem; font-weight: 700; }
+    .sidebar-logo small { color: rgba(255,255,255,0.45); font-size: 0.68rem; display: block; }
+    .role-badge { margin: 16px 12px 6px; padding: 10px 12px; background: rgba(221,214,254,0.15); border-radius: 10px; display: flex; align-items: center; gap: 9px; }
+    /* TODO: Remplacez src="" par la photo du livreur (ex: src="assets/livreur.jpg") */
+    .role-badge img { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.1); object-fit: cover; }
+    .role-badge span { color: var(--accent); font-size: 0.76rem; font-weight: 700; display: block; }
+    .role-badge small { color: rgba(255,255,255,0.45); font-size: 0.68rem; }
+    nav { flex: 1; padding: 8px 10px; }
+    .nav-section { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); padding: 13px 10px 5px; }
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 10px 11px; border-radius: 8px; color: rgba(255,255,255,0.6); font-size: 0.85rem; cursor: pointer; transition: all 0.17s; margin-bottom: 2px; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: var(--primary-light); color: #fff; font-weight: 600; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 0.63rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
+    .sidebar-footer { padding: 14px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .logout-btn { width: 100%; padding: 9px; background: rgba(239,68,68,0.14); color: #fca5a5; border: none; border-radius: 8px; cursor: pointer; font-size: 0.83rem; font-weight: 600; }
+
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 28px; height: 62px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar h1 { font-size: 1.05rem; font-weight: 700; }
+    .topbar p { font-size: 0.76rem; color: var(--muted); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .status-toggle { display: flex; align-items: center; gap: 8px; background: var(--bg); padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; }
+    .content { padding: 26px 28px; flex: 1; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .card { background: var(--white); border-radius: 13px; box-shadow: var(--card-shadow); overflow: hidden; margin-bottom: 20px; }
+    .card-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 0.93rem; font-weight: 700; }
+    .card-body { padding: 18px 22px; }
+    .btn { padding: 8px 17px; border-radius: 8px; font-size: 0.81rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.17s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-light); }
+    .btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-success { background: #dcfce7; color: #16a34a; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-warning { background: #fef3c7; color: #92400e; }
+    .btn-sm { padding: 5px 11px; font-size: 0.75rem; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
+    .kpi-card { background: var(--white); border-radius: 13px; padding: 20px 22px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; }
+    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .kpi-card.purple::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+    .kpi-card.green::before { background: linear-gradient(90deg, #16a34a, #22c55e); }
+    .kpi-card.orange::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
+    .kpi-card.red::before { background: linear-gradient(90deg, #dc2626, #ef4444); }
+    .kpi-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 1.9rem; font-weight: 800; color: var(--text); line-height: 1.1; margin-top: 4px; }
+    .kpi-sub { font-size: 0.76rem; color: var(--success); font-weight: 600; margin-top: 3px; }
+    .kpi-sub.bad { color: var(--danger); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 14px; background: var(--bg); text-align: left; }
+    td { padding: 12px 14px; font-size: 0.84rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 0.71rem; font-weight: 600; }
+    .badge-success { background: #dcfce7; color: #15803d; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #dc2626; }
+    .badge-info { background: #dbeafe; color: #1d4ed8; }
+    .badge-muted { background: #f1f5f9; color: #475569; }
+    .badge-purple { background: #ede9fe; color: #6d28d9; }
+
+    /* Livraison Card */
+    .delivery-card {
+      background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 18px;
+      margin-bottom: 14px; transition: box-shadow 0.18s;
+    }
+    .delivery-card:hover { box-shadow: 0 4px 18px rgba(76,29,149,0.1); }
+    .delivery-card.urgent { border-color: var(--danger); border-left: 4px solid var(--danger); }
+    .delivery-card.en-cours { border-color: var(--primary-light); border-left: 4px solid var(--primary-light); }
+    .delivery-card.livree { border-color: var(--success); border-left: 4px solid var(--success); opacity: 0.75; }
+    .del-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .del-id { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+    .del-body { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .del-info-block { background: var(--bg); border-radius: 8px; padding: 10px 12px; }
+    .del-info-block label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; display: block; margin-bottom: 3px; }
+    .del-info-block span { font-size: 0.85rem; font-weight: 600; }
+    .del-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Carte de véhicule */
+    .vehicle-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; }
+    .vehicle-icon-wrap { width: 52px; height: 52px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+    .vehicle-info { flex: 1; }
+    .vehicle-info strong { font-size: 0.9rem; display: block; margin-bottom: 4px; }
+    .vehicle-info span { font-size: 0.76rem; color: var(--muted); }
+    .vehicle-plate { font-family: monospace; font-size: 0.88rem; font-weight: 700; background: var(--bg); padding: 4px 12px; border-radius: 6px; border: 1.5px solid var(--border); letter-spacing: 0.08em; }
+    .vehicle-status { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+    .fuel-bar { width: 80px; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .fuel-fill { height: 100%; border-radius: 99px; }
+
+    /* Map placeholder */
+    .map-area {
+      background: linear-gradient(135deg, #ede9fe, #f5f3ff);
+      border-radius: 12px; height: 260px; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; border: 1.5px dashed var(--primary-light);
+      /* TODO: Remplacez ce placeholder par une vraie intégration cartographique (Google Maps, Leaflet, etc.) */
+    }
+    .map-placeholder { text-align: center; color: var(--primary-light); }
+    .map-placeholder p { font-size: 0.82rem; margin-top: 8px; }
+
+    /* Chrono */
+    .chrono { font-size: 1.4rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--primary); }
+    .chrono.late { color: var(--danger); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 9px; margin-bottom: 18px; }
+    .tab { padding: 7px 16px; border-radius: 7px; font-size: 0.81rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--muted); transition: all 0.17s; }
+    .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 5px rgba(0,0,0,0.07); }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.42); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 15px; width: 480px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .modal-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: 0.97rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--muted); }
+    .modal-body { padding: 22px; }
+    .modal-footer { padding: 15px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { font-size: 0.76rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.85rem; outline: none; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary-light); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <!-- TODO: Remplacez src="" par le logo du restaurant -->
+    <img src="" alt="Logo" />
+    <div><span>Le Gourmet</span><small>Interface Livreur</small></div>
+  </div>
+  <div class="role-badge">
+    <!-- TODO: Remplacez src="" par la photo du livreur -->
+    <img src="" alt="Livreur" />
+    <div><span>Livreur</span><small>Ali Diallo</small></div>
+  </div>
+  <nav>
+    <div class="nav-section">Livraisons</div>
+    <a class="nav-item active" onclick="showSection('livraisons', this)"><span>&#128230;</span> Mes livraisons <span class="nav-badge">4</span></a>
+    <a class="nav-item" onclick="showSection('carte', this)"><span>&#128506;</span> Carte itinéraire</a>
+    <a class="nav-item" onclick="showSection('historique', this)"><span>&#128336;</span> Historique</a>
+    <div class="nav-section">Flotte</div>
+    <a class="nav-item" onclick="showSection('vehicules', this)"><span>&#128663;</span> Mes véhicules</a>
+    <a class="nav-item" onclick="showSection('incidents', this)"><span>&#9888;</span> Incidents <span class="nav-badge">1</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn">&#8617; Fin de tournée</button>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <h1 id="page-title">Mes livraisons</h1>
+      <p>14 mai 2026 — Tournée en cours</p>
+    </div>
+    <div class="topbar-right">
+      <div class="status-toggle"><span class="status-dot"></span> En service</div>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-livraison').classList.add('open')">+ Nouvelle livraison</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══ LIVRAISONS ═══ -->
+    <div id="livraisons" class="section active">
+      <div class="kpi-grid">
+        <div class="kpi-card purple"><span class="kpi-label">À livrer</span><span class="kpi-value">4</span><span class="kpi-sub">Aujourd'hui</span></div>
+        <div class="kpi-card green"><span class="kpi-label">Livrées</span><span class="kpi-value">7</span><span class="kpi-sub">&#8593; dans les temps</span></div>
+        <div class="kpi-card orange"><span class="kpi-label">Temps moyen</span><span class="kpi-value">23 min</span><span class="kpi-sub">Objectif 25 min</span></div>
+        <div class="kpi-card red"><span class="kpi-label">Retards</span><span class="kpi-value">1</span><span class="kpi-sub bad">En cours</span></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active">En attente (2)</button>
+        <button class="tab">En cours (2)</button>
+        <button class="tab">Livrées aujourd'hui (7)</button>
+      </div>
+
+      <!-- Livraison urgente -->
+      <div class="delivery-card urgent">
+        <div class="del-header">
+          <span class="del-id">LIV-20260514-004</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="chrono late" id="chrono-1">00:38:12</span>
+            <span class="badge badge-danger">EN RETARD</span>
+          </div>
+        </div>
+        <div class="del-body">
+          <div class="del-info-block"><label>Client</label><span>M. Pierre Fontaine</span></div>
+          <div class="del-info-block"><label>Téléphone</label><span>06 12 34 56 78</span></div>
+          <div class="del-info-block" style="grid-column:span 2"><label>Adresse</label><span>24 avenue Victor Hugo, 75016 Paris</span></div>
+          <div class="del-info-block"><label>Commande</label><span>#2045 — 3 plats, 1 dessert</span></div>
+          <div class="del-info-block"><label>Montant</label><span style="color:var(--primary);font-size:1rem;font-weight:800">87,50 €</span></div>
+        </div>
+        <div class="del-actions">
+          <button class="btn btn-success btn-sm">&#10003; Marquer livrée</button>
+          <button class="btn btn-warning btn-sm">&#9993; Contacter client</button>
+          <button class="btn btn-ghost btn-sm">Problème livraison</button>
+        </div>
+      </div>
+
+      <!-- Livraison en cours -->
+      <div class="delivery-card en-cours">
+        <div class="del-header">
+          <span class="del-id">LIV-20260514-003</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="chrono" id="chrono-2">00:12:45</span>
+            <span class="badge badge-purple">En cours</span>
+          </div>
+        </div>
+        <div class="del-body">
+          <div class="del-info-block"><label>Client</label><span>Mme Isabelle Costa</span></div>
+          <div class="del-info-block"><label>Téléphone</label><span>06 98 76 54 32</span></div>
+          <div class="del-info-block" style="grid-column:span 2"><label>Adresse</label><span>8 rue du Faubourg Saint-Antoine, 75011 Paris</span></div>
+          <div class="del-info-block"><label>Commande</label><span>#2043 — 2 plats</span></div>
+          <div class="del-info-block"><label>Montant</label><span style="color:var(--primary);font-size:1rem;font-weight:800">58,00 €</span></div>
+        </div>
+        <div class="del-actions">
+          <button class="btn btn-success btn-sm">&#10003; Marquer livrée</button>
+          <button class="btn btn-warning btn-sm">&#9993; Contacter client</button>
+          <button class="btn btn-ghost btn-sm">Navigation GPS</button>
+        </div>
+      </div>
+
+      <!-- En attente -->
+      <div class="delivery-card">
+        <div class="del-header">
+          <span class="del-id">LIV-20260514-005</span>
+          <span class="badge badge-warning">En attente — Prête à 12h45</span>
+        </div>
+        <div class="del-body">
+          <div class="del-info-block"><label>Client</label><span>Société Nexum</span></div>
+          <div class="del-info-block"><label>Téléphone</label><span>01 44 00 22 33</span></div>
+          <div class="del-info-block" style="grid-column:span 2"><label>Adresse</label><span>Tour Montparnasse, Bur. 12, Paris 75015</span></div>
+          <div class="del-info-block"><label>Commande</label><span>#2049 — 8 plateaux repas</span></div>
+          <div class="del-info-block"><label>Montant</label><span style="color:var(--primary);font-size:1rem;font-weight:800">210,00 €</span></div>
+        </div>
+        <div class="del-actions">
+          <button class="btn btn-primary btn-sm">Prendre en charge</button>
+          <button class="btn btn-ghost btn-sm">Voir détails commande</button>
+        </div>
+      </div>
+
+      <div class="delivery-card">
+        <div class="del-header">
+          <span class="del-id">LIV-20260514-006</span>
+          <span class="badge badge-warning">En attente — Prête à 13h15</span>
+        </div>
+        <div class="del-body">
+          <div class="del-info-block"><label>Client</label><span>Mme Anne Girard</span></div>
+          <div class="del-info-block"><label>Téléphone</label><span>06 55 44 33 22</span></div>
+          <div class="del-info-block" style="grid-column:span 2"><label>Adresse</label><span>3 place de la République, 75003 Paris</span></div>
+          <div class="del-info-block"><label>Commande</label><span>#2051 — 2 menus</span></div>
+          <div class="del-info-block"><label>Montant</label><span style="color:var(--primary);font-size:1rem;font-weight:800">42,00 €</span></div>
+        </div>
+        <div class="del-actions">
+          <button class="btn btn-primary btn-sm">Prendre en charge</button>
+          <button class="btn btn-ghost btn-sm">Voir détails commande</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CARTE ═══ -->
+    <div id="carte" class="section">
+      <div class="card">
+        <div class="card-header"><h3>Carte de tournée en temps réel</h3><span class="badge badge-purple">4 points de livraison</span></div>
+        <div class="card-body">
+          <div class="map-area">
+            <!--
+              TODO: Intégrez ici votre solution cartographique.
+              Options recommandées :
+              - Google Maps API : https://maps.googleapis.com/maps/api/js?key=VOTRE_CLE
+              - Leaflet.js (open-source) : https://leafletjs.com
+              - Mapbox GL : https://www.mapbox.com
+              Exemple avec Leaflet :
+              <div id="map" style="width:100%;height:100%;border-radius:12px"></div>
+            -->
+            <div class="map-placeholder">
+              <div style="font-size:3rem;opacity:0.4">&#128506;</div>
+              <p><strong>Carte interactive</strong></p>
+              <p style="color:var(--muted)">Intégrez Google Maps, Leaflet ou Mapbox ici<br>(voir commentaire dans le code)</p>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px">
+            <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:var(--danger)">1</div><div style="font-size:0.72rem;color:var(--muted)">En retard</div></div>
+            <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:var(--primary)">1</div><div style="font-size:0.72rem;color:var(--muted)">En cours</div></div>
+            <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:var(--warning)">2</div><div style="font-size:0.72rem;color:var(--muted)">À venir</div></div>
+            <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:var(--success)">7</div><div style="font-size:0.72rem;color:var(--muted)">Livrées</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ HISTORIQUE ═══ -->
+    <div id="historique" class="section">
+      <div class="card">
+        <div class="card-header"><h3>Historique des livraisons</h3><button class="btn btn-ghost btn-sm">&#8659; Exporter</button></div>
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>#Livraison</th><th>Client</th><th>Adresse</th><th>Commande</th><th>Durée</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td>LIV-003</td><td>M. Dupont</td><td>Paris 8e</td><td>#2038 — 52,00 €</td><td>18 min</td><td><span class="badge badge-success">Livrée</span></td></tr>
+              <tr><td>LIV-002</td><td>Mme Martin</td><td>Paris 16e</td><td>#2035 — 78,00 €</td><td>24 min</td><td><span class="badge badge-success">Livrée</span></td></tr>
+              <tr><td>LIV-001</td><td>M. Renaud</td><td>Paris 12e</td><td>#2031 — 34,00 €</td><td>31 min</td><td><span class="badge badge-warning">Retardée</span></td></tr>
+              <tr><td>LIV-007 (hier)</td><td>SAS Orion</td><td>Boulogne-Bill.</td><td>#2028 — 145,00 €</td><td>42 min</td><td><span class="badge badge-success">Livrée</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ VÉHICULES ═══ -->
+    <div id="vehicules" class="section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <h3>Ma flotte de véhicules</h3>
+        <button class="btn btn-primary" onclick="document.getElementById('modal-vehicule').classList.add('open')">+ Signaler incident</button>
+      </div>
+      <div class="vehicle-card">
+        <div class="vehicle-icon-wrap">&#128663;</div>
+        <div class="vehicle-info">
+          <strong>Renault Express Cargo — Blanc</strong>
+          <span>Immatriculation · Kilométrage : 48 210 km · Révision : 01/09/2026</span>
+        </div>
+        <div class="vehicle-plate">AB-123-CD</div>
+        <div class="vehicle-status">
+          <span class="badge badge-success">Disponible</span>
+          <div style="font-size:0.7rem;color:var(--muted)">Carburant</div>
+          <div class="fuel-bar"><div class="fuel-fill" style="width:75%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div></div>
+        </div>
+      </div>
+      <div class="vehicle-card">
+        <div class="vehicle-icon-wrap">&#128693;</div>
+        <div class="vehicle-info">
+          <strong>Peugeot Partner — Gris</strong>
+          <span>Immatriculation · Kilométrage : 62 440 km · Révision : Dépassée !</span>
+        </div>
+        <div class="vehicle-plate">EF-456-GH</div>
+        <div class="vehicle-status">
+          <span class="badge badge-danger">Entretien requis</span>
+          <div style="font-size:0.7rem;color:var(--muted)">Carburant</div>
+          <div class="fuel-bar"><div class="fuel-fill" style="width:30%;background:linear-gradient(90deg,#dc2626,#ef4444)"></div></div>
+        </div>
+      </div>
+      <div class="vehicle-card">
+        <div class="vehicle-icon-wrap">&#128690;</div>
+        <div class="vehicle-info">
+          <strong>Vélo cargo électrique — Noir</strong>
+          <span>ID: VCE-03 · Autonomie batterie: 45 km restants · Révision : 15/07/2026</span>
+        </div>
+        <div class="vehicle-plate" style="font-size:0.75rem">VCE-003</div>
+        <div class="vehicle-status">
+          <span class="badge badge-purple">En livraison</span>
+          <div style="font-size:0.7rem;color:var(--muted)">Batterie</div>
+          <div class="fuel-bar"><div class="fuel-fill" style="width:55%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ INCIDENTS ═══ -->
+    <div id="incidents" class="section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <h3>Incidents signalés</h3>
+        <button class="btn btn-primary" onclick="document.getElementById('modal-vehicule').classList.add('open')">+ Signaler un incident</button>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>Date</th><th>Véhicule</th><th>Type</th><th>Description</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td>14/05/2026</td><td>EF-456-GH</td><td><span class="badge badge-danger">Mécanique</span></td><td>Révision kilométrique dépassée (62 440 km)</td><td><span class="badge badge-warning">En cours de traitement</span></td></tr>
+              <tr><td>10/05/2026</td><td>AB-123-CD</td><td><span class="badge badge-warning">Carburant</span></td><td>Plein effectué — 48 litres</td><td><span class="badge badge-success">Résolu</span></td></tr>
+              <tr><td>02/05/2026</td><td>VCE-003</td><td><span class="badge badge-info">Batterie</span></td><td>Chargeur défectueux remplacé</td><td><span class="badge badge-success">Résolu</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal : Nouvelle livraison -->
+<div class="modal-overlay" id="modal-livraison">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Créer une livraison</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-livraison').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Numéro de commande</label><input type="text" placeholder="#2052" /></div>
+        <div class="form-group"><label>Véhicule</label><select><option>AB-123-CD — Renault Express</option><option>VCE-003 — Vélo cargo</option></select></div>
+      </div>
+      <div class="form-group"><label>Adresse de livraison</label><input type="text" placeholder="Adresse complète" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Nom du client</label><input type="text" placeholder="Nom" /></div>
+        <div class="form-group"><label>Téléphone</label><input type="tel" placeholder="+33 6..." /></div>
+      </div>
+      <div class="form-group"><label>Heure de départ prévue</label><input type="time" /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-livraison').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Démarrer livraison</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : Incident véhicule -->
+<div class="modal-overlay" id="modal-vehicule">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Signaler un incident</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-vehicule').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Véhicule</label><select><option>AB-123-CD</option><option>EF-456-GH</option><option>VCE-003</option></select></div>
+        <div class="form-group"><label>Type d'incident</label><select><option>Panne mécanique</option><option>Accident</option><option>Crevaison</option><option>Batterie vide</option><option>Autre</option></select></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea rows="3" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;outline:none" placeholder="Décrivez l'incident..."></textarea></div>
+      <div class="form-group"><label>Photo de l'incident</label><input type="file" accept="image/*" />
+        <!--
+          TODO: Intégrez ici l'upload d'images (ex: Firebase Storage, Cloudinary, Amazon S3)
+          Replacez l'input file par votre solution d'upload cloud si nécessaire
+        -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-vehicule').classList.remove('open')">Annuler</button>
+      <button class="btn btn-danger">Signaler l'incident</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const t = { livraisons:'Mes livraisons', carte:'Carte itinéraire', historique:'Historique des livraisons', vehicules:'Mes véhicules', incidents:'Incidents' };
+    document.getElementById('page-title').textContent = t[id] || '';
+  }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      this.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  /* Chronomètre livraisons */
+  let s1 = 38*60+12, s2 = 12*60+45;
+  setInterval(() => {
+    s1++; s2++;
+    const fmt = s => `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+    const c1 = document.getElementById('chrono-1');
+    const c2 = document.getElementById('chrono-2');
+    if (c1) c1.textContent = fmt(s1);
+    if (c2) c2.textContent = fmt(s2);
+  }, 1000);
+</script>
+</body>
+</html>

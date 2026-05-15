@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serveur — Gestion Restaurant</title>
+  <style>
+    :root {
+      --primary: #b45309;
+      --primary-light: #d97706;
+      --primary-dark: #7c3a08;
+      --accent: #fde68a;
+      --bg: #fdf8f0;
+      --sidebar-w: 250px;
+      --white: #ffffff;
+      --text: #1c1a14;
+      --muted: #78716c;
+      --border: #e7e0d5;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #ca8a04;
+      --card-shadow: 0 2px 14px rgba(180,83,9,0.07);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar { width: var(--sidebar-w); background: var(--primary-dark); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+    .sidebar-logo { padding: 26px 22px 18px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    /* TODO: Remplacez src="" par le logo du restaurant (ex: src="assets/logo.png") */
+    .sidebar-logo img { width: 40px; height: 40px; border-radius: 9px; background: rgba(255,255,255,0.1); object-fit: cover; }
+    .sidebar-logo span { color: #fff; font-size: 0.97rem; font-weight: 700; }
+    .sidebar-logo small { color: rgba(255,255,255,0.45); font-size: 0.7rem; display: block; }
+    .role-badge { margin: 16px 14px 6px; padding: 10px 13px; background: rgba(253,230,138,0.15); border-radius: 10px; display: flex; align-items: center; gap: 9px; }
+    /* TODO: Remplacez src="" par la photo du serveur (ex: src="assets/serveur.jpg") */
+    .role-badge img { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.1); object-fit: cover; }
+    .role-badge span { color: var(--accent); font-size: 0.76rem; font-weight: 700; display: block; }
+    .role-badge small { color: rgba(255,255,255,0.45); font-size: 0.68rem; }
+    nav { flex: 1; padding: 8px 10px; }
+    .nav-section { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); padding: 14px 10px 5px; }
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 10px 11px; border-radius: 8px; color: rgba(255,255,255,0.6); font-size: 0.86rem; cursor: pointer; transition: all 0.17s; margin-bottom: 2px; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: var(--primary-light); color: #fff; font-weight: 600; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 0.63rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
+    .sidebar-footer { padding: 14px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .logout-btn { width: 100%; padding: 9px; background: rgba(239,68,68,0.14); color: #fca5a5; border: none; border-radius: 8px; cursor: pointer; font-size: 0.83rem; font-weight: 600; }
+
+    /* Main */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 28px; height: 62px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar h1 { font-size: 1.05rem; font-weight: 700; }
+    .topbar p { font-size: 0.76rem; color: var(--muted); }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .shift-badge { background: #dcfce7; color: #16a34a; font-size: 0.78rem; font-weight: 700; padding: 5px 13px; border-radius: 20px; }
+    .content { padding: 26px 28px; flex: 1; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Cards */
+    .card { background: var(--white); border-radius: 13px; box-shadow: var(--card-shadow); overflow: hidden; margin-bottom: 20px; }
+    .card-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 0.93rem; font-weight: 700; }
+    .card-body { padding: 18px 22px; }
+    .btn { padding: 8px 17px; border-radius: 8px; font-size: 0.81rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.17s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-light); }
+    .btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-success { background: #dcfce7; color: #16a34a; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-sm { padding: 5px 11px; font-size: 0.75rem; }
+    .btn-warning { background: #fef3c7; color: #b45309; }
+
+    /* Table Grid */
+    .tables-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+    .table-card {
+      background: var(--white); border-radius: 12px; padding: 16px 14px; text-align: center;
+      box-shadow: var(--card-shadow); cursor: pointer; transition: all 0.18s; border: 2px solid transparent;
+      position: relative;
+    }
+    .table-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(180,83,9,0.13); }
+    .table-card.libre { border-color: #86efac; }
+    .table-card.occupee { border-color: #fca5a5; background: #fff5f5; }
+    .table-card.reservee { border-color: #fcd34d; background: #fffbeb; }
+    .table-card.nettoyage { border-color: #93c5fd; background: #eff6ff; }
+    .table-num { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+    .table-status { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+    .table-card.libre .table-status { color: #16a34a; }
+    .table-card.occupee .table-status { color: #dc2626; }
+    .table-card.reservee .table-status { color: #b45309; }
+    .table-card.nettoyage .table-status { color: #2563eb; }
+    .table-covers { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+    .table-timer { font-size: 0.7rem; font-weight: 700; color: var(--danger); margin-top: 3px; }
+
+    /* Badge */
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 0.71rem; font-weight: 600; }
+    .badge-success { background: #dcfce7; color: #15803d; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #dc2626; }
+    .badge-info { background: #dbeafe; color: #1d4ed8; }
+    .badge-muted { background: #f1f5f9; color: #475569; }
+    .badge-orange { background: #ffedd5; color: #9a3412; }
+
+    /* Commandes */
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 14px; background: var(--bg); text-align: left; }
+    td { padding: 12px 14px; font-size: 0.84rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+
+    /* Commande détail */
+    .order-card { border: 1.5px solid var(--border); border-radius: 11px; padding: 16px; margin-bottom: 14px; position: relative; }
+    .order-card.urgent { border-color: var(--danger); }
+    .order-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .order-title { font-size: 0.9rem; font-weight: 700; }
+    .order-items { display: flex; flex-direction: column; gap: 6px; }
+    .order-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.83rem; }
+    .order-item-name { flex: 1; }
+    .order-item-qty { background: var(--bg); border-radius: 5px; padding: 2px 7px; font-size: 0.75rem; font-weight: 700; margin-right: 8px; }
+    .order-item-price { color: var(--primary); font-weight: 700; min-width: 55px; text-align: right; }
+    .order-total { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; font-weight: 800; }
+
+    /* Reservations */
+    .resa-row { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+    .resa-row:last-child { border-bottom: none; }
+    .resa-time { background: var(--primary); color: white; border-radius: 8px; padding: 6px 10px; font-size: 0.8rem; font-weight: 700; min-width: 56px; text-align: center; }
+    .resa-info { flex: 1; }
+    .resa-info strong { font-size: 0.88rem; display: block; }
+    .resa-info span { font-size: 0.74rem; color: var(--muted); }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 9px; margin-bottom: 18px; }
+    .tab { padding: 7px 16px; border-radius: 7px; font-size: 0.81rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--muted); transition: all 0.17s; }
+    .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 5px rgba(0,0,0,0.07); }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.42); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 15px; width: 480px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .modal-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: 0.97rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--muted); }
+    .modal-body { padding: 22px; }
+    .modal-footer { padding: 15px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { font-size: 0.76rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 13px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.86rem; outline: none; transition: border 0.17s; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary-light); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Stat mini */
+    .mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+    .mini-stat { background: var(--white); border-radius: 11px; padding: 18px 18px; box-shadow: var(--card-shadow); }
+    .mini-stat .value { font-size: 1.7rem; font-weight: 800; }
+    .mini-stat .label { font-size: 0.73rem; color: var(--muted); margin-top: 3px; }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <!-- TODO: Remplacez src="" par le logo du restaurant -->
+    <img src="" alt="Logo" />
+    <div><span>Le Gourmet</span><small>Interface Serveur</small></div>
+  </div>
+  <div class="role-badge">
+    <!-- TODO: Remplacez src="" par la photo du serveur (ex: src="assets/serveur.jpg") -->
+    <img src="" alt="Serveur" />
+    <div><span>Serveur</span><small>Lucas Bernard</small></div>
+  </div>
+  <nav>
+    <div class="nav-section">Mon service</div>
+    <a class="nav-item active" onclick="showSection('tables', this)"><span>&#9646;</span> Plan des tables</a>
+    <a class="nav-item" onclick="showSection('commandes', this)"><span>&#128203;</span> Commandes <span class="nav-badge">5</span></a>
+    <a class="nav-item" onclick="showSection('reservations', this)"><span>&#128197;</span> Réservations <span class="nav-badge">3</span></a>
+    <div class="nav-section">Outils</div>
+    <a class="nav-item" onclick="showSection('historique', this)"><span>&#128336;</span> Historique</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn">&#8617; Fin de service</button>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <h1 id="page-title">Plan des tables</h1>
+      <p>Service du midi — 14 mai 2026</p>
+    </div>
+    <div class="topbar-right">
+      <span class="shift-badge">&#9679; Service midi actif</span>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-cmd').classList.add('open')">+ Nouvelle commande</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══ PLAN DES TABLES ═══ -->
+    <div id="tables" class="section active">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <div style="display:flex;gap:14px;font-size:0.78rem;align-items:center">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#86efac;margin-right:4px"></span>Libre</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fca5a5;margin-right:4px"></span>Occupée</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fcd34d;margin-right:4px"></span>Réservée</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#93c5fd;margin-right:4px"></span>Nettoyage</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('modal-resa').classList.add('open')">+ Réservation</button>
+      </div>
+      <div class="tables-grid">
+        <div class="table-card occupee" onclick="selectTable(1)"><div class="table-num">01</div><div class="table-status">Occupée</div><div class="table-covers">4 couverts</div><div class="table-timer">1h 12min</div></div>
+        <div class="table-card libre" onclick="selectTable(2)"><div class="table-num">02</div><div class="table-status">Libre</div><div class="table-covers">2 couverts</div></div>
+        <div class="table-card reservee" onclick="selectTable(3)"><div class="table-num">03</div><div class="table-status">Réservée</div><div class="table-covers">6 couverts</div><div class="table-timer">12h 30</div></div>
+        <div class="table-card occupee" onclick="selectTable(4)"><div class="table-num">04</div><div class="table-status">Occupée</div><div class="table-covers">2 couverts</div><div class="table-timer">0h 45min</div></div>
+        <div class="table-card libre" onclick="selectTable(5)"><div class="table-num">05</div><div class="table-status">Libre</div><div class="table-covers">4 couverts</div></div>
+        <div class="table-card nettoyage" onclick="selectTable(6)"><div class="table-num">06</div><div class="table-status">Nettoyage</div><div class="table-covers">3 couverts</div></div>
+        <div class="table-card occupee" onclick="selectTable(7)"><div class="table-num">07</div><div class="table-status">Occupée</div><div class="table-covers">5 couverts</div><div class="table-timer">0h 28min</div></div>
+        <div class="table-card libre" onclick="selectTable(8)"><div class="table-num">08</div><div class="table-status">Libre</div><div class="table-covers">2 couverts</div></div>
+        <div class="table-card reservee" onclick="selectTable(9)"><div class="table-num">09</div><div class="table-status">Réservée</div><div class="table-covers">8 couverts</div><div class="table-timer">13h 00</div></div>
+        <div class="table-card occupee" onclick="selectTable(10)"><div class="table-num">10</div><div class="table-status">Occupée</div><div class="table-covers">3 couverts</div><div class="table-timer">2h 01min</div></div>
+      </div>
+
+      <!-- Résumé salle -->
+      <div class="mini-stats">
+        <div class="mini-stat"><div class="value" style="color:var(--danger)">4</div><div class="label">Tables occupées</div></div>
+        <div class="mini-stat"><div class="value" style="color:#16a34a">3</div><div class="label">Tables libres</div></div>
+        <div class="mini-stat"><div class="value" style="color:var(--warning)">2</div><div class="label">Réservations aujourd'hui</div></div>
+      </div>
+    </div>
+
+    <!-- ═══ COMMANDES ═══ -->
+    <div id="commandes" class="section">
+      <div class="tabs">
+        <button class="tab active">En cours (5)</button>
+        <button class="tab">En attente cuisine (2)</button>
+        <button class="tab">Servies aujourd'hui (18)</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Cmd 1 -->
+        <div class="order-card urgent">
+          <div class="order-top">
+            <span class="order-title">Table 01 — 4 couverts</span>
+            <span class="badge badge-danger">Urgent · 1h 12min</span>
+          </div>
+          <div class="order-items">
+            <div class="order-item"><span class="order-item-qty">x2</span><span class="order-item-name">Entrecôte sauce poivre</span><span class="order-item-price">56,00 €</span></div>
+            <div class="order-item"><span class="order-item-qty">x1</span><span class="order-item-name">Saumon mi-cuit</span><span class="order-item-price">24,00 €</span></div>
+            <div class="order-item"><span class="order-item-qty">x1</span><span class="order-item-name">Carpaccio boeuf</span><span class="order-item-price">18,00 €</span></div>
+            <div class="order-item"><span class="order-item-qty">x4</span><span class="order-item-name">Eau minérale</span><span class="order-item-price">12,00 €</span></div>
+          </div>
+          <div class="order-total"><span>Total</span><span style="color:var(--primary)">110,00 €</span></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-success btn-sm">Marquer servie</button>
+            <button class="btn btn-ghost btn-sm">Modifier</button>
+            <button class="btn btn-warning btn-sm">Demander addition</button>
+          </div>
+        </div>
+
+        <!-- Cmd 2 -->
+        <div class="order-card">
+          <div class="order-top">
+            <span class="order-title">Table 04 — 2 couverts</span>
+            <span class="badge badge-warning">45 min</span>
+          </div>
+          <div class="order-items">
+            <div class="order-item"><span class="order-item-qty">x2</span><span class="order-item-name">Menu déjeuner</span><span class="order-item-price">42,00 €</span></div>
+            <div class="order-item"><span class="order-item-qty">x1</span><span class="order-item-name">Bouteille Bordeaux</span><span class="order-item-price">32,00 €</span></div>
+          </div>
+          <div class="order-total"><span>Total</span><span style="color:var(--primary)">74,00 €</span></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-success btn-sm">Marquer servie</button>
+            <button class="btn btn-ghost btn-sm">Modifier</button>
+            <button class="btn btn-warning btn-sm">Demander addition</button>
+          </div>
+        </div>
+
+        <!-- Cmd 3 -->
+        <div class="order-card">
+          <div class="order-top">
+            <span class="order-title">Table 07 — 5 couverts</span>
+            <span class="badge badge-info">En cuisine · 28 min</span>
+          </div>
+          <div class="order-items">
+            <div class="order-item"><span class="order-item-qty">x3</span><span class="order-item-name">Filet de boeuf Wellington</span><span class="order-item-price">87,00 €</span></div>
+            <div class="order-item"><span class="order-item-qty">x2</span><span class="order-item-name">Risotto aux truffes</span><span class="order-item-price">52,00 €</span></div>
+            <div class="order-item"><span class="order-item-qty">x5</span><span class="order-item-name">Dessert du jour</span><span class="order-item-price">40,00 €</span></div>
+          </div>
+          <div class="order-total"><span>Total</span><span style="color:var(--primary)">179,00 €</span></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-success btn-sm">Marquer servie</button>
+            <button class="btn btn-ghost btn-sm">Modifier</button>
+          </div>
+        </div>
+
+        <!-- Cmd 4 -->
+        <div class="order-card">
+          <div class="order-top">
+            <span class="order-title">Table 10 — 3 couverts</span>
+            <span class="badge badge-danger">Très long · 2h 01min</span>
+          </div>
+          <div class="order-items">
+            <div class="order-item"><span class="order-item-qty">x3</span><span class="order-item-name">Plateau fromages</span><span class="order-item-price">36,00 €</span></div>
+            <div class="order-item"><span class="order-item-qty">x3</span><span class="order-item-name">Café gourmand</span><span class="order-item-price">21,00 €</span></div>
+          </div>
+          <div class="order-total"><span>Total</span><span style="color:var(--primary)">57,00 €</span></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-warning btn-sm">Demander addition</button>
+            <button class="btn btn-ghost btn-sm">Modifier</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ RÉSERVATIONS ═══ -->
+    <div id="reservations" class="section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <h3 style="font-size:1rem">Réservations du jour — 14 mai 2026</h3>
+        <button class="btn btn-primary" onclick="document.getElementById('modal-resa').classList.add('open')">+ Nouvelle réservation</button>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Midi (12h–14h30)</h3></div>
+          <div class="card-body">
+            <div class="resa-row">
+              <div class="resa-time">12h00</div>
+              <div class="resa-info"><strong>Famille Dupont</strong><span>Table 3 · 6 couverts · Anniversaire</span></div>
+              <span class="badge badge-success">Confirmée</span>
+            </div>
+            <div class="resa-row">
+              <div class="resa-time">12h30</div>
+              <div class="resa-info"><strong>M. Leblanc</strong><span>Table 9 · 8 couverts · Menu groupe</span></div>
+              <span class="badge badge-warning">À confirmer</span>
+            </div>
+            <div class="resa-row">
+              <div class="resa-time">13h00</div>
+              <div class="resa-info"><strong>Mme Girard</strong><span>Table 5 · 2 couverts</span></div>
+              <span class="badge badge-success">Confirmée</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Soir (19h–23h)</h3></div>
+          <div class="card-body">
+            <div class="resa-row">
+              <div class="resa-time">19h30</div>
+              <div class="resa-info"><strong>M. Fontaine</strong><span>Table 2 · 4 couverts · Allergies: gluten</span></div>
+              <span class="badge badge-warning">À confirmer</span>
+            </div>
+            <div class="resa-row">
+              <div class="resa-time">20h00</div>
+              <div class="resa-info"><strong>Mme Costa</strong><span>Table 6 · 2 couverts · Demande vue jardin</span></div>
+              <span class="badge badge-success">Confirmée</span>
+            </div>
+            <div class="resa-row">
+              <div class="resa-time">21h00</div>
+              <div class="resa-info"><strong>Entreprise MK</strong><span>Tables 7+8 · 12 couverts · Repas d'affaires</span></div>
+              <span class="badge badge-info">Prépayée</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ HISTORIQUE ═══ -->
+    <div id="historique" class="section">
+      <div class="card">
+        <div class="card-header"><h3>Historique des commandes — Aujourd'hui</h3><span style="font-size:0.82rem;color:var(--muted)">18 commandes · 4 820 €</span></div>
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>#Commande</th><th>Table</th><th>Couverts</th><th>Montant</th><th>Heure</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td>#2041</td><td>Table 2</td><td>2</td><td>68,00 €</td><td>09:15</td><td><span class="badge badge-success">Payée</span></td></tr>
+              <tr><td>#2042</td><td>Table 5</td><td>4</td><td>142,00 €</td><td>09:40</td><td><span class="badge badge-success">Payée</span></td></tr>
+              <tr><td>#2043</td><td>Table 1</td><td>3</td><td>95,00 €</td><td>10:00</td><td><span class="badge badge-success">Payée</span></td></tr>
+              <tr><td>#2044</td><td>Table 8</td><td>6</td><td>220,00 €</td><td>10:25</td><td><span class="badge badge-success">Payée</span></td></tr>
+              <tr><td>#2045</td><td>Table 3</td><td>2</td><td>58,50 €</td><td>10:52</td><td><span class="badge badge-warning">En cours</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal : Nouvelle commande -->
+<div class="modal-overlay" id="modal-cmd">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nouvelle commande</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-cmd').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Table</label><select><option>Table 02 (libre)</option><option>Table 05 (libre)</option><option>Table 08 (libre)</option></select></div>
+        <div class="form-group"><label>Nombre de couverts</label><input type="number" min="1" max="12" placeholder="2" /></div>
+      </div>
+      <div class="form-group"><label>Plats</label><textarea rows="4" placeholder="Saisir les plats commandés..."></textarea></div>
+      <div class="form-group"><label>Remarques / Allergies</label><input type="text" placeholder="ex: sans gluten, allergie fruits de mer..." /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-cmd').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Enregistrer commande</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : Réservation -->
+<div class="modal-overlay" id="modal-resa">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nouvelle réservation</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-resa').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Nom du client</label><input type="text" placeholder="Nom complet" /></div>
+        <div class="form-group"><label>Téléphone</label><input type="tel" placeholder="+33 6 00 00 00 00" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Date</label><input type="date" /></div>
+        <div class="form-group"><label>Heure</label><input type="time" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Couverts</label><input type="number" min="1" placeholder="2" /></div>
+        <div class="form-group"><label>Table préférée</label><select><option>Pas de préférence</option><option>Table 1</option><option>Table 2</option><option>Table 3</option></select></div>
+      </div>
+      <div class="form-group"><label>Notes spéciales</label><input type="text" placeholder="Anniversaire, allergie, demande particulière..." /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-resa').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Confirmer réservation</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const titles = { tables: 'Plan des tables', commandes: 'Commandes', reservations: 'Réservations', historique: 'Historique' };
+    document.getElementById('page-title').textContent = titles[id] || '';
+  }
+  function selectTable(num) {
+    alert(`Table ${String(num).padStart(2,'0')} sélectionnée — Que souhaitez-vous faire ?`);
+  }
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      this.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

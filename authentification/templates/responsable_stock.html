@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsable Stock — Gestion Restaurant</title>
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-light: #14b8a6;
+      --primary-dark: #0d4f4b;
+      --accent: #99f6e4;
+      --bg: #f0fdfa;
+      --sidebar-w: 250px;
+      --white: #ffffff;
+      --text: #0f2621;
+      --muted: #6b7280;
+      --border: #ccfbf1;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --card-shadow: 0 2px 14px rgba(15,118,110,0.07);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    .sidebar { width: var(--sidebar-w); background: var(--primary-dark); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+    .sidebar-logo { padding: 26px 20px 18px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    /* TODO: Remplacez src="" par le logo du restaurant (ex: src="assets/logo.png") */
+    .sidebar-logo img { width: 40px; height: 40px; border-radius: 9px; background: rgba(255,255,255,0.1); object-fit: cover; }
+    .sidebar-logo span { color: #fff; font-size: 0.95rem; font-weight: 700; }
+    .sidebar-logo small { color: rgba(255,255,255,0.45); font-size: 0.68rem; display: block; }
+    .role-badge { margin: 16px 12px 6px; padding: 10px 12px; background: rgba(153,246,228,0.12); border-radius: 10px; display: flex; align-items: center; gap: 9px; }
+    /* TODO: Remplacez src="" par la photo du responsable stock (ex: src="assets/stock.jpg") */
+    .role-badge img { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.1); object-fit: cover; }
+    .role-badge span { color: var(--accent); font-size: 0.76rem; font-weight: 700; display: block; }
+    .role-badge small { color: rgba(255,255,255,0.45); font-size: 0.68rem; }
+    nav { flex: 1; padding: 8px 10px; }
+    .nav-section { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); padding: 13px 10px 5px; }
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 10px 11px; border-radius: 8px; color: rgba(255,255,255,0.6); font-size: 0.85rem; cursor: pointer; transition: all 0.17s; margin-bottom: 2px; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: var(--primary-light); color: #fff; font-weight: 600; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 0.63rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
+    .sidebar-footer { padding: 14px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .logout-btn { width: 100%; padding: 9px; background: rgba(239,68,68,0.14); color: #fca5a5; border: none; border-radius: 8px; cursor: pointer; font-size: 0.83rem; font-weight: 600; }
+
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 28px; height: 62px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar h1 { font-size: 1.05rem; font-weight: 700; }
+    .topbar p { font-size: 0.76rem; color: var(--muted); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .content { padding: 26px 28px; flex: 1; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .card { background: var(--white); border-radius: 13px; box-shadow: var(--card-shadow); overflow: hidden; margin-bottom: 20px; }
+    .card-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 0.93rem; font-weight: 700; }
+    .card-body { padding: 18px 22px; }
+    .btn { padding: 8px 17px; border-radius: 8px; font-size: 0.81rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.17s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-light); }
+    .btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-success { background: #dcfce7; color: #16a34a; }
+    .btn-warning { background: #fef3c7; color: #92400e; }
+    .btn-sm { padding: 5px 11px; font-size: 0.75rem; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
+    .kpi-card { background: var(--white); border-radius: 13px; padding: 20px 22px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; }
+    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .kpi-card.teal::before { background: linear-gradient(90deg, #0f766e, #14b8a6); }
+    .kpi-card.green::before { background: linear-gradient(90deg, #16a34a, #22c55e); }
+    .kpi-card.orange::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
+    .kpi-card.red::before { background: linear-gradient(90deg, #dc2626, #ef4444); }
+    .kpi-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 1.9rem; font-weight: 800; color: var(--text); line-height: 1.1; margin-top: 4px; }
+    .kpi-sub { font-size: 0.76rem; color: var(--success); font-weight: 600; margin-top: 3px; }
+    .kpi-sub.bad { color: var(--danger); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 14px; background: var(--bg); text-align: left; }
+    td { padding: 12px 14px; font-size: 0.84rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 0.71rem; font-weight: 600; }
+    .badge-success { background: #dcfce7; color: #15803d; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #dc2626; }
+    .badge-info { background: #dbeafe; color: #1d4ed8; }
+    .badge-muted { background: #f1f5f9; color: #475569; }
+    .badge-teal { background: #ccfbf1; color: #0f766e; }
+
+    /* Barre stock */
+    .stock-bar { background: var(--border); border-radius: 99px; height: 7px; overflow: hidden; min-width: 80px; }
+    .stock-fill { height: 100%; border-radius: 99px; }
+
+    .tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 9px; margin-bottom: 18px; }
+    .tab { padding: 7px 16px; border-radius: 7px; font-size: 0.81rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--muted); transition: all 0.17s; }
+    .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 5px rgba(0,0,0,0.07); }
+
+    /* Alerte stock */
+    .alert-stock { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid; }
+    .alert-stock.critical { background: #fee2e2; border-color: var(--danger); }
+    .alert-stock.warning { background: #fef3c7; border-color: var(--warning); }
+    .alert-stock .alert-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .alert-stock .alert-body { flex: 1; }
+    .alert-stock .alert-body strong { font-size: 0.87rem; display: block; }
+    .alert-stock .alert-body span { font-size: 0.74rem; color: var(--muted); }
+
+    /* Commande fournisseur */
+    .supplier-card { border: 1.5px solid var(--border); border-radius: 11px; padding: 16px 18px; margin-bottom: 12px; }
+    .supplier-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .supplier-name { font-size: 0.9rem; font-weight: 700; }
+    .supplier-items { display: flex; flex-wrap: wrap; gap: 8px; }
+    .supplier-item { background: var(--bg); padding: 5px 10px; border-radius: 7px; font-size: 0.78rem; font-weight: 600; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { font-size: 0.76rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.85rem; outline: none; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary-light); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.42); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 15px; width: 500px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .modal-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: 0.97rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--muted); }
+    .modal-body { padding: 22px; max-height: 60vh; overflow-y: auto; }
+    .modal-footer { padding: 15px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+    /* Recherche */
+    .search-bar { display: flex; gap: 10px; margin-bottom: 16px; }
+    .search-bar input { flex: 1; padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.85rem; outline: none; }
+    .search-bar input:focus { border-color: var(--primary-light); }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <!-- TODO: Remplacez src="" par le logo du restaurant -->
+    <img src="" alt="Logo" />
+    <div><span>Le Gourmet</span><small>Interface Stock</small></div>
+  </div>
+  <div class="role-badge">
+    <!-- TODO: Remplacez src="" par la photo du responsable stock -->
+    <img src="" alt="Resp. Stock" />
+    <div><span>Resp. Stock</span><small>Karim Nassif</small></div>
+  </div>
+  <nav>
+    <div class="nav-section">Inventaire</div>
+    <a class="nav-item active" onclick="showSection('stocks', this)"><span>&#128218;</span> Stocks & Inventaire</a>
+    <a class="nav-item" onclick="showSection('alertes', this)"><span>&#9888;</span> Alertes stock <span class="nav-badge">5</span></a>
+    <a class="nav-item" onclick="showSection('mouvements', this)"><span>&#8645;</span> Mouvements</a>
+    <div class="nav-section">Approvisionnement</div>
+    <a class="nav-item" onclick="showSection('commandes', this)"><span>&#128230;</span> Commandes fournisseurs</a>
+    <a class="nav-item" onclick="showSection('fournisseurs', this)"><span>&#127970;</span> Fournisseurs</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn">&#8617; Déconnexion</button>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <h1 id="page-title">Stocks & Inventaire</h1>
+      <p>Dernière mise à jour : 14/05/2026 — 09:30</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm">&#8635; Actualiser inventaire</button>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-article').classList.add('open')">+ Nouvel article</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══ STOCKS ═══ -->
+    <div id="stocks" class="section active">
+      <div class="kpi-grid">
+        <div class="kpi-card teal"><span class="kpi-label">Références en stock</span><span class="kpi-value">148</span><span class="kpi-sub">Toutes catégories</span></div>
+        <div class="kpi-card green"><span class="kpi-label">Valeur totale</span><span class="kpi-value">12 840 €</span><span class="kpi-sub">Valorisation PUMP</span></div>
+        <div class="kpi-card orange"><span class="kpi-label">Alertes seuil bas</span><span class="kpi-value">5</span><span class="kpi-sub bad">Action requise</span></div>
+        <div class="kpi-card red"><span class="kpi-label">Péremptions proches</span><span class="kpi-value">3</span><span class="kpi-sub bad">Dans les 3 jours</span></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active">Tous (148)</button>
+        <button class="tab">Viandes & Poissons</button>
+        <button class="tab">Fruits & Légumes</button>
+        <button class="tab">Épicerie sèche</button>
+        <button class="tab">Boissons</button>
+        <button class="tab">Produits laitiers</button>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" placeholder="Rechercher un article..." id="search-input" oninput="filterTable()" />
+        <button class="btn btn-ghost">&#128269;</button>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table id="stock-table">
+            <thead>
+              <tr><th>Article</th><th>Catégorie</th><th>Stock actuel</th><th>Niveau</th><th>Seuil mini</th><th>Unité</th><th>Péremption</th><th>Statut</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Entrecôte boeuf</strong></td><td>Viandes</td>
+                <td><strong>8,5 kg</strong></td>
+                <td><div class="stock-bar"><div class="stock-fill" style="width:17%;background:linear-gradient(90deg,#dc2626,#ef4444)"></div></div></td>
+                <td>10 kg</td><td>kg</td><td style="color:var(--danger)">16/05</td>
+                <td><span class="badge badge-danger">Critique</span></td>
+                <td><button class="btn btn-warning btn-sm" onclick="document.getElementById('modal-commande').classList.add('open')">Commander</button></td>
+              </tr>
+              <tr>
+                <td><strong>Saumon frais</strong></td><td>Poissons</td>
+                <td><strong>4,2 kg</strong></td>
+                <td><div class="stock-bar"><div class="stock-fill" style="width:42%;background:linear-gradient(90deg,#d97706,#f59e0b)"></div></div></td>
+                <td>5 kg</td><td>kg</td><td style="color:var(--warning)">15/05</td>
+                <td><span class="badge badge-warning">Faible</span></td>
+                <td><button class="btn btn-warning btn-sm" onclick="document.getElementById('modal-commande').classList.add('open')">Commander</button></td>
+              </tr>
+              <tr>
+                <td><strong>Farine T55</strong></td><td>Épicerie</td>
+                <td><strong>25 kg</strong></td>
+                <td><div class="stock-bar"><div class="stock-fill" style="width:83%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div></div></td>
+                <td>5 kg</td><td>kg</td><td>30/06</td>
+                <td><span class="badge badge-success">OK</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+              <tr>
+                <td><strong>Huile d'olive</strong></td><td>Épicerie</td>
+                <td><strong>6 L</strong></td>
+                <td><div class="stock-bar"><div class="stock-fill" style="width:60%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div></div></td>
+                <td>2 L</td><td>litres</td><td>31/12</td>
+                <td><span class="badge badge-success">OK</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+              <tr>
+                <td><strong>Truffes noires</strong></td><td>Épicerie fine</td>
+                <td><strong>120 g</strong></td>
+                <td><div class="stock-bar"><div class="stock-fill" style="width:12%;background:linear-gradient(90deg,#dc2626,#ef4444)"></div></div></td>
+                <td>200 g</td><td>grammes</td><td>20/05</td>
+                <td><span class="badge badge-danger">Critique</span></td>
+                <td><button class="btn btn-warning btn-sm" onclick="document.getElementById('modal-commande').classList.add('open')">Commander</button></td>
+              </tr>
+              <tr>
+                <td><strong>Bordeaux rouge (75cl)</strong></td><td>Vins</td>
+                <td><strong>24 btl</strong></td>
+                <td><div class="stock-bar"><div class="stock-fill" style="width:80%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div></div></td>
+                <td>6 btl</td><td>bouteilles</td><td>2028</td>
+                <td><span class="badge badge-success">OK</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+              <tr>
+                <td><strong>Crème fraîche</strong></td><td>Laitiers</td>
+                <td><strong>3 L</strong></td>
+                <td><div class="stock-bar"><div class="stock-fill" style="width:50%;background:linear-gradient(90deg,#d97706,#f59e0b)"></div></div></td>
+                <td>2 L</td><td>litres</td><td style="color:var(--warning)">16/05</td>
+                <td><span class="badge badge-warning">Péremption proche</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+              <tr>
+                <td><strong>Chocolat Valrhona 70%</strong></td><td>Pâtisserie</td>
+                <td><strong>2,8 kg</strong></td>
+                <td><div class="stock-bar"><div class="stock-fill" style="width:93%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div></div></td>
+                <td>0,5 kg</td><td>kg</td><td>01/09</td>
+                <td><span class="badge badge-success">OK</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ALERTES ═══ -->
+    <div id="alertes" class="section">
+      <div style="margin-bottom:20px">
+        <h3 style="font-size:1rem;margin-bottom:14px">Alertes critiques</h3>
+        <div class="alert-stock critical"><span class="alert-icon">&#9888;</span><div class="alert-body"><strong>Entrecôte boeuf — Stock critique (8,5 kg / seuil 10 kg)</strong><span>Péremption le 16/05 · Commande urgente recommandée</span></div><button class="btn btn-danger btn-sm">Commander maintenant</button></div>
+        <div class="alert-stock critical"><span class="alert-icon">&#9888;</span><div class="alert-body"><strong>Truffes noires — Stock critique (120 g / seuil 200 g)</strong><span>Péremption le 20/05 · Commande urgente recommandée</span></div><button class="btn btn-danger btn-sm">Commander maintenant</button></div>
+      </div>
+      <div style="margin-bottom:20px">
+        <h3 style="font-size:1rem;margin-bottom:14px">Alertes de vigilance</h3>
+        <div class="alert-stock warning"><span class="alert-icon">&#128203;</span><div class="alert-body"><strong>Saumon frais — Stock faible (4,2 kg / seuil 5 kg)</strong><span>Péremption le 15/05 · Commander dans les 24h</span></div><button class="btn btn-warning btn-sm">Commander</button></div>
+        <div class="alert-stock warning"><span class="alert-icon">&#128203;</span><div class="alert-body"><strong>Crème fraîche — Péremption dans 2 jours (16/05)</strong><span>Utiliser en priorité · 3 L disponibles</span></div><button class="btn btn-warning btn-sm">Signaler cuisine</button></div>
+        <div class="alert-stock warning"><span class="alert-icon">&#128203;</span><div class="alert-body"><strong>Beurre AOC — Stock faible (0,8 kg / seuil 1 kg)</strong><span>Péremption le 18/05</span></div><button class="btn btn-warning btn-sm">Commander</button></div>
+      </div>
+    </div>
+
+    <!-- ═══ MOUVEMENTS ═══ -->
+    <div id="mouvements" class="section">
+      <div style="display:flex;justify-content:space-between;margin-bottom:18px">
+        <h3>Journal des mouvements de stock</h3>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('modal-mouvement').classList.add('open')">+ Enregistrer mouvement</button>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>Heure</th><th>Article</th><th>Type</th><th>Quantité</th><th>Stock avant</th><th>Stock après</th><th>Motif</th><th>Utilisateur</th></tr></thead>
+            <tbody>
+              <tr><td>09:42</td><td><strong>Entrecôte boeuf</strong></td><td><span class="badge badge-danger">Sortie</span></td><td>– 1,5 kg</td><td>10 kg</td><td>8,5 kg</td><td>Service midi</td><td>K. Nassif</td></tr>
+              <tr><td>09:15</td><td><strong>Truffes noires</strong></td><td><span class="badge badge-danger">Sortie</span></td><td>– 30 g</td><td>150 g</td><td>120 g</td><td>Cuisine</td><td>A. Bensaid</td></tr>
+              <tr><td>08:30</td><td><strong>Farine T55</strong></td><td><span class="badge badge-success">Entrée</span></td><td>+ 10 kg</td><td>15 kg</td><td>25 kg</td><td>Livraison fournisseur</td><td>K. Nassif</td></tr>
+              <tr><td>08:00</td><td><strong>Bordeaux rouge</strong></td><td><span class="badge badge-success">Entrée</span></td><td>+ 6 btl</td><td>18 btl</td><td>24 btl</td><td>Livraison fournisseur</td><td>K. Nassif</td></tr>
+              <tr><td>08:00</td><td><strong>Crème fraîche</strong></td><td><span class="badge badge-warning">Ajustement</span></td><td>± 0</td><td>3 L</td><td>3 L</td><td>Inventaire physique</td><td>K. Nassif</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ COMMANDES ═══ -->
+    <div id="commandes" class="section">
+      <div style="display:flex;justify-content:space-between;margin-bottom:18px">
+        <h3>Commandes fournisseurs</h3>
+        <button class="btn btn-primary" onclick="document.getElementById('modal-commande').classList.add('open')">+ Nouvelle commande</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active">En cours</button>
+        <button class="tab">Livrées</button>
+        <button class="tab">Annulées</button>
+      </div>
+      <div class="supplier-card">
+        <div class="supplier-top">
+          <div><div class="supplier-name">Maison Dubois — Viandes premium</div><div style="font-size:0.73rem;color:var(--muted)">Commande #CMD-0231 · Passée le 13/05 · Livraison prévue : 15/05</div></div>
+          <span class="badge badge-info">En transit</span>
+        </div>
+        <div class="supplier-items">
+          <span class="supplier-item">Entrecôte boeuf · 15 kg</span>
+          <span class="supplier-item">Filet mignon · 8 kg</span>
+          <span class="supplier-item">Foie de veau · 3 kg</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:0.83rem">
+          <span style="color:var(--muted)">Montant : <strong>420,00 €</strong></span>
+          <button class="btn btn-ghost btn-sm">Voir bon de commande</button>
+        </div>
+      </div>
+
+      <div class="supplier-card">
+        <div class="supplier-top">
+          <div><div class="supplier-name">Marché de Rungis — Fruits & Légumes</div><div style="font-size:0.73rem;color:var(--muted)">Commande #CMD-0230 · Passée le 13/05 · Livraison : ce matin</div></div>
+          <span class="badge badge-warning">En attente réception</span>
+        </div>
+        <div class="supplier-items">
+          <span class="supplier-item">Tomates cerises · 5 kg</span>
+          <span class="supplier-item">Asperges blanches · 4 kg</span>
+          <span class="supplier-item">Fraises Gariguette · 6 kg</span>
+          <span class="supplier-item">Citrons · 3 kg</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:0.83rem">
+          <span style="color:var(--muted)">Montant : <strong>185,00 €</strong></span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-success btn-sm">Réceptionner</button>
+            <button class="btn btn-ghost btn-sm">Voir bon</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ FOURNISSEURS ═══ -->
+    <div id="fournisseurs" class="section">
+      <div style="display:flex;justify-content:space-between;margin-bottom:18px">
+        <h3>Carnet des fournisseurs</h3>
+        <button class="btn btn-primary" onclick="document.getElementById('modal-fournisseur').classList.add('open')">+ Ajouter fournisseur</button>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>Fournisseur</th><th>Spécialité</th><th>Contact</th><th>Délai livraison</th><th>Dernière commande</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Maison Dubois</strong></td><td>Viandes premium</td><td>01 42 00 11 22</td><td>J+2</td><td>13/05/2026</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td><strong>Marché de Rungis</strong></td><td>Fruits & légumes</td><td>01 41 00 33 44</td><td>J+1</td><td>13/05/2026</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td><strong>Épicerie Orientale Nassim</strong></td><td>Épices & condiments</td><td>01 48 00 55 66</td><td>J+3</td><td>05/05/2026</td><td><span class="badge badge-success">Actif</span></td></tr>
+              <tr><td><strong>Cave des Vignerons</strong></td><td>Vins & spiritueux</td><td>01 44 00 77 88</td><td>J+5</td><td>01/05/2026</td><td><span class="badge badge-teal">Contrat annuel</span></td></tr>
+              <tr><td><strong>Laiterie du Centre</strong></td><td>Produits laitiers</td><td>02 38 00 99 10</td><td>J+1</td><td>10/05/2026</td><td><span class="badge badge-success">Actif</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal : Nouvel article -->
+<div class="modal-overlay" id="modal-article">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Ajouter un article</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-article').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Nom de l'article</label><input type="text" placeholder="ex: Boeuf wagyu" /></div>
+        <div class="form-group"><label>Catégorie</label><select><option>Viandes</option><option>Poissons</option><option>Fruits & Légumes</option><option>Épicerie</option><option>Laitiers</option><option>Boissons</option><option>Épicerie fine</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Quantité initiale</label><input type="number" placeholder="0" /></div>
+        <div class="form-group"><label>Unité</label><select><option>kg</option><option>litres</option><option>unités</option><option>grammes</option><option>bouteilles</option><option>boîtes</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Seuil d'alerte minimum</label><input type="number" placeholder="ex: 5" /></div>
+        <div class="form-group"><label>Date de péremption</label><input type="date" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Prix unitaire (€)</label><input type="number" placeholder="0.00" /></div>
+        <div class="form-group"><label>Fournisseur</label><select><option>Maison Dubois</option><option>Marché de Rungis</option><option>Cave des Vignerons</option><option>Laiterie du Centre</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-article').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Ajouter au stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : Mouvement de stock -->
+<div class="modal-overlay" id="modal-mouvement">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Enregistrer un mouvement</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-mouvement').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Article</label><select><option>Entrecôte boeuf</option><option>Saumon frais</option><option>Farine T55</option><option>Truffes noires</option></select></div>
+        <div class="form-group"><label>Type de mouvement</label><select><option>Sortie (utilisation cuisine)</option><option>Entrée (livraison fournisseur)</option><option>Ajustement inventaire</option><option>Perte / casse</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Quantité</label><input type="number" placeholder="0" /></div>
+        <div class="form-group"><label>Unité</label><input type="text" placeholder="kg, litres..." /></div>
+      </div>
+      <div class="form-group"><label>Motif</label><input type="text" placeholder="ex: Service midi, Livraison fournisseur..." /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-mouvement').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : Commande fournisseur -->
+<div class="modal-overlay" id="modal-commande">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nouvelle commande fournisseur</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-commande').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Fournisseur</label><select><option>Maison Dubois</option><option>Marché de Rungis</option><option>Cave des Vignerons</option><option>Laiterie du Centre</option></select></div>
+      <div class="form-row">
+        <div class="form-group"><label>Date de livraison souhaitée</label><input type="date" /></div>
+        <div class="form-group"><label>Mode de paiement</label><select><option>Virement 30 jours</option><option>Paiement immédiat</option><option>Chèque</option></select></div>
+      </div>
+      <div class="form-group"><label>Articles à commander</label><textarea rows="4" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;outline:none" placeholder="Article 1 — 10 kg&#10;Article 2 — 5 L&#10;..."></textarea></div>
+      <div class="form-group"><label>Notes spéciales</label><input type="text" placeholder="Instructions particulières..." /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-commande').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Passer la commande</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : Fournisseur -->
+<div class="modal-overlay" id="modal-fournisseur">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Ajouter un fournisseur</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-fournisseur').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Nom / Raison sociale</label><input type="text" placeholder="Nom du fournisseur" /></div>
+        <div class="form-group"><label>Spécialité</label><input type="text" placeholder="ex: Viandes, Vins..." /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Téléphone</label><input type="tel" placeholder="+33 1..." /></div>
+        <div class="form-group"><label>Email</label><input type="email" placeholder="contact@fournisseur.fr" /></div>
+      </div>
+      <div class="form-group"><label>Adresse</label><input type="text" placeholder="Adresse complète" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Délai de livraison habituel</label><select><option>J+1</option><option>J+2</option><option>J+3</option><option>J+5</option><option>J+7</option></select></div>
+        <div class="form-group"><label>SIRET</label><input type="text" placeholder="SIRET (optionnel)" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-fournisseur').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Ajouter fournisseur</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const t = { stocks:'Stocks & Inventaire', alertes:'Alertes stock', mouvements:'Mouvements de stock', commandes:'Commandes fournisseurs', fournisseurs:'Fournisseurs' };
+    document.getElementById('page-title').textContent = t[id] || '';
+  }
+
+  function filterTable() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    document.querySelectorAll('#stock-table tbody tr').forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      this.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

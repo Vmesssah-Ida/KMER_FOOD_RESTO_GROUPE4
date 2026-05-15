@@ -1,0 +1,1376 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menu – KMER FOOD | Saveurs du Cameroun</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    /* ===== VARIABLES ===== */
+    :root {
+      --vert:       #2D6A2D;
+      --vert-clair: #4CAF50;
+      --rouge:      #C0392B;
+      --jaune:      #F0A500;
+      --ivoire:     #FAF3E0;
+      --brun:       #3E2009;
+      --texte:      #1A1A1A;
+      --blanc:      #FFFFFF;
+      --overlay:    rgba(20, 10, 0, 0.60);
+      --nav-bg:     rgba(30, 12, 2, 0.88);
+      --card-shadow: 0 4px 20px rgba(62,32,9,0.08);
+      --card-hover:  0 12px 32px rgba(62,32,9,0.16);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Lato', sans-serif;
+      color: var(--texte);
+      background: var(--ivoire);
+      overflow-x: hidden;
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 68px;
+      border-bottom: 2px solid var(--jaune);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.6rem; text-decoration: none;
+    }
+    .nav-logo .logo-icon {
+      width: 42px; height: 42px;
+      background: var(--jaune); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 0 10px rgba(240,165,0,0.5);
+      flex-shrink: 0;
+    }
+    .nav-logo .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--jaune); letter-spacing: 2px;
+    }
+    .nav-logo .logo-sub {
+      font-size: 0.6rem; color: rgba(255,255,255,0.55);
+      letter-spacing: 3px; text-transform: uppercase;
+      display: block; line-height: 1;
+    }
+    .nav-links { display: flex; align-items: center; gap: 0.2rem; list-style: none; }
+    .nav-links a {
+      display: block; padding: 0.45rem 1.1rem;
+      color: rgba(255,255,255,0.85); text-decoration: none;
+      font-size: 0.88rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      border-radius: 4px; transition: color 0.25s, background 0.25s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute;
+      bottom: 2px; left: 50%; right: 50%;
+      height: 2px; background: var(--jaune);
+      border-radius: 2px; transition: left 0.25s, right 0.25s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--jaune); }
+    .nav-links a:hover::after, .nav-links a.active::after { left: 1rem; right: 1rem; }
+    .btn-connexion {
+      margin-left: 1.5rem; padding: 0.5rem 1.4rem;
+      background: var(--rouge); color: var(--blanc) !important;
+      border-radius: 30px; font-weight: 700 !important;
+      letter-spacing: 1px !important;
+      transition: background 0.25s, transform 0.2s, box-shadow 0.25s !important;
+      border: 2px solid transparent;
+    }
+    .btn-connexion::after { display: none !important; }
+    .btn-connexion:hover {
+      background: transparent !important;
+      border-color: var(--rouge) !important;
+      color: var(--rouge) !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(192,57,43,0.4);
+    }
+
+    /* ===== HERO MENU ===== */
+    .menu-hero {
+      position: relative;
+      height: 380px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      margin-top: 68px;
+    }
+    .menu-hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('/static/images/menu.png');  /* ← Votre image de fond du menu */
+      background-size: cover;
+      background-position: center;
+      background-color: var(--brun);
+      transform: scale(1.05);
+      animation: heroZoom 20s ease-in-out infinite alternate;
+    }
+    @keyframes heroZoom {
+      from { transform: scale(1.05); }
+      to   { transform: scale(1.12); }
+    }
+    .menu-hero-overlay {
+      position: absolute; inset: 0;
+      background: var(--overlay);
+    }
+    .menu-hero-ribbon {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 6px; display: flex;
+    }
+    .menu-hero-ribbon span { flex: 1; }
+    .menu-hero-ribbon span:nth-child(1) { background: var(--vert); }
+    .menu-hero-ribbon span:nth-child(2) { background: var(--rouge); }
+    .menu-hero-ribbon span:nth-child(3) { background: var(--jaune); }
+    .menu-hero-content {
+      position: relative; z-index: 2; padding: 0 1rem;
+      animation: fadeUp 0.9s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .menu-hero-badge {
+      display: inline-block;
+      border: 1px solid var(--jaune); color: var(--jaune);
+      font-size: 0.7rem; letter-spacing: 4px;
+      text-transform: uppercase; padding: 0.3rem 1rem;
+      border-radius: 20px; margin-bottom: 1rem; font-weight: 700;
+    }
+    .menu-hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      color: var(--blanc); line-height: 1.15; margin-bottom: 0.8rem;
+    }
+    .menu-hero-title em { font-style: italic; color: var(--jaune); }
+    .menu-hero-sub {
+      font-size: 1rem; color: rgba(255,255,255,0.75);
+      font-weight: 300; letter-spacing: 0.5px;
+    }
+
+    /* ===== BARRE DE FILTRES ===== */
+    .filters-bar {
+      position: sticky; top: 68px; z-index: 90;
+      background: var(--blanc);
+      border-bottom: 2px solid rgba(62,32,9,0.08);
+      padding: 0 2rem;
+      box-shadow: 0 2px 16px rgba(62,32,9,0.06);
+    }
+    .filters-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center;
+      gap: 0; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filters-inner::-webkit-scrollbar { display: none; }
+    .filter-tab {
+      flex-shrink: 0;
+      padding: 1.1rem 1.4rem;
+      font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: #888; cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color 0.25s, border-color 0.25s;
+      background: none; border-top: none; border-left: none; border-right: none;
+      white-space: nowrap;
+    }
+    .filter-tab:hover { color: var(--brun); }
+    .filter-tab.active { color: var(--rouge); border-bottom-color: var(--rouge); }
+    .filter-count {
+      display: inline-block;
+      background: var(--ivoire); color: var(--brun);
+      font-size: 0.65rem; font-weight: 700;
+      padding: 0.1rem 0.45rem; border-radius: 20px;
+      margin-left: 0.4rem; vertical-align: middle;
+    }
+    .filter-tab.active .filter-count {
+      background: var(--rouge); color: var(--blanc);
+    }
+
+    /* ===== BARRE RECHERCHE + TRIS ===== */
+    .search-sort-bar {
+      max-width: 1200px; margin: 2rem auto 0;
+      padding: 0 2rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .search-box {
+      flex: 1; min-width: 220px;
+      display: flex; align-items: center;
+      background: var(--blanc);
+      border: 1.5px solid rgba(62,32,9,0.12);
+      border-radius: 30px; padding: 0.6rem 1.2rem;
+      gap: 0.6rem;
+      transition: border-color 0.25s;
+    }
+    .search-box:focus-within { border-color: var(--jaune); }
+    .search-box input {
+      flex: 1; border: none; outline: none;
+      font-family: 'Lato', sans-serif; font-size: 0.9rem;
+      color: var(--texte); background: transparent;
+    }
+    .search-box .search-icon { font-size: 1.1rem; color: #aaa; }
+    .sort-select {
+      padding: 0.6rem 1.2rem;
+      border: 1.5px solid rgba(62,32,9,0.12);
+      border-radius: 30px;
+      font-family: 'Lato', sans-serif; font-size: 0.85rem;
+      color: var(--texte); background: var(--blanc);
+      cursor: pointer; outline: none;
+      transition: border-color 0.25s;
+    }
+    .sort-select:focus { border-color: var(--jaune); }
+    .sort-select:hover { border-color: var(--jaune); }
+    .results-count {
+      font-size: 0.82rem; color: #999;
+      margin-left: auto; white-space: nowrap;
+    }
+    .results-count strong { color: var(--brun); }
+
+    /* ===== SECTION MENU PRINCIPALE ===== */
+    .menu-section {
+      max-width: 1200px; margin: 2.5rem auto 0;
+      padding: 0 2rem;
+    }
+    .menu-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; color: var(--brun);
+      margin-bottom: 0.4rem;
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+    .menu-section-title .line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(62,32,9,0.2), transparent);
+    }
+    .section-subtitle {
+      font-size: 0.82rem; color: #888;
+      margin-bottom: 1.8rem; letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ===== GRILLE DES PLATS ===== */
+    .plats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.6rem;
+      margin-bottom: 4rem;
+    }
+
+    /* ===== CARTE PLAT ===== */
+    .plat-card {
+      background: var(--blanc);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex; flex-direction: column;
+      animation: cardIn 0.5s ease both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .plat-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--card-hover);
+    }
+    .plat-card.hidden { display: none; }
+
+    /* Image du plat */
+    .plat-img-wrap {
+      position: relative;
+      height: 200px;
+      background: linear-gradient(135deg, #f5e6c8, #e8c99a);
+      overflow: hidden;
+    }
+    .plat-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: transform 0.4s ease;
+    }
+    .plat-card:hover .plat-img-wrap img {
+      transform: scale(1.06);
+    }
+    /* Badges positionnés sur l'image */
+    .badge-wrap {
+      position: absolute; top: 12px; left: 12px;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.63rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      padding: 0.22rem 0.6rem; border-radius: 20px;
+    }
+    .badge-populaire { background: var(--rouge); color: var(--blanc); }
+    .badge-nouveau    { background: var(--vert);  color: var(--blanc); }
+    .badge-maison     { background: var(--brun);  color: var(--jaune); }
+    .badge-veggie     { background: #4CAF50;      color: var(--blanc); }
+    .badge-promo      { background: var(--jaune); color: var(--brun);  }
+
+    /* Tag durée cuisson */
+    .plat-temps {
+      position: absolute; bottom: 10px; right: 10px;
+      background: rgba(20,10,0,0.72);
+      color: rgba(255,255,255,0.9);
+      font-size: 0.68rem; font-weight: 700;
+      padding: 0.25rem 0.65rem; border-radius: 20px;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+
+    /* Corps de la carte */
+    .plat-body { padding: 1.1rem 1.3rem 1.3rem; flex: 1; display: flex; flex-direction: column; }
+    .plat-nom {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; color: var(--brun);
+      margin-bottom: 0.35rem;
+    }
+    .plat-desc {
+      font-size: 0.83rem; color: #777;
+      line-height: 1.65; margin-bottom: 0.8rem; flex: 1;
+    }
+    /* Ingrédients principaux */
+    .plat-ingredients {
+      display: flex; flex-wrap: wrap; gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+    .ing-tag {
+      font-size: 0.65rem; color: var(--vert);
+      background: rgba(45,106,45,0.08);
+      border: 1px solid rgba(45,106,45,0.2);
+      padding: 0.15rem 0.5rem; border-radius: 10px;
+      font-weight: 700; letter-spacing: 0.5px;
+    }
+    /* Pied de carte */
+    .plat-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 0.8rem;
+      border-top: 1px solid rgba(62,32,9,0.07);
+    }
+    .plat-prix {
+      font-size: 1.1rem; font-weight: 700; color: var(--vert);
+    }
+    .plat-prix small { font-size: 0.72rem; color: #aaa; font-weight: 400; }
+    .plat-persons {
+      font-size: 0.72rem; color: #aaa;
+      display: flex; align-items: center; gap: 0.25rem;
+    }
+    .btn-commander {
+      padding: 0.4rem 1.1rem;
+      background: var(--jaune); color: var(--brun);
+      font-size: 0.78rem; font-weight: 700;
+      border-radius: 20px; border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      text-decoration: none; display: inline-block;
+      letter-spacing: 0.5px;
+    }
+    .btn-commander:hover { background: #e09400; transform: scale(1.04); }
+    .btn-commander:active { transform: scale(0.98); }
+
+    /* ===== SECTION VIDE (recherche sans résultat) ===== */
+    .no-results {
+      text-align: center; padding: 4rem 1rem;
+      display: none;
+    }
+    .no-results.visible { display: block; }
+    .no-results .emoji { font-size: 3rem; margin-bottom: 1rem; }
+    .no-results p { color: #888; font-size: 0.95rem; }
+
+    /* ===== BANNIÈRE SPÉCIALE ===== */
+    .promo-banner {
+      max-width: 1200px; margin: 0 auto 3rem;
+      padding: 0 2rem;
+    }
+    .promo-inner {
+      background: var(--brun);
+      border-radius: 20px;
+      padding: 2rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1.5rem; flex-wrap: wrap;
+      position: relative; overflow: hidden;
+    }
+    .promo-inner::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--vert), var(--rouge), var(--jaune));
+    }
+    .promo-text .promo-label {
+      font-size: 0.68rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--jaune); font-weight: 700; margin-bottom: 0.5rem;
+    }
+    .promo-text h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; color: var(--blanc); margin-bottom: 0.4rem;
+    }
+    .promo-text p { font-size: 0.88rem; color: rgba(255,255,255,0.65); }
+    .btn-promo {
+      padding: 0.75rem 2rem;
+      background: var(--jaune); color: var(--brun);
+      font-weight: 700; font-size: 0.88rem;
+      border-radius: 30px; border: none; cursor: pointer;
+      text-decoration: none; white-space: nowrap;
+      transition: background 0.2s, transform 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .btn-promo:hover { background: #e09400; transform: translateY(-2px); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--brun);
+      color: rgba(255,255,255,0.55);
+      text-align: center;
+      padding: 2.5rem 1rem;
+      font-size: 0.82rem;
+      border-top: 3px solid var(--jaune);
+    }
+    footer strong { color: var(--jaune); }
+    .footer-ribbon { display: flex; height: 4px; }
+    .footer-ribbon span { flex: 1; }
+    .footer-ribbon span:nth-child(1) { background: var(--vert); }
+    .footer-ribbon span:nth-child(2) { background: var(--rouge); }
+    .footer-ribbon span:nth-child(3) { background: var(--jaune); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      nav { padding: 0 1rem; }
+      .nav-links { display: none; }
+      .menu-hero { height: 280px; }
+      .search-sort-bar { flex-direction: column; align-items: stretch; }
+      .results-count { margin-left: 0; }
+      .promo-inner { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="logo-icon">🍽️</div>
+    <div>
+      <span class="logo-text">KMER FOOD</span>
+      <span class="logo-sub">Saveurs du Cameroun</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Accueil</a></li>
+    <li><a href="/menu/" class="active">Menu</a></li>
+    <li><a href="/reservation/">Réservation</a></li>
+    <li><a href="/commandes/">Mes Commandes</a></li>
+    <li>
+      {% if user.is_authenticated %}
+        <a href="/logout/" class="btn-connexion" style="margin-left:1rem;">Déconnexion</a>
+      {% else %}
+        <a href="/login/" class="btn-connexion" style="margin-left:1rem;">Connexion</a>
+      {% endif %}
+    </li>
+  </ul>
+</nav>
+
+<!-- ===== HERO ===== -->
+<div class="menu-hero">
+  <div class="menu-hero-bg"></div>
+  <div class="menu-hero-overlay"></div>
+  <div class="menu-hero-ribbon">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="menu-hero-content">
+    <div class="menu-hero-badge">Notre Carte</div>
+    <h1 class="menu-hero-title">Nos <em>Saveurs</em> Authentiques</h1>
+    <p class="menu-hero-sub">22 plats · 12 accompagnements · 14 boissons · 6 desserts</p>
+  </div>
+</div>
+
+<!-- ===== FILTRES PAR CATÉGORIE ===== -->
+<div class="filters-bar">
+  <div class="filters-inner">
+    <button class="filter-tab active" data-cat="tous">
+      Tout <span class="filter-count">54</span>
+    </button>
+    <button class="filter-tab" data-cat="plats">
+      Plats Principaux <span class="filter-count">22</span>
+    </button>
+    <button class="filter-tab" data-cat="accompagnements">
+      Accompagnements <span class="filter-count">12</span>
+    </button>
+    <button class="filter-tab" data-cat="boissons">
+      Boissons <span class="filter-count">14</span>
+    </button>
+    <button class="filter-tab" data-cat="desserts">
+      Desserts <span class="filter-count">6</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== BARRE RECHERCHE + TRI ===== -->
+<div class="search-sort-bar">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Rechercher un plat, ingrédient…" />
+  </div>
+  <select class="sort-select" id="sortSelect">
+    <option value="default">Trier par défaut</option>
+    <option value="prix-asc">Prix croissant</option>
+    <option value="prix-desc">Prix décroissant</option>
+    <option value="nom">Alphabétique</option>
+  </select>
+  <div class="results-count">
+    <strong id="visibleCount">54</strong> plats affichés
+  </div>
+</div>
+
+<!-- ===== BANNIÈRE PROMO ===== -->
+<div class="promo-banner" style="margin-top:2rem;">
+  <div class="promo-inner">
+    <div class="promo-text">
+      <p class="promo-label">Offre spéciale</p>
+      <h3>Menu Étudiant à prix réduit</h3>
+      <p>Un plat + une boisson + un accompagnement · Du lundi au vendredi</p>
+    </div>
+    <a href="/commandes/" class="btn-promo">Commander maintenant</a>
+  </div>
+</div>
+
+<!-- ===== SECTION : PLATS PRINCIPAUX ===== -->
+<div class="menu-section" id="section-plats">
+  <h2 class="menu-section-title">
+    Plats Principaux <span class="line"></span>
+  </h2>
+  <p class="section-subtitle">22 recettes · Cuisine traditionnelle camerounaise</p>
+
+  <div class="plats-grid">
+
+    <!-- PLAT 1 : Poulet DG -->
+    <div class="plat-card" data-cat="plats" data-prix="5000" data-nom="Poulet DG">
+      <div class="plat-img-wrap">
+        <img src="" alt="Poulet DG" loading="lazy"/>
+        <div class="badge-wrap">
+          <span class="badge badge-populaire">Populaire</span>
+        </div>
+        <div class="plat-temps">⏱ 2 h · 3 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Poulet DG</h3>
+        <p class="plat-desc">Poulet sauté aux plantains mûrs, tomates fraîches et poivrons. Une recette emblématique des grandes occasions.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Poulet</span>
+          <span class="ing-tag">Plantain</span>
+          <span class="ing-tag">Tomates</span>
+          <span class="ing-tag">Poivrons</span>
+        </div>
+        <div class="plat-footer">
+          <div>
+            <div class="plat-prix">5 000 <small>FCFA</small></div>
+          </div>
+          <a href="/commandes/creer/?produit=1" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAT 2 : Ndolé -->
+    <div class="plat-card" data-cat="plats" data-prix="8000" data-nom="Ndolé">
+      <div class="plat-img-wrap">
+        <img src="" alt="Ndolé" loading="lazy"/>
+        <div class="badge-wrap">
+          <span class="badge badge-maison">Maison</span>
+          <span class="badge badge-populaire">Populaire</span>
+        </div>
+        <div class="plat-temps">⏱ 2 h · 4 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Ndolé</h3>
+        <p class="plat-desc">Le plat national camerounais. Feuilles de ndolé mijotées avec arachides, crevettes séchées et viande de bœuf.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Arachides</span>
+          <span class="ing-tag">Bœuf</span>
+          <span class="ing-tag">Crevettes</span>
+          <span class="ing-tag">Poisson fumé</span>
+        </div>
+        <div class="plat-footer">
+          <div>
+            <div class="plat-prix">8 000 <small>FCFA</small></div>
+          </div>
+          <a href="/commandes/creer/?produit=2" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAT 3 : Riz Sauté -->
+    <div class="plat-card" data-cat="plats" data-prix="4500" data-nom="Riz Sauté">
+      <div class="plat-img-wrap">
+        <img src="" alt="Riz Sauté" loading="lazy"/>
+        <div class="badge-wrap">
+          <span class="badge badge-nouveau">Nouveau</span>
+        </div>
+        <div class="plat-temps">⏱ 1 h · 3 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Riz Sauté</h3>
+        <p class="plat-desc">Riz sauté à la viande de bœuf, oignons caramélisés, tomates fraîches et huile de soja. Simple et savoureux.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Riz</span>
+          <span class="ing-tag">Bœuf</span>
+          <span class="ing-tag">Oignons</span>
+          <span class="ing-tag">Tomates</span>
+        </div>
+        <div class="plat-footer">
+          <div>
+            <div class="plat-prix">4 500 <small>FCFA</small></div>
+          </div>
+          <a href="/commandes/creer/?produit=3" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLATS 4 à 22 : Structure identique, src="" à remplir -->
+
+    <div class="plat-card" data-cat="plats" data-prix="6500" data-nom="Eru et Waterleaf">
+      <div class="plat-img-wrap">
+        <img src="" alt="Eru et Waterleaf" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
+        <div class="plat-temps">⏱ 2 h · 4 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Eru et Waterleaf</h3>
+        <p class="plat-desc">Spécialité du Sud-Ouest, feuilles d'eru mijotées avec du waterleaf, de l'huile de palme et des protéines.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Eru</span><span class="ing-tag">Huile de palme</span><span class="ing-tag">Bœuf</span>
+        </div>
+        <div class="plat-footer">
+          <div><div class="plat-prix">6 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=4" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="5500" data-nom="Poisson Braisé">
+      <div class="plat-img-wrap">
+        <img src="" alt="Poisson Braisé" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
+        <div class="plat-temps">⏱ 45 min · 2 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Poisson Braisé</h3>
+        <p class="plat-desc">Poisson grillé à la braise, mariné aux épices camerounaises, servi avec sauce tomate pimentée.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Poisson</span><span class="ing-tag">Épices</span><span class="ing-tag">Tomates</span>
+        </div>
+        <div class="plat-footer">
+          <div><div class="plat-prix">5 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=5" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="7000" data-nom="Koki de Maïs">
+      <div class="plat-img-wrap">
+        <img src="" alt="Koki de Maïs" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
+        <div class="plat-temps">⏱ 3 h · 4 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Koki de Maïs</h3>
+        <p class="plat-desc">Gâteau de maïs cuit à la vapeur dans des feuilles de bananier, à l'huile de palme rouge.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Maïs</span><span class="ing-tag">Huile de palme</span><span class="ing-tag">Sel</span>
+        </div>
+        <div class="plat-footer">
+          <div><div class="plat-prix">7 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=6" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="6000" data-nom="Mbongo Tchobi">
+      <div class="plat-img-wrap">
+        <img src="" alt="Mbongo Tchobi" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
+        <div class="plat-temps">⏱ 2 h · 3 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Mbongo Tchobi</h3>
+        <p class="plat-desc">Sauce noire épicée typique de la cuisine bassa, cuisinée avec du poisson ou de la viande et des épices locales.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Poisson</span><span class="ing-tag">Mbongo</span><span class="ing-tag">Épices</span>
+        </div>
+        <div class="plat-footer">
+          <div><div class="plat-prix">6 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=7" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="5000" data-nom="Okok (Gnembou)">
+      <div class="plat-img-wrap">
+        <img src="" alt="Okok" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-veggie">Végé</span></div>
+        <div class="plat-temps">⏱ 1 h 30 · 4 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Okok (Gnembou)</h3>
+        <p class="plat-desc">Feuilles d'okok finement hachées, mélangées à des arachides pilées et cuites à l'huile de palme.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Okok</span><span class="ing-tag">Arachides</span><span class="ing-tag">Huile de palme</span>
+        </div>
+        <div class="plat-footer">
+          <div><div class="plat-prix">5 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=8" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="7500" data-nom="Nkui">
+      <div class="plat-img-wrap">
+        <img src="" alt="Nkui" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
+        <div class="plat-temps">⏱ 2 h · 4 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Nkui</h3>
+        <p class="plat-desc">Soupe traditionnelle bamiléké à base d'écorce de nkui, très visqueuse et parfumée, servie en grande cérémonie.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Nkui</span><span class="ing-tag">Viande</span><span class="ing-tag">Épices</span>
+        </div>
+        <div class="plat-footer">
+          <div><div class="plat-prix">7 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=9" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="5500" data-nom="Sanga (Corn Chaff)">
+      <div class="plat-img-wrap">
+        <img src="" alt="Sanga" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-veggie">Végé</span></div>
+        <div class="plat-temps">⏱ 1 h · 3 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Sanga (Corn Chaff)</h3>
+        <p class="plat-desc">Maïs et haricots cuits ensemble à l'huile de palme. Un plat paysan riche et nourrissant du Nord-Ouest.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Maïs</span><span class="ing-tag">Haricots</span><span class="ing-tag">Huile de palme</span>
+        </div>
+        <div class="plat-footer">
+          <div><div class="plat-prix">5 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=10" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="6500" data-nom="Achu Soup">
+      <div class="plat-img-wrap">
+        <img src="" alt="Achu Soup" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
+        <div class="plat-temps">⏱ 2 h · 4 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Achu Soup</h3>
+        <p class="plat-desc">Taro pilé jaune accompagné d'une sauce à base d'huile de palme, de kaolin et d'épices du pays anglophone.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Taro</span><span class="ing-tag">Huile de palme</span><span class="ing-tag">Viande</span>
+        </div>
+        <div class="plat-footer">
+          <div><div class="plat-prix">6 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=11" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="4800" data-nom="Bobolo et Sauce">
+      <div class="plat-img-wrap">
+        <img src="" alt="Bobolo et Sauce" loading="lazy"/>
+        <div class="plat-temps">⏱ 1 h · 2 pers.</div>
+      </div>
+      <div class="plat-body">
+        <h3 class="plat-nom">Bobolo et Sauce Jaune</h3>
+        <p class="plat-desc">Bâtons de manioc fermenté servis avec une sauce jaune aux arachides et au poisson fumé.</p>
+        <div class="plat-ingredients">
+          <span class="ing-tag">Manioc</span><span class="ing-tag">Arachides</span><span class="ing-tag">Poisson fumé</span>
+        </div>
+        <div class="plat-footer">
+          <div><div class="plat-prix">4 800 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=12" class="btn-commander">Commander</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plats 13 à 22 : src vides -->
+    <div class="plat-card" data-cat="plats" data-prix="6000" data-nom="Kondre de Mouton">
+      <div class="plat-img-wrap"><img src="" alt="Kondre de Mouton" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-promo">Promo</span></div>
+        <div class="plat-temps">⏱ 3 h · 4 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Kondre de Mouton</h3>
+        <p class="plat-desc">Plat bamiléké à base de plantains verts et de mouton mijotés longuement dans une sauce épicée.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Mouton</span><span class="ing-tag">Plantain vert</span><span class="ing-tag">Épices</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">6 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=13" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="5200" data-nom="Ofe Akwu">
+      <div class="plat-img-wrap"><img src="" alt="Ofe Akwu" loading="lazy"/>
+        <div class="plat-temps">⏱ 1 h 30 · 3 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Ofe Akwu</h3>
+        <p class="plat-desc">Soupe de noix de palme dense et parfumée, servie avec de la viande de bœuf ou du poisson.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Noix de palme</span><span class="ing-tag">Bœuf</span><span class="ing-tag">Épices</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">5 200 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=14" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="4500" data-nom="Plantain Pilé + Sauce">
+      <div class="plat-img-wrap"><img src="" alt="Plantain Pilé" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-veggie">Végé</span></div>
+        <div class="plat-temps">⏱ 45 min · 2 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Plantain Pilé + Sauce</h3>
+        <p class="plat-desc">Plantains mûrs pilés servis avec une sauce à l'huile de palme et légumes du marché.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Plantain</span><span class="ing-tag">Huile de palme</span><span class="ing-tag">Légumes</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">4 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=15" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="7000" data-nom="Beignets Haricots + Poivre">
+      <div class="plat-img-wrap"><img src="" alt="Beignets Haricots" loading="lazy"/>
+        <div class="plat-temps">⏱ 1 h · 3 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Beignets Haricots + Poivre</h3>
+        <p class="plat-desc">Beignets de haricots frits, croustillants, servis avec une sauce pimentée au poivre blanc.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Haricots</span><span class="ing-tag">Poivre</span><span class="ing-tag">Huile</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">7 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=16" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="5800" data-nom="Fufu Corn + Légumes">
+      <div class="plat-img-wrap"><img src="" alt="Fufu Corn" loading="lazy"/>
+        <div class="plat-temps">⏱ 1 h · 4 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Fufu Corn + Légumes</h3>
+        <p class="plat-desc">Pâte de maïs fermentée typique du Nord-Ouest, servie avec une soupe de légumes verts.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Maïs</span><span class="ing-tag">Légumes verts</span><span class="ing-tag">Sel</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">5 800 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=17" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="6200" data-nom="Tilapia Sauce Gombo">
+      <div class="plat-img-wrap"><img src="" alt="Tilapia Gombo" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-nouveau">Nouveau</span></div>
+        <div class="plat-temps">⏱ 1 h · 2 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Tilapia Sauce Gombo</h3>
+        <p class="plat-desc">Tilapia grillé nappé d'une sauce gombo onctueuse préparée avec crevettes et épices du terroir.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Tilapia</span><span class="ing-tag">Gombo</span><span class="ing-tag">Crevettes</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">6 200 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=18" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="5000" data-nom="Poulet Rôti Épices">
+      <div class="plat-img-wrap"><img src="" alt="Poulet Rôti Épices" loading="lazy"/>
+        <div class="plat-temps">⏱ 1 h 30 · 3 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Poulet Rôti Épices Kmer</h3>
+        <p class="plat-desc">Poulet entier rôti mariné 12h dans un mélange d'épices camerounaises, ail, gingembre et citron.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Poulet</span><span class="ing-tag">Ail</span><span class="ing-tag">Gingembre</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">5 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=19" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="6800" data-nom="Ragoût de Bœuf Kmer">
+      <div class="plat-img-wrap"><img src="" alt="Ragoût de Bœuf" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
+        <div class="plat-temps">⏱ 2 h 30 · 4 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Ragoût de Bœuf Kmer</h3>
+        <p class="plat-desc">Bœuf longuement mijoté dans une sauce tomate aux herbes fraîches et légumes du jardin.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Bœuf</span><span class="ing-tag">Tomates</span><span class="ing-tag">Herbes</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">6 800 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=20" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="7200" data-nom="Chevreau Braisé Piment">
+      <div class="plat-img-wrap"><img src="" alt="Chevreau Braisé" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-promo">Promo</span></div>
+        <div class="plat-temps">⏱ 2 h · 4 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Chevreau Braisé Piment</h3>
+        <p class="plat-desc">Viande de chèvre marinée et braisée au feu de bois, servie avec une sauce piment frais maison.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Chèvre</span><span class="ing-tag">Piment</span><span class="ing-tag">Ail</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">7 200 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=21" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="plats" data-prix="5500" data-nom="Sauce Jaune Nkpem">
+      <div class="plat-img-wrap"><img src="" alt="Sauce Jaune Nkpem" loading="lazy"/>
+        <div class="plat-temps">⏱ 1 h 30 · 3 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Sauce Jaune Nkpem</h3>
+        <p class="plat-desc">Sauce jaune traditionnelle du Centre à base d'arachides grillées et de feuilles de nkpem séchées.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Arachides</span><span class="ing-tag">Nkpem</span><span class="ing-tag">Poulet</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">5 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=22" class="btn-commander">Commander</a></div></div>
+    </div>
+
+  </div><!-- fin plats-grid -->
+</div><!-- fin section plats -->
+
+
+<!-- ===== SECTION : ACCOMPAGNEMENTS ===== -->
+<div class="menu-section" id="section-accompagnements">
+  <h2 class="menu-section-title">Accompagnements <span class="line"></span></h2>
+  <p class="section-subtitle">12 options · Pour compléter votre plat</p>
+  <div class="plats-grid">
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1500" data-nom="Plantains Frits">
+      <div class="plat-img-wrap"><img src="" alt="Plantains Frits" loading="lazy"/>
+        <div class="plat-temps">⏱ 20 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Plantains Frits</h3>
+        <p class="plat-desc">Tranches de plantains mûrs frits à l'huile, dorés et sucrés.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=23" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1200" data-nom="Riz Blanc Vapeur">
+      <div class="plat-img-wrap"><img src="" alt="Riz Vapeur" loading="lazy"/>
+        <div class="plat-temps">⏱ 25 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Riz Blanc Vapeur</h3>
+        <p class="plat-desc">Riz long grain cuit à la vapeur, léger et parfumé.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 200 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=24" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1000" data-nom="Miondo (Bâton de Manioc)">
+      <div class="plat-img-wrap"><img src="" alt="Miondo" loading="lazy"/>
+        <div class="plat-temps">⏱ 30 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Miondo</h3>
+        <p class="plat-desc">Bâtons de manioc fermenté emballés dans des feuilles de bananier, cuits à l'eau.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=25" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1300" data-nom="Igname Bouillie">
+      <div class="plat-img-wrap"><img src="" alt="Igname" loading="lazy"/>
+        <div class="plat-temps">⏱ 30 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Igname Bouillie</h3>
+        <p class="plat-desc">Igname blanche bouillie et légèrement salée, idéale avec les sauces en feuilles.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 300 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=26" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1100" data-nom="Couscous de Maïs">
+      <div class="plat-img-wrap"><img src="" alt="Couscous Maïs" loading="lazy"/>
+        <div class="plat-temps">⏱ 20 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Couscous de Maïs</h3>
+        <p class="plat-desc">Semoule de maïs cuite à la vapeur, légère et facile à digérer.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 100 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=27" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1500" data-nom="Salade Fraîche Maison">
+      <div class="plat-img-wrap"><img src="" alt="Salade Fraîche" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-veggie">Végé</span></div>
+        <div class="plat-temps">⏱ 10 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Salade Fraîche Maison</h3>
+        <p class="plat-desc">Salade verte, carottes râpées, tomates, vinaigrette citron-moutarde maison.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=28" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1200" data-nom="Haricots Rouges">
+      <div class="plat-img-wrap"><img src="" alt="Haricots Rouges" loading="lazy"/>
+        <div class="plat-temps">⏱ 40 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Haricots Rouges</h3>
+        <p class="plat-desc">Haricots rouges mijotés à l'huile de palme et aux oignons, relevés d'épices douces.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 200 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=29" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="800" data-nom="Pain Maison">
+      <div class="plat-img-wrap"><img src="" alt="Pain Maison" loading="lazy"/>
+        <div class="plat-temps">⏱ 5 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Pain Maison</h3>
+        <p class="plat-desc">Pain de mie artisanal ou baguette fraîche préparée chaque matin.</p>
+        <div class="plat-footer"><div><div class="plat-prix">800 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=30" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1400" data-nom="Légumes Sautés">
+      <div class="plat-img-wrap"><img src="" alt="Légumes Sautés" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-veggie">Végé</span></div>
+        <div class="plat-temps">⏱ 15 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Légumes Sautés</h3>
+        <p class="plat-desc">Carottes, poivrons, courgettes et oignons sautés à l'huile d'olive et herbes.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 400 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=31" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1000" data-nom="Macabo Cuit">
+      <div class="plat-img-wrap"><img src="" alt="Macabo" loading="lazy"/>
+        <div class="plat-temps">⏱ 30 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Macabo Cuit</h3>
+        <p class="plat-desc">Tubercule de macabo bouilli, doux et moelleux, parfait avec les sauces en feuilles.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=32" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="1300" data-nom="Pommes de Terre Sautées">
+      <div class="plat-img-wrap"><img src="" alt="Pommes de Terre Sautées" loading="lazy"/>
+        <div class="plat-temps">⏱ 25 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Pommes de Terre Sautées</h3>
+        <p class="plat-desc">Pommes de terre coupées en dés, sautées à l'huile avec oignons et persil frais.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 300 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=33" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="accompagnements" data-prix="900" data-nom="Banane Bouillie">
+      <div class="plat-img-wrap"><img src="" alt="Banane Bouillie" loading="lazy"/>
+        <div class="plat-temps">⏱ 20 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Banane Bouillie</h3>
+        <p class="plat-desc">Bananes plantain vertes bouillies, légèrement salées. Accompagnement traditionnel léger.</p>
+        <div class="plat-footer"><div><div class="plat-prix">900 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=34" class="btn-commander">Ajouter</a></div></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ===== SECTION : BOISSONS ===== -->
+<div class="menu-section" id="section-boissons">
+  <h2 class="menu-section-title">Boissons <span class="line"></span></h2>
+  <p class="section-subtitle">14 références · Fraîches et naturelles</p>
+  <div class="plats-grid">
+
+    <div class="plat-card" data-cat="boissons" data-prix="1500" data-nom="Jus de Gingembre">
+      <div class="plat-img-wrap"><img src="" alt="Jus de Gingembre" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
+        <div class="plat-temps">⏱ 45 min · 2 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Jus de Gingembre</h3>
+        <p class="plat-desc">Gingembre frais pressé, sucre, citron. Tonifiant et rafraîchissant, préparé sur commande.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Gingembre</span><span class="ing-tag">Citron</span><span class="ing-tag">Sucre</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">1 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=35" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1500" data-nom="Jus de Bissap">
+      <div class="plat-img-wrap"><img src="" alt="Jus de Bissap" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
+        <div class="plat-temps">⏱ 30 min · 2 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Jus de Bissap</h3>
+        <p class="plat-desc">Fleurs d'hibiscus infusées, sucrées, servies bien froides. Riche en vitamine C.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Bissap</span><span class="ing-tag">Sucre</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">1 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=36" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1200" data-nom="Jus de Citron Maison">
+      <div class="plat-img-wrap"><img src="" alt="Citronnade" loading="lazy"/>
+        <div class="plat-temps">⏱ 10 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Citronnade Maison</h3>
+        <p class="plat-desc">Citrons pressés, eau fraîche, sucre ou miel. Simple, pure et désaltérante.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 200 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=37" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1800" data-nom="Jus de Baobab">
+      <div class="plat-img-wrap"><img src="" alt="Jus Baobab" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-nouveau">Nouveau</span></div>
+        <div class="plat-temps">⏱ 15 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Jus de Baobab</h3>
+        <p class="plat-desc">Pulpe de baobab diluée dans de l'eau fraîche et sucrée au miel. Superaliment africain.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 800 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=38" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1000" data-nom="Eau Minérale">
+      <div class="plat-img-wrap"><img src="" alt="Eau Minérale" loading="lazy"/>
+        <div class="plat-temps">⏱ immédiat</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Eau Minérale</h3>
+        <p class="plat-desc">Bouteille d'eau minérale fraîche 50cl ou 1,5L (Tangui, Source Bello…).</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=39" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1500" data-nom="Café Camerounais">
+      <div class="plat-img-wrap"><img src="" alt="Café Camerounais" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
+        <div class="plat-temps">⏱ 5 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Café Camerounais</h3>
+        <p class="plat-desc">Café arabica des hauts plateaux de l'Ouest, servi chaud ou glacé avec ou sans lait.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=40" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1200" data-nom="Thé de Citronnelle">
+      <div class="plat-img-wrap"><img src="" alt="Thé Citronnelle" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-veggie">Végé</span></div>
+        <div class="plat-temps">⏱ 10 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Thé de Citronnelle</h3>
+        <p class="plat-desc">Infusion de feuilles de citronnelle fraîche, apaisante et digestive.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 200 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=41" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="2000" data-nom="Cocktail Tropical Sans Alcool">
+      <div class="plat-img-wrap"><img src="" alt="Cocktail Tropical" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-nouveau">Nouveau</span></div>
+        <div class="plat-temps">⏱ 10 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Cocktail Tropical</h3>
+        <p class="plat-desc">Mélange de jus de fruits locaux, mangue, ananas, citron vert et menthe fraîche.</p>
+        <div class="plat-footer"><div><div class="plat-prix">2 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=42" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1000" data-nom="Jus de Tamarin">
+      <div class="plat-img-wrap"><img src="" alt="Jus Tamarin" loading="lazy"/>
+        <div class="plat-temps">⏱ 20 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Jus de Tamarin</h3>
+        <p class="plat-desc">Pulpe de tamarin diluée et sucrée. Acidulé, rafraîchissant, typiquement tropical.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=43" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1500" data-nom="Lait de Soja Maison">
+      <div class="plat-img-wrap"><img src="" alt="Lait de Soja" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-veggie">Végé</span></div>
+        <div class="plat-temps">⏱ 1 h</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Lait de Soja Maison</h3>
+        <p class="plat-desc">Soja trempé, mixé et filtré, légèrement sucré à la vanille. Riche en protéines végétales.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=44" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1200" data-nom="Jus de Goyave">
+      <div class="plat-img-wrap"><img src="" alt="Jus Goyave" loading="lazy"/>
+        <div class="plat-temps">⏱ 15 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Jus de Goyave</h3>
+        <p class="plat-desc">Goyaves fraîches mixées et filtrées, servies bien froides. Naturellement sucrées.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 200 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=45" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1000" data-nom="Boisson Gazeuse">
+      <div class="plat-img-wrap"><img src="" alt="Boisson Gazeuse" loading="lazy"/>
+        <div class="plat-temps">⏱ immédiat</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Boisson Gazeuse</h3>
+        <p class="plat-desc">Coca-Cola, Fanta Orange, Fanta Citron, Sprite — bouteille 50cl fraîche.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=46" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1800" data-nom="Jus de Mangue Frais">
+      <div class="plat-img-wrap"><img src="" alt="Jus de Mangue" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
+        <div class="plat-temps">⏱ 10 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Jus de Mangue Frais</h3>
+        <p class="plat-desc">Mangues saison mixées, filtrées et servies froides. Sans conservateur, sans colorant.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 800 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=47" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="2500" data-nom="Smoothie Vert Détox">
+      <div class="plat-img-wrap"><img src="" alt="Smoothie Détox" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-nouveau">Nouveau</span></div>
+        <div class="plat-temps">⏱ 10 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Smoothie Vert Détox</h3>
+        <p class="plat-desc">Épinards, concombre, gingembre, pomme verte, citron et eau de coco. Boost santé garanti.</p>
+        <div class="plat-footer"><div><div class="plat-prix">2 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=48" class="btn-commander">Commander</a></div></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ===== SECTION : DESSERTS ===== -->
+<div class="menu-section" id="section-desserts" style="margin-bottom:4rem;">
+  <h2 class="menu-section-title">Desserts <span class="line"></span></h2>
+  <p class="section-subtitle">6 créations · Fins de repas gourmandes</p>
+  <div class="plats-grid">
+
+    <div class="plat-card" data-cat="desserts" data-prix="2000" data-nom="Beignets Sucre Cannelle">
+      <div class="plat-img-wrap"><img src="" alt="Beignets Sucrés" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
+        <div class="plat-temps">⏱ 30 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Beignets Sucre-Cannelle</h3>
+        <p class="plat-desc">Beignets moelleux frits, enrobés de sucre et de cannelle. Le dessert de rue revisité en version raffinée.</p>
+        <div class="plat-footer"><div><div class="plat-prix">2 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=49" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="desserts" data-prix="2500" data-nom="Gâteau Igname Maison">
+      <div class="plat-img-wrap"><img src="" alt="Gâteau Igname" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
+        <div class="plat-temps">⏱ 1 h</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Gâteau d'Igname Maison</h3>
+        <p class="plat-desc">Igname râpée, oeufs, sucre et noix de coco râpée, cuit au four. Un dessert doux et original.</p>
+        <div class="plat-footer"><div><div class="plat-prix">2 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=50" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="desserts" data-prix="1800" data-nom="Salade de Fruits Tropicaux">
+      <div class="plat-img-wrap"><img src="" alt="Salade Fruits Tropicaux" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-veggie">Végé</span></div>
+        <div class="plat-temps">⏱ 15 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Salade de Fruits Tropicaux</h3>
+        <p class="plat-desc">Mangue, ananas, papaye, banane, citron vert et menthe fraîche. Légère et vitaminée.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 800 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=51" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="desserts" data-prix="3000" data-nom="Moelleux Chocolat Café">
+      <div class="plat-img-wrap"><img src="" alt="Moelleux Chocolat Café" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-nouveau">Nouveau</span></div>
+        <div class="plat-temps">⏱ 45 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Moelleux Chocolat-Café</h3>
+        <p class="plat-desc">Fondant au chocolat noir avec cœur coulant au café arabica camerounais. Servi tiède.</p>
+        <div class="plat-footer"><div><div class="plat-prix">3 000 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=52" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="desserts" data-prix="2200" data-nom="Crème de Coco Vanille">
+      <div class="plat-img-wrap"><img src="" alt="Crème de Coco" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
+        <div class="plat-temps">⏱ 2 h (réfrigération)</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Crème de Coco Vanille</h3>
+        <p class="plat-desc">Panna cotta à la crème de coco fraîche, parfumée à la vanille, servie avec coulis de fruits rouges.</p>
+        <div class="plat-footer"><div><div class="plat-prix">2 200 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=53" class="btn-commander">Commander</a></div></div>
+    </div>
+
+    <div class="plat-card" data-cat="desserts" data-prix="1500" data-nom="Banane Flambée Miel">
+      <div class="plat-img-wrap"><img src="" alt="Banane Flambée" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
+        <div class="plat-temps">⏱ 15 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Banane Flambée au Miel</h3>
+        <p class="plat-desc">Bananes dorées à la poêle avec du beurre, du miel et une touche de cannelle. Rustique et délicieux.</p>
+        <div class="plat-footer"><div><div class="plat-prix">1 500 <small>FCFA</small></div></div>
+          <a href="/commandes/creer/?produit=54" class="btn-commander">Commander</a></div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Message aucun résultat -->
+<div class="no-results" id="noResults">
+  <div class="emoji">🍽️</div>
+  <p>Aucun plat ne correspond à votre recherche.</p>
+  <p style="margin-top:0.5rem;font-size:0.82rem;">Essayez un autre mot-clé ou changez de catégorie.</p>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="footer-ribbon"><span></span><span></span><span></span></div>
+<footer>
+  <strong>KMER FOOD</strong> · Saveurs authentiques du Cameroun<br/>
+  <span style="font-size:0.75rem;margin-top:0.4rem;display:block;">
+    Yaoundé · Commandes : <strong>+237 6XX XXX XXX</strong> · Orange Money &amp; MTN MoMo acceptés
+  </span>
+</footer>
+
+<!-- ===== JAVASCRIPT : Filtres, Recherche, Tri ===== -->
+<script>
+  /* --- Données de référence (id produit → id_Produit BDD) ---
+   * Chaque btn-commander pointe vers ?produit=N
+   * La vue Django récupère ce paramètre et pré-remplit le formulaire de commande.
+   * Côté backend : views.py → commandes_creer(request) lit request.GET.get('produit')
+   * et l'injecte dans le contexte du template de commande.
+   */
+
+  const tabs    = document.querySelectorAll('.filter-tab');
+  const cards   = document.querySelectorAll('.plat-card');
+  const search  = document.getElementById('searchInput');
+  const sort    = document.getElementById('sortSelect');
+  const count   = document.getElementById('visibleCount');
+  const noRes   = document.getElementById('noResults');
+
+  /* Grilles par section pour le tri */
+  const grids = document.querySelectorAll('.plats-grid');
+
+  let activeCat = 'tous';
+
+  /* --- Filtrage principal --- */
+  function applyFilters() {
+    const q = search.value.toLowerCase().trim();
+    let visible = 0;
+
+    cards.forEach(card => {
+      const cat  = card.dataset.cat;
+      const nom  = card.dataset.nom.toLowerCase();
+      const desc = card.querySelector('.plat-desc')?.textContent.toLowerCase() || '';
+      const ings = card.querySelector('.plat-ingredients')?.textContent.toLowerCase() || '';
+
+      const matchCat  = activeCat === 'tous' || cat === activeCat;
+      const matchText = !q || nom.includes(q) || desc.includes(q) || ings.includes(q);
+
+      if (matchCat && matchText) {
+        card.classList.remove('hidden');
+        visible++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+
+    count.textContent = visible;
+    noRes.classList.toggle('visible', visible === 0);
+
+    /* Masquer/afficher les titres de section si aucun plat visible */
+    document.querySelectorAll('.menu-section').forEach(sec => {
+      const hasVisible = sec.querySelectorAll('.plat-card:not(.hidden)').length > 0;
+      sec.style.display = hasVisible ? '' : 'none';
+    });
+  }
+
+  /* --- Tri --- */
+  function applySort() {
+    const val = sort.value;
+    grids.forEach(grid => {
+      const items = Array.from(grid.querySelectorAll('.plat-card'));
+      items.sort((a, b) => {
+        if (val === 'prix-asc')  return parseInt(a.dataset.prix) - parseInt(b.dataset.prix);
+        if (val === 'prix-desc') return parseInt(b.dataset.prix) - parseInt(a.dataset.prix);
+        if (val === 'nom')       return a.dataset.nom.localeCompare(b.dataset.nom, 'fr');
+        return 0;
+      });
+      items.forEach(item => grid.appendChild(item));
+    });
+  }
+
+  /* --- Événements --- */
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeCat = tab.dataset.cat;
+      applyFilters();
+
+      /* Scroll vers la section correspondante */
+      const target = {
+        plats:           'section-plats',
+        accompagnements: 'section-accompagnements',
+        boissons:        'section-boissons',
+        desserts:        'section-desserts',
+      }[activeCat];
+      if (target) {
+        const el = document.getElementById(target);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  search.addEventListener('input', applyFilters);
+
+  sort.addEventListener('change', () => {
+    applySort();
+    applyFilters();
+  });
+
+  /* Délai d'animation entrée des cartes (stagger) */
+  cards.forEach((card, i) => {
+    card.style.animationDelay = (i * 0.04) + 's';
+  });
+</script>
+
+</body>
+</html>

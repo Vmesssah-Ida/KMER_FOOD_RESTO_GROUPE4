@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Caissier — Gestion Restaurant</title>
+  <style>
+    :root {
+      --primary: #166534;
+      --primary-light: #16a34a;
+      --primary-dark: #0f4024;
+      --accent: #bbf7d0;
+      --bg: #f0fdf4;
+      --sidebar-w: 250px;
+      --white: #ffffff;
+      --text: #14231a;
+      --muted: #6b7280;
+      --border: #d1fae5;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --card-shadow: 0 2px 14px rgba(22,101,52,0.07);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    .sidebar { width: var(--sidebar-w); background: var(--primary-dark); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+    .sidebar-logo { padding: 26px 20px 18px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    /* TODO: Remplacez src="" par le logo du restaurant (ex: src="assets/logo.png") */
+    .sidebar-logo img { width: 40px; height: 40px; border-radius: 9px; background: rgba(255,255,255,0.1); object-fit: cover; }
+    .sidebar-logo span { color: #fff; font-size: 0.95rem; font-weight: 700; }
+    .sidebar-logo small { color: rgba(255,255,255,0.45); font-size: 0.68rem; display: block; }
+    .role-badge { margin: 16px 12px 6px; padding: 10px 12px; background: rgba(187,247,208,0.15); border-radius: 10px; display: flex; align-items: center; gap: 9px; }
+    /* TODO: Remplacez src="" par la photo du caissier (ex: src="assets/caissier.jpg") */
+    .role-badge img { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.1); object-fit: cover; }
+    .role-badge span { color: var(--accent); font-size: 0.76rem; font-weight: 700; display: block; }
+    .role-badge small { color: rgba(255,255,255,0.45); font-size: 0.68rem; }
+    nav { flex: 1; padding: 8px 10px; }
+    .nav-section { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); padding: 13px 10px 5px; }
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 10px 11px; border-radius: 8px; color: rgba(255,255,255,0.6); font-size: 0.85rem; cursor: pointer; transition: all 0.17s; margin-bottom: 2px; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: var(--primary-light); color: #fff; font-weight: 600; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 0.63rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
+    .sidebar-footer { padding: 14px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .logout-btn { width: 100%; padding: 9px; background: rgba(239,68,68,0.14); color: #fca5a5; border: none; border-radius: 8px; cursor: pointer; font-size: 0.83rem; font-weight: 600; }
+
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 28px; height: 62px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar h1 { font-size: 1.05rem; font-weight: 700; }
+    .topbar p { font-size: 0.76rem; color: var(--muted); }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .content { padding: 26px 28px; flex: 1; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .card { background: var(--white); border-radius: 13px; box-shadow: var(--card-shadow); overflow: hidden; margin-bottom: 20px; }
+    .card-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 0.93rem; font-weight: 700; }
+    .card-body { padding: 18px 22px; }
+    .btn { padding: 8px 17px; border-radius: 8px; font-size: 0.81rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.17s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-light); }
+    .btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-success { background: #dcfce7; color: #16a34a; }
+    .btn-sm { padding: 5px 11px; font-size: 0.75rem; }
+    .btn-warning { background: #fef3c7; color: #92400e; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
+    .kpi-card { background: var(--white); border-radius: 13px; padding: 20px 22px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; }
+    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .kpi-card.green::before { background: linear-gradient(90deg, #16a34a, #22c55e); }
+    .kpi-card.blue::before { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
+    .kpi-card.orange::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
+    .kpi-card.red::before { background: linear-gradient(90deg, #dc2626, #ef4444); }
+    .kpi-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 1.9rem; font-weight: 800; color: var(--text); line-height: 1.1; margin-top: 4px; }
+    .kpi-sub { font-size: 0.76rem; color: var(--success); font-weight: 600; margin-top: 3px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 14px; background: var(--bg); text-align: left; }
+    td { padding: 12px 14px; font-size: 0.84rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 0.71rem; font-weight: 600; }
+    .badge-success { background: #dcfce7; color: #15803d; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #dc2626; }
+    .badge-info { background: #dbeafe; color: #1d4ed8; }
+    .badge-muted { background: #f1f5f9; color: #475569; }
+
+    /* Caisse visuelle */
+    .caisse-layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+    .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .menu-btn {
+      background: var(--white); border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.18s; font-size: 0.82rem; font-weight: 600;
+    }
+    .menu-btn:hover { border-color: var(--primary-light); background: var(--bg); }
+    .menu-btn .price { font-size: 0.76rem; color: var(--primary); font-weight: 700; margin-top: 3px; }
+
+    /* Ticket de caisse */
+    .ticket { background: var(--white); border-radius: 13px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; height: fit-content; position: sticky; top: 82px; }
+    .ticket-header { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+    .ticket-header h3 { font-size: 0.93rem; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+    .ticket-body { padding: 14px 18px; flex: 1; }
+    .ticket-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 0.83rem; }
+    .ticket-item:last-child { border-bottom: none; }
+    .ticket-item-name { flex: 1; }
+    .ticket-qty { background: var(--bg); border-radius: 4px; padding: 2px 7px; font-size: 0.73rem; font-weight: 700; margin-right: 8px; }
+    .ticket-price { font-weight: 700; min-width: 60px; text-align: right; }
+    .remove-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; margin-left: 6px; }
+    .ticket-totals { padding: 14px 18px; border-top: 1px solid var(--border); }
+    .tot-row { display: flex; justify-content: space-between; font-size: 0.84rem; margin-bottom: 6px; }
+    .tot-row.big { font-size: 1.1rem; font-weight: 800; color: var(--primary-dark); margin-top: 8px; border-top: 2px solid var(--border); padding-top: 8px; }
+    .ticket-pay { padding: 14px 18px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pay-btn { padding: 12px 8px; border-radius: 9px; font-size: 0.83rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.18s; }
+    .pay-cash { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; }
+    .pay-card { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; }
+    .pay-split { background: #fef3c7; color: #92400e; }
+    .pay-cancel { background: #fee2e2; color: #dc2626; }
+
+    /* Catégories */
+    .cat-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .cat-tab { padding: 7px 15px; border-radius: 20px; font-size: 0.79rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--white); color: var(--muted); transition: all 0.17s; }
+    .cat-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* Facture */
+    .invoice-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; }
+    .inv-icon { width: 42px; height: 42px; border-radius: 9px; background: #dcfce7; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+    .inv-info { flex: 1; }
+    .inv-info strong { font-size: 0.87rem; display: block; }
+    .inv-info span { font-size: 0.73rem; color: var(--muted); }
+    .inv-amount { font-size: 1rem; font-weight: 800; color: var(--primary); text-align: right; }
+    .inv-amount small { display: block; font-size: 0.69rem; color: var(--muted); font-weight: 400; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { font-size: 0.76rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 5px; }
+    .form-group input, .form-group select { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.85rem; outline: none; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.42); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 15px; width: 480px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .modal-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: 0.97rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--muted); }
+    .modal-body { padding: 22px; }
+    .modal-footer { padding: 15px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+    .tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 9px; margin-bottom: 18px; }
+    .tab { padding: 7px 16px; border-radius: 7px; font-size: 0.81rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--muted); transition: all 0.17s; }
+    .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 5px rgba(0,0,0,0.07); }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <!-- TODO: Remplacez src="" par le logo du restaurant -->
+    <img src="" alt="Logo" />
+    <div><span>Le Gourmet</span><small>Interface Caissier</small></div>
+  </div>
+  <div class="role-badge">
+    <!-- TODO: Remplacez src="" par la photo du caissier -->
+    <img src="" alt="Caissier" />
+    <div><span>Caissier(ère)</span><small>Sophie Moreau</small></div>
+  </div>
+  <nav>
+    <div class="nav-section">Caisse</div>
+    <a class="nav-item active" onclick="showSection('caisse', this)"><span>&#128182;</span> Caisse enregistreuse</a>
+    <a class="nav-item" onclick="showSection('factures', this)"><span>&#128196;</span> Factures <span class="nav-badge">2</span></a>
+    <a class="nav-item" onclick="showSection('journee', this)"><span>&#128202;</span> Rapport de journée</a>
+    <div class="nav-section">Historique</div>
+    <a class="nav-item" onclick="showSection('transactions', this)"><span>&#128336;</span> Transactions</a>
+    <a class="nav-item" onclick="showSection('cloture', this)"><span>&#128274;</span> Clôture de caisse</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn">&#8617; Fin de service</button>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <h1 id="page-title">Caisse enregistreuse</h1>
+      <p>14 mai 2026 — Service midi</p>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:0.82rem;color:var(--muted);background:var(--bg);padding:6px 14px;border-radius:8px">Fonds de caisse: <strong style="color:var(--primary)">350,00 €</strong></span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══ CAISSE ═══ -->
+    <div id="caisse" class="section active">
+      <div class="caisse-layout">
+        <!-- Menu gauche -->
+        <div>
+          <div class="cat-tabs">
+            <button class="cat-tab active">Tous</button>
+            <button class="cat-tab">Entrées</button>
+            <button class="cat-tab">Plats</button>
+            <button class="cat-tab">Desserts</button>
+            <button class="cat-tab">Boissons</button>
+            <button class="cat-tab">Menus</button>
+          </div>
+          <div class="menu-grid">
+            <div class="menu-btn" onclick="addItem('Entrée du jour', 12)"><div>Entrée du jour</div><div class="price">12,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Carpaccio boeuf', 18)"><div>Carpaccio boeuf</div><div class="price">18,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Foie gras mi-cuit', 22)"><div>Foie gras mi-cuit</div><div class="price">22,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Entrecôte poivre', 28)"><div>Entrecôte poivre</div><div class="price">28,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Saumon mi-cuit', 24)"><div>Saumon mi-cuit</div><div class="price">24,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Risotto truffes', 26)"><div>Risotto truffes</div><div class="price">26,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Filet Wellington', 34)"><div>Filet Wellington</div><div class="price">34,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Fondant chocolat', 9)"><div>Fondant chocolat</div><div class="price">9,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Tarte tatin', 8)"><div>Tarte tatin</div><div class="price">8,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Eau minérale', 3)"><div>Eau minérale</div><div class="price">3,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Verre de vin', 7)"><div>Verre de vin</div><div class="price">7,00 €</div></div>
+            <div class="menu-btn" onclick="addItem('Menu déjeuner', 21)"><div>Menu déjeuner</div><div class="price">21,00 €</div></div>
+          </div>
+          <!-- Code promo -->
+          <div style="margin-top:16px;background:var(--white);border-radius:11px;padding:14px 16px;box-shadow:var(--card-shadow);display:flex;gap:10px;align-items:flex-end">
+            <div class="form-group" style="margin:0;flex:1">
+              <label>Code promo</label>
+              <input type="text" placeholder="BIENVENUE20" style="text-transform:uppercase" />
+            </div>
+            <button class="btn btn-success">Appliquer</button>
+          </div>
+          <!-- Table -->
+          <div style="margin-top:12px;background:var(--white);border-radius:11px;padding:14px 16px;box-shadow:var(--card-shadow);display:flex;gap:10px;align-items:flex-end">
+            <div class="form-group" style="margin:0;flex:1">
+              <label>Numéro de table / commande</label>
+              <input type="text" placeholder="ex: Table 03 ou #2047" />
+            </div>
+            <button class="btn btn-primary">Lier</button>
+          </div>
+        </div>
+
+        <!-- Ticket droite -->
+        <div class="ticket">
+          <div class="ticket-header">
+            <h3>Ticket en cours <button onclick="clearTicket()" style="font-size:0.73rem;background:var(--bg);border:none;cursor:pointer;color:var(--danger);padding:3px 8px;border-radius:5px;font-weight:600">Vider</button></h3>
+          </div>
+          <div class="ticket-body" id="ticket-items">
+            <div style="color:var(--muted);font-size:0.83rem;text-align:center;padding:20px 0">Sélectionnez des articles à gauche</div>
+          </div>
+          <div class="ticket-totals">
+            <div class="tot-row"><span>Sous-total HT</span><span id="sub-ht">0,00 €</span></div>
+            <div class="tot-row"><span>TVA (10%)</span><span id="tva">0,00 €</span></div>
+            <div class="tot-row"><span style="color:var(--success)">Réduction</span><span style="color:var(--success)" id="reduction">– 0,00 €</span></div>
+            <div class="tot-row big"><span>TOTAL TTC</span><span id="total-ttc">0,00 €</span></div>
+          </div>
+          <div class="ticket-pay">
+            <button class="pay-btn pay-cash" onclick="payer('espèces')">&#128181; Espèces</button>
+            <button class="pay-btn pay-card" onclick="payer('carte')">&#128179; Carte</button>
+            <button class="pay-btn pay-split" onclick="payer('partage')">&#9878; Partager</button>
+            <button class="pay-btn pay-cancel" onclick="payer('annuler')">&#10005; Annuler</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ FACTURES ═══ -->
+    <div id="factures" class="section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <h3>Factures &amp; Reçus</h3>
+        <button class="btn btn-primary" onclick="document.getElementById('modal-facture').classList.add('open')">+ Nouvelle facture</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active">Toutes</button>
+        <button class="tab">En attente</button>
+        <button class="tab">Payées</button>
+        <button class="tab">Annulées</button>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>#Facture</th><th>Client / Table</th><th>Date</th><th>Montant TTC</th><th>Paiement</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><strong>F-2026-0472</strong></td><td>Table 01 — 4 cvts</td><td>14/05/2026 09:38</td><td><strong>110,00 €</strong></td><td>Carte bancaire</td><td><span class="badge badge-success">Payée</span></td><td><button class="btn btn-ghost btn-sm">&#8659; PDF</button></td></tr>
+              <tr><td><strong>F-2026-0471</strong></td><td>Table 04 — 2 cvts</td><td>14/05/2026 09:10</td><td><strong>74,00 €</strong></td><td>Espèces</td><td><span class="badge badge-success">Payée</span></td><td><button class="btn btn-ghost btn-sm">&#8659; PDF</button></td></tr>
+              <tr><td><strong>F-2026-0470</strong></td><td>Table 08 — 6 cvts</td><td>14/05/2026 08:45</td><td><strong>220,00 €</strong></td><td>Virement</td><td><span class="badge badge-warning">En attente</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-success btn-sm">Valider</button><button class="btn btn-ghost btn-sm">&#8659; PDF</button></div></td></tr>
+              <tr><td><strong>F-2026-0469</strong></td><td>Table 03 — Dupont</td><td>13/05/2026 21:30</td><td><strong>320,00 €</strong></td><td>Carte bancaire</td><td><span class="badge badge-success">Payée</span></td><td><button class="btn btn-ghost btn-sm">&#8659; PDF</button></td></tr>
+              <tr><td><strong>F-2026-0468</strong></td><td>Table 06 — 5 cvts</td><td>13/05/2026 20:45</td><td><strong>87,50 €</strong></td><td>—</td><td><span class="badge badge-danger">Annulée</span></td><td><button class="btn btn-ghost btn-sm">Voir</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ RAPPORT JOURNÉE ═══ -->
+    <div id="journee" class="section">
+      <div class="kpi-grid">
+        <div class="kpi-card green"><span class="kpi-label">CA aujourd'hui</span><span class="kpi-value">4 820 €</span><span class="kpi-sub">&#8593; +12.4% vs hier</span></div>
+        <div class="kpi-card blue"><span class="kpi-label">Transactions</span><span class="kpi-value">68</span><span class="kpi-sub">18 tables fermées</span></div>
+        <div class="kpi-card orange"><span class="kpi-label">Ticket moyen</span><span class="kpi-value">70,88 €</span><span class="kpi-sub">par transaction</span></div>
+        <div class="kpi-card red"><span class="kpi-label">Annulations</span><span class="kpi-value">2</span><span class="kpi-sub">– 87,50 €</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div class="card">
+          <div class="card-header"><h3>Répartition par mode de paiement</h3></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div><div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px"><span>Carte bancaire</span><strong>3 120 € (64.7%)</strong></div><div style="background:var(--border);border-radius:99px;height:8px;overflow:hidden"><div style="width:65%;height:100%;background:linear-gradient(90deg,#1d4ed8,#3b82f6);border-radius:99px"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px"><span>Espèces</span><strong>1 240 € (25.7%)</strong></div><div style="background:var(--border);border-radius:99px;height:8px;overflow:hidden"><div style="width:26%;height:100%;background:linear-gradient(90deg,#16a34a,#22c55e);border-radius:99px"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px"><span>Virement / autre</span><strong>460 € (9.6%)</strong></div><div style="background:var(--border);border-radius:99px;height:8px;overflow:hidden"><div style="width:10%;height:100%;background:linear-gradient(90deg,#d97706,#f59e0b);border-radius:99px"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Par service</h3></div>
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Service</th><th>Transactions</th><th>Total</th></tr></thead>
+              <tbody>
+                <tr><td>Midi (12h–14h30)</td><td>42</td><td>2 940 €</td></tr>
+                <tr><td>Soir (19h–23h)</td><td>26</td><td>1 880 €</td></tr>
+                <tr><td style="color:var(--primary)"><strong>Total journée</strong></td><td><strong>68</strong></td><td><strong>4 820 €</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TRANSACTIONS ═══ -->
+    <div id="transactions" class="section">
+      <div class="card">
+        <div class="card-header"><h3>Journal des transactions — 14 mai 2026</h3><button class="btn btn-ghost btn-sm">&#8659; Exporter</button></div>
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>Heure</th><th>Type</th><th>Référence</th><th>Montant</th><th>Mode</th><th>Caissier</th></tr></thead>
+            <tbody>
+              <tr><td>09:38</td><td><span class="badge badge-success">Encaissement</span></td><td>F-2026-0472</td><td><strong>+110,00 €</strong></td><td>Carte</td><td>S. Moreau</td></tr>
+              <tr><td>09:10</td><td><span class="badge badge-success">Encaissement</span></td><td>F-2026-0471</td><td><strong>+74,00 €</strong></td><td>Espèces</td><td>S. Moreau</td></tr>
+              <tr><td>08:55</td><td><span class="badge badge-warning">Remboursement</span></td><td>F-2026-0468</td><td style="color:var(--danger)"><strong>–87,50 €</strong></td><td>Carte</td><td>S. Moreau</td></tr>
+              <tr><td>08:30</td><td><span class="badge badge-info">Fond de caisse</span></td><td>OUV-20260514</td><td><strong>+350,00 €</strong></td><td>Espèces</td><td>S. Moreau</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CLÔTURE ═══ -->
+    <div id="cloture" class="section">
+      <div class="card">
+        <div class="card-header"><h3>Clôture de caisse — 14 mai 2026</h3></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div>
+              <div class="form-group"><label>Fond de caisse d'ouverture</label><input type="number" value="350" /></div>
+              <div class="form-group"><label>Espèces comptées en caisse</label><input type="number" placeholder="Entrez le montant compté" /></div>
+              <div class="form-group"><label>Remarques</label><textarea rows="3" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;outline:none" placeholder="Observations de clôture..."></textarea></div>
+            </div>
+            <div style="background:var(--bg);border-radius:11px;padding:18px">
+              <h4 style="font-size:0.88rem;margin-bottom:14px">Résumé automatique</h4>
+              <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:8px"><span>Fond d'ouverture</span><strong>350,00 €</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:8px"><span>Encaissements espèces</span><strong>+1 240,00 €</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:8px"><span>Remboursements espèces</span><strong style="color:var(--danger)">– 0,00 €</strong></div>
+              <div style="border-top:1px solid var(--border);margin:10px 0;padding-top:10px;display:flex;justify-content:space-between;font-size:1rem;font-weight:800"><span>Théorique caisse</span><span style="color:var(--primary)">1 590,00 €</span></div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+            <button class="btn btn-ghost">Imprimer rapport</button>
+            <button class="btn btn-primary">Valider la clôture</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal : Facture manuelle -->
+<div class="modal-overlay" id="modal-facture">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Créer une facture manuelle</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-facture').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Client / Raison sociale</label><input type="text" placeholder="Nom ou entreprise" /></div>
+        <div class="form-group"><label>Date</label><input type="date" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Montant HT (€)</label><input type="number" placeholder="0.00" /></div>
+        <div class="form-group"><label>Mode de paiement</label><select><option>Carte bancaire</option><option>Espèces</option><option>Virement</option><option>Chèque</option></select></div>
+      </div>
+      <div class="form-group"><label>Description / Objet</label><input type="text" placeholder="ex: Repas d'affaires — Table 07" /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-facture').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Générer facture</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let items = [];
+
+  function addItem(name, price) {
+    const existing = items.find(i => i.name === name);
+    if (existing) { existing.qty++; } else { items.push({ name, price, qty: 1 }); }
+    renderTicket();
+  }
+
+  function removeItem(i) {
+    items.splice(i, 1);
+    renderTicket();
+  }
+
+  function clearTicket() {
+    items = [];
+    renderTicket();
+  }
+
+  function renderTicket() {
+    const container = document.getElementById('ticket-items');
+    if (items.length === 0) {
+      container.innerHTML = '<div style="color:var(--muted);font-size:0.83rem;text-align:center;padding:20px 0">Sélectionnez des articles à gauche</div>';
+      document.getElementById('sub-ht').textContent = '0,00 €';
+      document.getElementById('tva').textContent = '0,00 €';
+      document.getElementById('total-ttc').textContent = '0,00 €';
+      return;
+    }
+    let html = '';
+    let total = 0;
+    items.forEach((item, i) => {
+      const subtot = item.price * item.qty;
+      total += subtot;
+      html += `<div class="ticket-item"><span class="ticket-qty">x${item.qty}</span><span class="ticket-item-name">${item.name}</span><span class="ticket-price">${subtot.toFixed(2).replace('.',',')} €</span><button class="remove-btn" onclick="removeItem(${i})">&#10005;</button></div>`;
+    });
+    container.innerHTML = html;
+    const ht = total / 1.1;
+    const tva = total - ht;
+    document.getElementById('sub-ht').textContent = ht.toFixed(2).replace('.',',') + ' €';
+    document.getElementById('tva').textContent = tva.toFixed(2).replace('.',',') + ' €';
+    document.getElementById('total-ttc').textContent = total.toFixed(2).replace('.',',') + ' €';
+  }
+
+  function payer(mode) {
+    if (items.length === 0) { alert('Le ticket est vide.'); return; }
+    const msgs = { espèces: 'Paiement en espèces enregistré !', carte: 'Paiement par carte enregistré !', partage: 'Division de l\'addition ouverte.', annuler: 'Transaction annulée.' };
+    alert(msgs[mode]);
+    if (mode !== 'partage' && mode !== 'annuler') clearTicket();
+  }
+
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const t = { caisse:'Caisse enregistreuse', factures:'Factures & Reçus', journee:'Rapport de journée', transactions:'Journal des transactions', cloture:'Clôture de caisse' };
+    document.getElementById('page-title').textContent = t[id] || '';
+  }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      this.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.cat-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      this.closest('.cat-tabs').querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
