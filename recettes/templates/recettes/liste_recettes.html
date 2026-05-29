@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recettes – KMER FOOD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --vert: #2D6A2D; --vert-clair: #4CAF50;
+      --rouge: #C0392B; --jaune: #F0A500;
+      --ivoire: #FAF3E0; --brun: #3E2009;
+      --texte: #1A1A1A; --blanc: #FFFFFF;
+      --nav-bg: rgba(30,12,2,0.88);
+      --card-shadow: 0 4px 20px rgba(62,32,9,0.08);
+      --card-hover: 0 12px 32px rgba(62,32,9,0.16);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Lato', sans-serif; color: var(--texte); background: var(--ivoire); }
+
+    /* NAVBAR */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--nav-bg); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem; height: 68px;
+      border-bottom: 2px solid var(--jaune);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .logo-icon {
+      width: 42px; height: 42px; background: var(--jaune);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 1.3rem;
+    }
+    .logo-text { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--jaune); }
+    .nav-links { display: flex; align-items: center; gap: 0.2rem; list-style: none; }
+    .nav-links a {
+      padding: 0.45rem 1.1rem; color: rgba(255,255,255,0.85);
+      text-decoration: none; font-size: 0.88rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      border-radius: 4px; transition: color 0.25s;
+    }
+    .nav-links a:hover { color: var(--jaune); }
+
+    /* HERO */
+    .page-hero {
+      margin-top: 68px; height: 220px;
+      background: linear-gradient(135deg, var(--brun) 0%, var(--vert) 100%);
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 5px; background: linear-gradient(90deg, var(--vert), var(--rouge), var(--jaune));
+    }
+    .page-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem; color: var(--blanc);
+      animation: fadeUp 0.8s ease both;
+    }
+    .page-hero h1 em { font-style: italic; color: var(--jaune); }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CONTENU */
+    .container { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+    /* BOUTONS */
+    .btn {
+      display: inline-block; padding: 0.6rem 1.4rem;
+      border-radius: 30px; font-weight: 700; font-size: 0.85rem;
+      letter-spacing: 1px; text-decoration: none;
+      transition: all 0.25s; cursor: pointer; border: none;
+    }
+    .btn-primary { background: var(--vert); color: var(--blanc); }
+    .btn-primary:hover { background: var(--vert-clair); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(45,106,45,0.4); }
+    .btn-warning { background: var(--jaune); color: var(--brun); }
+    .btn-warning:hover { background: #e09400; transform: translateY(-2px); }
+    .btn-danger { background: var(--rouge); color: var(--blanc); }
+    .btn-danger:hover { background: #a93226; transform: translateY(-2px); }
+    .btn-secondary { background: #888; color: var(--blanc); }
+    .btn-secondary:hover { background: #666; }
+    .btn-info { background: #2980b9; color: var(--blanc); }
+    .btn-info:hover { background: #1f6391; }
+
+    /* BARRE D'ACTIONS */
+    .actions-bar {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 2rem; flex-wrap: wrap;
+    }
+
+    /* GRILLE DE CARTES */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: var(--blanc); border-radius: 12px;
+      box-shadow: var(--card-shadow); overflow: hidden;
+      transition: box-shadow 0.3s, transform 0.3s;
+      animation: fadeUp 0.5s ease both;
+    }
+    .card:hover { box-shadow: var(--card-hover); transform: translateY(-4px); }
+    .card-header {
+      background: linear-gradient(135deg, var(--brun), var(--vert));
+      padding: 1.2rem 1.5rem;
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+    .card-icon {
+      width: 44px; height: 44px; background: var(--jaune);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; color: var(--blanc); font-weight: 700;
+    }
+    .card-body { padding: 1.2rem 1.5rem; }
+    .card-info { font-size: 0.88rem; color: #666; margin-bottom: 0.5rem; }
+    .card-info strong { color: var(--brun); }
+    .card-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid rgba(62,32,9,0.08);
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+    }
+
+    /* MESSAGE VIDE */
+    .empty-state {
+      text-align: center; padding: 4rem 2rem;
+      color: #888;
+    }
+    .empty-state .emoji { font-size: 4rem; margin-bottom: 1rem; }
+    .empty-state p { font-size: 1.1rem; }
+
+    /* FOOTER */
+    footer {
+      text-align: center; padding: 2rem;
+      background: var(--brun); color: rgba(255,255,255,0.7);
+      font-size: 0.85rem; margin-top: 4rem;
+    }
+    .footer-ribbon { height: 5px; display: flex; }
+    .footer-ribbon span { flex: 1; }
+    .footer-ribbon span:nth-child(1) { background: var(--vert); }
+    .footer-ribbon span:nth-child(2) { background: var(--rouge); }
+    .footer-ribbon span:nth-child(3) { background: var(--jaune); }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="logo-icon">🍽️</div>
+    <span class="logo-text">KMER FOOD</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/recettes/">Recettes</a></li>
+    <li><a href="/inventaire/">Inventaire</a></li>
+    <li><a href="/dashboard/">Dashboard</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <h1>📋 Nos <em>Recettes</em></h1>
+</div>
+
+<!-- CONTENU -->
+<div class="container">
+
+  {% if messages %}
+  {% for message in messages %}
+  <div style="background:{% if message.tags == 'success' %}#d4edda{% else %}#f8d7da{% endif %};
+              color:{% if message.tags == 'success' %}#155724{% else %}#721c24{% endif %};
+              padding:1rem 1.5rem; border-radius:8px; margin-bottom:1.5rem; font-weight:700;">
+    {{ message }}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="actions-bar">
+    <a href="{% url 'creer_recette' %}" class="btn btn-primary">+ Nouvelle Recette</a>
+    <a href="{% url 'liste_ingredients' %}" class="btn btn-info">🥕 Gérer les Ingrédients</a>
+  </div>
+
+  {% if recettes %}
+  <div class="cards-grid">
+    {% for recette in recettes %}
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🍲</div>
+        <span class="card-title">{{ recette.nom }}</span>
+      </div>
+      <div class="card-body">
+        <p class="card-info"><strong>⏱ Temps :</strong> {{ recette.temps_cuisson }} minutes</p>
+        <p class="card-info"><strong>👨‍🍳 Chef :</strong> {{ recette.chef_responsable }}</p>
+        {% if recette.description %}
+        <p class="card-info" style="margin-top:0.8rem;">{{ recette.description|truncatechars:80 }}</p>
+        {% endif %}
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'detail_recette' recette.pk %}" class="btn btn-info">Voir</a>
+        <a href="{% url 'modifier_recette' recette.pk %}" class="btn btn-warning">Modifier</a>
+        <a href="{% url 'supprimer_recette' recette.pk %}" class="btn btn-danger">Supprimer</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="emoji">🍽️</div>
+    <p>Aucune recette disponible pour le moment.</p>
+    <br>
+    <a href="{% url 'creer_recette' %}" class="btn btn-primary">+ Créer la première recette</a>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer-ribbon"><span></span><span></span><span></span></div>
+<footer>
+  <strong>KMER FOOD</strong> · Saveurs authentiques du Cameroun
+</footer>
+
+</body>
+</html>
