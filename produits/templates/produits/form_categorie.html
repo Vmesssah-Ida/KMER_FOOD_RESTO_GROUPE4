@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>{{ titre }} – KMER FOOD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--vert:#2D6A2D;--vert-clair:#4CAF50;--rouge:#C0392B;--jaune:#F0A500;--ivoire:#FAF3E0;--brun:#3E2009;--texte:#1A1A1A;--blanc:#FFFFFF;--nav-bg:rgba(30,12,2,0.88);--card-shadow:0 4px 20px rgba(62,32,9,0.08);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Lato',sans-serif;color:var(--texte);background:var(--ivoire);}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:68px;border-bottom:2px solid var(--jaune);}
+    .nav-logo{display:flex;align-items:center;gap:0.6rem;text-decoration:none;}
+    .logo-icon{width:42px;height:42px;background:var(--jaune);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+    .logo-text{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--jaune);}
+    .nav-links{display:flex;align-items:center;gap:0.2rem;list-style:none;}
+    .nav-links a{padding:0.45rem 1.1rem;color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.88rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.25s;}
+    .nav-links a:hover{color:var(--jaune);}
+    .page-hero{margin-top:68px;height:180px;background:linear-gradient(135deg,var(--brun) 0%,var(--vert) 100%);display:flex;align-items:center;justify-content:center;text-align:center;position:relative;}
+    .page-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--vert),var(--rouge),var(--jaune));}
+    .page-hero h1{font-family:'Playfair Display',serif;font-size:2rem;color:var(--blanc);}
+    .page-hero h1 em{font-style:italic;color:var(--jaune);}
+    .container{max-width:600px;margin:0 auto;padding:2.5rem 1.5rem;}
+    .form-card{background:var(--blanc);border-radius:12px;box-shadow:var(--card-shadow);padding:2.5rem;}
+    .form-group{margin-bottom:1.5rem;}
+    .form-label{display:block;font-weight:700;color:var(--brun);margin-bottom:0.5rem;font-size:0.9rem;}
+    .form-control{width:100%;padding:0.75rem 1rem;border:2px solid rgba(62,32,9,0.15);border-radius:8px;font-family:'Lato',sans-serif;font-size:0.95rem;color:var(--texte);background:var(--ivoire);transition:border-color 0.25s;}
+    .form-control:focus{outline:none;border-color:var(--jaune);box-shadow:0 0 0 3px rgba(240,165,0,0.15);}
+    .btn{display:inline-block;padding:0.75rem 2rem;border-radius:30px;font-weight:700;font-size:0.9rem;letter-spacing:1px;text-decoration:none;transition:all 0.25s;cursor:pointer;border:none;}
+    .btn-primary{background:var(--vert);color:var(--blanc);}
+    .btn-primary:hover{background:var(--vert-clair);transform:translateY(-2px);}
+    .btn-secondary{background:#888;color:var(--blanc);}
+    .btn-secondary:hover{background:#666;transform:translateY(-2px);}
+    .form-actions{display:flex;gap:1rem;margin-top:2rem;}
+    footer{text-align:center;padding:2rem;background:var(--brun);color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:4rem;}
+    .footer-ribbon{height:5px;display:flex;}
+    .footer-ribbon span{flex:1;}
+    .footer-ribbon span:nth-child(1){background:var(--vert);}
+    .footer-ribbon span:nth-child(2){background:var(--rouge);}
+    .footer-ribbon span:nth-child(3){background:var(--jaune);}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo"><div class="logo-icon">🍽️</div><span class="logo-text">KMER FOOD</span></a>
+  <ul class="nav-links">
+    <li><a href="/produits/">Produits</a></li>
+    <li><a href="/inventaire/">Inventaire</a></li>
+  </ul>
+</nav>
+<div class="page-hero"><h1>📂 <em>{{ titre }}</em></h1></div>
+<div class="container">
+  <div class="form-card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Nom de la catégorie</label>
+        <input type="text" name="nom" class="form-control" required placeholder="Ex: Plats principaux">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <input type="text" name="description" class="form-control" placeholder="Description courte">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icône (emoji)</label>
+        <input type="text" name="icone" class="form-control" value="🍽️" placeholder="🍽️">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ordre d'affichage</label>
+        <input type="number" name="ordre" class="form-control" value="0">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">✅ Enregistrer</button>
+        <a href="{% url 'liste_categories' %}" class="btn btn-secondary">← Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="footer-ribbon"><span></span><span></span><span></span></div>
+<footer><strong>KMER FOOD</strong> · Saveurs authentiques du Cameroun</footer>
+</body>
+</html>
