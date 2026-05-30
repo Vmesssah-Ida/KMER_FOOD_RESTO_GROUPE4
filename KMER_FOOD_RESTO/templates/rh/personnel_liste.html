@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Gestion du Personnel</h2>
+  <a href="{% url 'presence_enregistrer' %}" class="btn btn-secondary mb-3">Enregistrer les présences</a>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Nom complet</th>
+        <th>Poste</th>
+        <th>Salaire de base</th>
+        <th>Date d'embauche</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for employe in employes %}
+      <tr>
+        <td>{{ employe.utilisateur.get_full_name }}</td>
+        <td>{{ employe.get_poste_display }}</td>
+        <td>{{ employe.salaire_base }} FCFA</td>
+        <td>{{ employe.date_embauche|date:"d/m/Y" }}</td>
+        <td>
+          <a href="{% url 'personnel_detail' employe.pk %}" class="btn btn-info btn-sm">Détail</a>
+          <a href="{% url 'paie_calculer' employe.pk %}" class="btn btn-success btn-sm">Calculer paie</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="text-center text-muted">Aucun employé enregistré.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

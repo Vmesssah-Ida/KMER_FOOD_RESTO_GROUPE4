@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Commandes en cours</h2>
+  <a href="{% url 'commande_creer' %}" class="btn btn-success mb-3">+ Nouvelle commande</a>
+
+  {% for commande in commandes %}
+  <div class="card mb-3">
+    <div class="card-header">
+      Commande #{{ commande.pk }} — {{ commande.get_statut_display }} — {{ commande.date_creation|date:"d/m/Y H:i" }}
+    </div>
+    <div class="card-body">
+      <ul>
+        {% for ligne in commande.lignes.all %}
+        <li>{{ ligne.quantite }}× {{ ligne.produit.nom }} — {{ ligne.sous_total }} FCFA</li>
+        {% endfor %}
+      </ul>
+      <strong>Total : {{ commande.montant_total }} FCFA</strong><br><br>
+      <a href="{% url 'commande_facture' commande.pk %}" class="btn btn-info btn-sm">Voir facture</a>
+      <a href="{% url 'commande_marquer_servie' commande.pk %}" class="btn btn-success btn-sm">Marquer servie</a>
+      {% if commande.peut_etre_annulee %}
+      <a href="{% url 'commande_annuler' commande.pk %}" class="btn btn-danger btn-sm">Annuler</a>
+      {% endif %}
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-muted">Aucune commande en cours.</p>
+  {% endfor %}
+</div>
+{% endblock %}

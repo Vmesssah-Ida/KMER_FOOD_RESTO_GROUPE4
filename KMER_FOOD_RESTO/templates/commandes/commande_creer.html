@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Nouvelle commande</h2>
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label class="form-label">Type de commande</label>
+      <select name="type_commande" class="form-select">
+        <option value="sur_place">Sur place</option>
+        <option value="livraison">Livraison</option>
+      </select>
+    </div>
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Prix unitaire</th>
+          <th>Quantité</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for produit in produits %}
+        <tr>
+          <td>
+            {{ produit.nom }}
+            <input type="hidden" name="produit_id" value="{{ produit.pk }}">
+          </td>
+          <td>{{ produit.prix }} FCFA</td>
+          <td>
+            <input type="number" name="quantite" value="0" min="0" class="form-control" style="width:80px">
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Valider la commande</button>
+    <a href="{% url 'serveur' %}" class="btn btn-secondary">Annuler</a>
+  </form>
+</div>
+{% endblock %}

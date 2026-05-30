@@ -1,0 +1,392 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menu – KMER FOOD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--vert:#2D6A2D;--rouge:#C0392B;--jaune:#F0A500;--ivoire:#FAF3E0;
+      --brun:#3E2009;--texte:#1A1A1A;--blanc:#FFFFFF;--overlay:rgba(20,10,0,0.60);
+      --nav-bg:rgba(30,12,2,0.88);--card-shadow:0 4px 20px rgba(62,32,9,0.08);
+      --card-hover:0 12px 32px rgba(62,32,9,0.16);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Lato',sans-serif;color:var(--texte);background:var(--ivoire);overflow-x:hidden;}
+
+    /* NAVBAR */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--nav-bg);
+      backdrop-filter:blur(10px);display:flex;align-items:center;
+      justify-content:space-between;padding:0 2.5rem;height:68px;border-bottom:2px solid var(--jaune);}
+    .nav-logo{display:flex;align-items:center;gap:0.6rem;text-decoration:none;}
+    .nav-logo .logo-icon{width:42px;height:42px;background:var(--jaune);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+    .nav-logo .logo-text{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--jaune);letter-spacing:2px;}
+    .nav-logo .logo-sub{font-size:0.6rem;color:rgba(255,255,255,0.55);letter-spacing:3px;text-transform:uppercase;display:block;line-height:1;}
+    .nav-links{display:flex;align-items:center;gap:0.2rem;list-style:none;}
+    .nav-links a{display:block;padding:0.45rem 1.1rem;color:rgba(255,255,255,0.85);text-decoration:none;
+      font-size:0.88rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+      border-radius:4px;transition:color 0.25s;position:relative;}
+    .nav-links a::after{content:'';position:absolute;bottom:2px;left:50%;right:50%;
+      height:2px;background:var(--jaune);border-radius:2px;transition:left 0.25s,right 0.25s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--jaune);}
+    .nav-links a:hover::after,.nav-links a.active::after{left:1rem;right:1rem;}
+    .btn-connexion{margin-left:1.5rem;padding:0.5rem 1.4rem;background:var(--rouge);
+      color:var(--blanc)!important;border-radius:30px;font-weight:700!important;
+      border:2px solid transparent;text-decoration:none;font-size:0.88rem;transition:background 0.25s;}
+    .btn-connexion::after{display:none!important;}
+    .btn-connexion:hover{background:transparent!important;border-color:var(--rouge)!important;color:var(--rouge)!important;}
+
+    /* HERO */
+    .menu-hero{position:relative;height:300px;display:flex;align-items:center;
+      justify-content:center;text-align:center;overflow:hidden;margin-top:68px;}
+    .menu-hero-bg{position:absolute;inset:0;background-color:var(--brun);
+      background-image:url('{% static "images/menu.png" %}');
+      background-size:cover;background-position:center;
+      animation:heroZoom 20s ease-in-out infinite alternate;}
+    @keyframes heroZoom{from{transform:scale(1.05);}to{transform:scale(1.12);}}
+    .menu-hero-overlay{position:absolute;inset:0;background:var(--overlay);}
+    .menu-hero-ribbon{position:absolute;bottom:0;left:0;right:0;height:6px;display:flex;}
+    .menu-hero-ribbon span{flex:1;}
+    .menu-hero-ribbon span:nth-child(1){background:var(--vert);}
+    .menu-hero-ribbon span:nth-child(2){background:var(--rouge);}
+    .menu-hero-ribbon span:nth-child(3){background:var(--jaune);}
+    .menu-hero-content{position:relative;z-index:2;padding:0 1rem;}
+    .menu-hero-badge{display:inline-block;border:1px solid var(--jaune);color:var(--jaune);
+      font-size:0.7rem;letter-spacing:4px;text-transform:uppercase;padding:0.3rem 1rem;
+      border-radius:20px;margin-bottom:1rem;font-weight:700;}
+    .menu-hero-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.2rem);
+      color:var(--blanc);line-height:1.15;margin-bottom:0.6rem;}
+    .menu-hero-title em{font-style:italic;color:var(--jaune);}
+    .menu-hero-sub{font-size:0.95rem;color:rgba(255,255,255,0.75);font-weight:300;}
+
+    /* BANNIÈRE CONNEXION OBLIGATOIRE */
+    .login-banner{background:linear-gradient(135deg,var(--brun),#7a3b10);
+      padding:2rem;margin:0;border-bottom:3px solid var(--jaune);}
+    .login-banner-inner{max-width:1200px;margin:0 auto;display:flex;
+      align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;}
+    .login-banner-text .label{font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;
+      color:var(--jaune);font-weight:700;margin-bottom:0.4rem;}
+    .login-banner-text h3{font-family:'Playfair Display',serif;font-size:1.3rem;
+      color:var(--blanc);margin-bottom:0.3rem;}
+    .login-banner-text p{font-size:0.85rem;color:rgba(255,255,255,0.65);}
+    .btn-login-banner{padding:0.75rem 2rem;background:var(--jaune);color:var(--brun);
+      font-weight:700;font-size:0.88rem;border-radius:30px;text-decoration:none;
+      white-space:nowrap;transition:background 0.2s,transform 0.2s;}
+    .btn-login-banner:hover{background:#e09400;transform:translateY(-2px);}
+
+    /* FILTRES */
+    .filters-bar{position:sticky;top:68px;z-index:90;background:var(--blanc);
+      border-bottom:2px solid rgba(62,32,9,0.08);padding:0 2rem;
+      box-shadow:0 2px 16px rgba(62,32,9,0.06);}
+    .filters-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;
+      overflow-x:auto;scrollbar-width:none;}
+    .filters-inner::-webkit-scrollbar{display:none;}
+    .filter-tab{flex-shrink:0;padding:1.1rem 1.4rem;font-size:0.82rem;font-weight:700;
+      letter-spacing:1.5px;text-transform:uppercase;color:#888;cursor:pointer;
+      border-bottom:3px solid transparent;background:none;
+      border-top:none;border-left:none;border-right:none;white-space:nowrap;transition:color 0.25s,border-color 0.25s;}
+    .filter-tab:hover{color:var(--brun);}
+    .filter-tab.active{color:var(--rouge);border-bottom-color:var(--rouge);}
+    .filter-count{display:inline-block;background:var(--ivoire);color:var(--brun);
+      font-size:0.65rem;font-weight:700;padding:0.1rem 0.45rem;border-radius:20px;margin-left:0.4rem;}
+    .filter-tab.active .filter-count{background:var(--rouge);color:var(--blanc);}
+
+    /* RECHERCHE */
+    .search-sort-bar{max-width:1200px;margin:2rem auto 0;padding:0 2rem;
+      display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+    .search-box{flex:1;min-width:220px;display:flex;align-items:center;background:var(--blanc);
+      border:1.5px solid rgba(62,32,9,0.12);border-radius:30px;padding:0.6rem 1.2rem;gap:0.6rem;}
+    .search-box:focus-within{border-color:var(--jaune);}
+    .search-box input{flex:1;border:none;outline:none;font-family:'Lato',sans-serif;font-size:0.9rem;background:transparent;}
+    .search-box .search-icon{font-size:1.1rem;color:#aaa;}
+    .sort-select{padding:0.6rem 1.2rem;border:1.5px solid rgba(62,32,9,0.12);border-radius:30px;
+      font-family:'Lato',sans-serif;font-size:0.85rem;background:var(--blanc);cursor:pointer;outline:none;}
+    .sort-select:focus,.sort-select:hover{border-color:var(--jaune);}
+    .results-count{font-size:0.82rem;color:#999;margin-left:auto;}
+    .results-count strong{color:var(--brun);}
+
+    /* SECTIONS */
+    .menu-section{max-width:1200px;margin:2.5rem auto 0;padding:0 2rem;}
+    .menu-section-title{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--brun);
+      margin-bottom:0.4rem;display:flex;align-items:center;gap:0.8rem;}
+    .menu-section-title .line{flex:1;height:1px;background:linear-gradient(90deg,rgba(62,32,9,0.2),transparent);}
+    .section-subtitle{font-size:0.82rem;color:#888;margin-bottom:1.8rem;letter-spacing:1px;text-transform:uppercase;}
+
+    /* GRILLE */
+    .plats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.6rem;margin-bottom:4rem;}
+    .plat-card{background:var(--blanc);border-radius:18px;overflow:hidden;
+      box-shadow:var(--card-shadow);transition:transform 0.3s,box-shadow 0.3s;
+      display:flex;flex-direction:column;}
+    .plat-card:hover{transform:translateY(-6px);box-shadow:var(--card-hover);}
+    .plat-card.hidden{display:none;}
+    .plat-img-wrap{position:relative;height:200px;background:linear-gradient(135deg,#f5e6c8,#e8c99a);overflow:hidden;}
+    .plat-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s;}
+    .plat-card:hover .plat-img-wrap img{transform:scale(1.06);}
+    .badge-wrap{position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:5px;}
+    .badge{display:inline-block;font-size:0.63rem;font-weight:700;letter-spacing:1px;
+      text-transform:uppercase;padding:0.22rem 0.6rem;border-radius:20px;}
+    .badge-populaire{background:var(--rouge);color:var(--blanc);}
+    .badge-nouveau{background:var(--vert);color:var(--blanc);}
+    .badge-maison{background:var(--brun);color:var(--jaune);}
+    .badge-veggie{background:#4CAF50;color:var(--blanc);}
+    .badge-promo{background:var(--jaune);color:var(--brun);}
+    .plat-temps{position:absolute;bottom:10px;right:10px;background:rgba(20,10,0,0.72);
+      color:rgba(255,255,255,0.9);font-size:0.68rem;font-weight:700;padding:0.25rem 0.65rem;border-radius:20px;}
+    .plat-body{padding:1.1rem 1.3rem 1.3rem;flex:1;display:flex;flex-direction:column;}
+    .plat-nom{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--brun);margin-bottom:0.35rem;}
+    .plat-desc{font-size:0.83rem;color:#777;line-height:1.65;margin-bottom:0.8rem;flex:1;}
+    .plat-ingredients{display:flex;flex-wrap:wrap;gap:0.35rem;margin-bottom:1rem;}
+    .ing-tag{font-size:0.65rem;color:var(--vert);background:rgba(45,106,45,0.08);
+      border:1px solid rgba(45,106,45,0.2);padding:0.15rem 0.5rem;border-radius:10px;font-weight:700;}
+    .plat-footer{display:flex;align-items:center;justify-content:space-between;
+      padding-top:0.8rem;border-top:1px solid rgba(62,32,9,0.07);}
+    .plat-prix{font-size:1.1rem;font-weight:700;color:var(--vert);}
+    .plat-prix small{font-size:0.72rem;color:#aaa;font-weight:400;}
+
+    /* BOUTON COMMANDER BLOQUÉ */
+    .btn-commander-lock{padding:0.4rem 1.1rem;background:#eee;color:#aaa;
+      font-size:0.78rem;font-weight:700;border-radius:20px;border:none;cursor:pointer;
+      transition:background 0.2s;letter-spacing:0.5px;}
+    .btn-commander-lock:hover{background:var(--jaune);color:var(--brun);}
+
+    /* MODAL CONNEXION REQUISE */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(10,5,0,0.75);backdrop-filter:blur(6px);
+      z-index:200;display:flex;align-items:center;justify-content:center;
+      opacity:0;pointer-events:none;transition:opacity 0.3s;}
+    .modal-backdrop.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--blanc);border-radius:20px;width:100%;max-width:420px;
+      padding:2.5rem;position:relative;transform:translateY(20px);transition:transform 0.3s;
+      box-shadow:0 24px 80px rgba(0,0,0,0.3);text-align:center;}
+    .modal-backdrop.open .modal{transform:translateY(0);}
+    .modal-close{position:absolute;top:1rem;right:1.2rem;background:none;border:none;
+      cursor:pointer;font-size:1.3rem;color:#bbb;}
+    .modal-close:hover{color:var(--rouge);}
+    .modal-icon{font-size:3rem;margin-bottom:1rem;}
+    .modal h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--brun);margin-bottom:0.8rem;}
+    .modal p{color:#777;font-size:0.88rem;line-height:1.6;margin-bottom:1.5rem;}
+    .modal-plat-info{background:var(--ivoire);border-radius:10px;padding:0.8rem 1rem;
+      margin-bottom:1.5rem;font-size:0.88rem;color:var(--brun);font-weight:700;}
+    .btn-go-login{display:block;width:100%;padding:0.9rem;background:var(--vert);color:var(--blanc);
+      font-weight:700;font-size:0.95rem;border-radius:30px;text-decoration:none;
+      transition:background 0.25s;font-family:'Lato',sans-serif;border:none;cursor:pointer;}
+    .btn-go-login:hover{background:#245224;}
+
+    /* AUCUN RÉSULTAT */
+    .no-results{text-align:center;padding:4rem 1rem;display:none;}
+    .no-results.visible{display:block;}
+    .no-results .emoji{font-size:3rem;margin-bottom:1rem;}
+    .no-results p{color:#888;}
+
+    /* FOOTER */
+    .footer-ribbon{display:flex;height:4px;}
+    .footer-ribbon span{flex:1;}
+    .footer-ribbon span:nth-child(1){background:var(--vert);}
+    .footer-ribbon span:nth-child(2){background:var(--rouge);}
+    .footer-ribbon span:nth-child(3){background:var(--jaune);}
+    footer{background:var(--brun);color:rgba(255,255,255,0.55);text-align:center;
+      padding:2.5rem 1rem;font-size:0.82rem;border-top:3px solid var(--jaune);}
+    footer strong{color:var(--jaune);}
+
+    @media(max-width:768px){nav{padding:0 1rem;}.nav-links{display:none;}
+      .login-banner-inner{flex-direction:column;text-align:center;}}
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="{% url 'accueil' %}" class="nav-logo">
+    <div class="logo-icon">🍽️</div>
+    <div>
+      <span class="logo-text">KMER FOOD</span>
+      <span class="logo-sub">Saveurs du Cameroun</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="{% url 'accueil' %}">Accueil</a></li>
+    <li><a href="{% url 'menu' %}" class="active">Menu</a></li>
+    <li><a href="{% url 'login' %}" class="btn-connexion">Connexion</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="menu-hero">
+  <div class="menu-hero-bg"></div>
+  <div class="menu-hero-overlay"></div>
+  <div class="menu-hero-ribbon"><span></span><span></span><span></span></div>
+  <div class="menu-hero-content">
+    <div class="menu-hero-badge">Notre Carte</div>
+    <h1 class="menu-hero-title">Nos <em>Saveurs</em> Authentiques</h1>
+    <p class="menu-hero-sub">22 plats · 12 accompagnements · 14 boissons · 6 desserts</p>
+  </div>
+</div>
+
+<!-- BANNIÈRE CONNEXION OBLIGATOIRE -->
+<div class="login-banner">
+  <div class="login-banner-inner">
+    <div class="login-banner-text">
+      <p class="label">🔐 Commande en ligne</p>
+      <h3>Connectez-vous pour passer commande</h3>
+      <p>Parcourez notre menu librement. Pour commander un plat, une connexion à votre compte est requise.</p>
+    </div>
+    <a href="{% url 'login' %}" class="btn-login-banner">Se connecter →</a>
+  </div>
+</div>
+
+<!-- FILTRES -->
+<div class="filters-bar">
+  <div class="filters-inner">
+    <button class="filter-tab active" data-cat="tous">Tout <span class="filter-count">54</span></button>
+    <button class="filter-tab" data-cat="plats">Plats Principaux <span class="filter-count">22</span></button>
+    <button class="filter-tab" data-cat="accompagnements">Accompagnements <span class="filter-count">12</span></button>
+    <button class="filter-tab" data-cat="boissons">Boissons <span class="filter-count">14</span></button>
+    <button class="filter-tab" data-cat="desserts">Desserts <span class="filter-count">6</span></button>
+  </div>
+</div>
+
+<!-- RECHERCHE -->
+<div class="search-sort-bar">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Rechercher un plat, ingrédient…"/>
+  </div>
+  <select class="sort-select" id="sortSelect">
+    <option value="default">Trier par défaut</option>
+    <option value="prix-asc">Prix croissant</option>
+    <option value="prix-desc">Prix décroissant</option>
+    <option value="nom">Alphabétique</option>
+  </select>
+  <div class="results-count"><strong id="visibleCount">54</strong> plats affichés</div>
+</div>
+
+<!-- PLATS PRINCIPAUX -->
+<div class="menu-section" id="section-plats">
+  <h2 class="menu-section-title">Plats Principaux <span class="line"></span></h2>
+  <p class="section-subtitle">22 recettes · Cuisine traditionnelle camerounaise</p>
+  <div class="plats-grid">
+
+    <div class="plat-card" data-cat="plats" data-prix="5000" data-nom="Poulet DG">
+      <div class="plat-img-wrap"><img src="" alt="Poulet DG" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
+        <div class="plat-temps">⏱ 2 h · 3 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Poulet DG</h3>
+        <p class="plat-desc">Poulet sauté aux plantains mûrs, tomates fraîches et poivrons.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Poulet</span><span class="ing-tag">Plantain</span><span class="ing-tag">Tomates</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">5 000 <small>FCFA</small></div></div>
+          <button class="btn-commander-lock" onclick="demanderConnexion('Poulet DG', 5000)">🔐 Commander</button>
+        </div></div></div>
+
+    <div class="plat-card" data-cat="plats" data-prix="8000" data-nom="Ndolé">
+      <div class="plat-img-wrap"><img src="" alt="Ndolé" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-maison">Maison</span><span class="badge badge-populaire">Populaire</span></div>
+        <div class="plat-temps">⏱ 2 h · 4 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Ndolé</h3>
+        <p class="plat-desc">Le plat national camerounais. Feuilles de ndolé mijotées avec arachides et crevettes séchées.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Arachides</span><span class="ing-tag">Bœuf</span><span class="ing-tag">Crevettes</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">8 000 <small>FCFA</small></div></div>
+          <button class="btn-commander-lock" onclick="demanderConnexion('Ndolé', 8000)">🔐 Commander</button>
+        </div></div></div>
+
+    <div class="plat-card" data-cat="plats" data-prix="4500" data-nom="Riz Sauté">
+      <div class="plat-img-wrap"><img src="" alt="Riz Sauté" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-nouveau">Nouveau</span></div>
+        <div class="plat-temps">⏱ 1 h · 3 pers.</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Riz Sauté</h3>
+        <p class="plat-desc">Riz sauté à la viande de bœuf, oignons caramélisés et tomates fraîches.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Riz</span><span class="ing-tag">Bœuf</span><span class="ing-tag">Oignons</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">4 500 <small>FCFA</small></div></div>
+          <button class="btn-commander-lock" onclick="demanderConnexion('Riz Sauté', 4500)">🔐 Commander</button>
+        </div></div></div>
+
+    <div class="plat-card" data-cat="boissons" data-prix="1500" data-nom="Jus de Gingembre">
+      <div class="plat-img-wrap"><img src="" alt="Jus de Gingembre" loading="lazy"/>
+        <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
+        <div class="plat-temps">⏱ 45 min</div></div>
+      <div class="plat-body"><h3 class="plat-nom">Jus de Gingembre</h3>
+        <p class="plat-desc">Gingembre frais pressé avec du sucre et du citron. Rafraîchissant et tonique.</p>
+        <div class="plat-ingredients"><span class="ing-tag">Gingembre</span><span class="ing-tag">Citron</span></div>
+        <div class="plat-footer"><div><div class="plat-prix">1 500 <small>FCFA</small></div></div>
+          <button class="btn-commander-lock" onclick="demanderConnexion('Jus de Gingembre', 1500)">🔐 Commander</button>
+        </div></div></div>
+
+  </div>
+</div>
+
+<div class="no-results" id="noResults">
+  <div class="emoji">🍽️</div>
+  <p>Aucun plat ne correspond à votre recherche.</p>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-ribbon"><span></span><span></span><span></span></div>
+<footer>
+  <strong>KMER FOOD</strong> · Saveurs authentiques du Cameroun<br/>
+  <span style="font-size:0.75rem;margin-top:0.4rem;display:block;">Yaoundé · Orange Money &amp; MTN MoMo acceptés</span>
+</footer>
+
+<!-- MODAL CONNEXION REQUISE -->
+<div class="modal-backdrop" id="modalLogin">
+  <div class="modal">
+    <button class="modal-close" onclick="fermerModal()">✕</button>
+    <div class="modal-icon">🔐</div>
+    <h2>Connexion requise</h2>
+    <p>Pour passer une commande, vous devez être connecté à votre compte KMER FOOD.</p>
+    <div class="modal-plat-info" id="modalPlatInfo">—</div>
+    <a href="{% url 'login' %}" class="btn-go-login">Se connecter pour commander</a>
+  </div>
+</div>
+
+<script>
+  // Modal connexion requise
+  function demanderConnexion(nom, prix) {
+    document.getElementById('modalPlatInfo').textContent =
+      '🍽️ ' + nom + ' — ' + prix.toLocaleString('fr-FR') + ' FCFA';
+    document.getElementById('modalLogin').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function fermerModal() {
+    document.getElementById('modalLogin').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('modalLogin').addEventListener('click', e => {
+    if (e.target === document.getElementById('modalLogin')) fermerModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerModal(); });
+
+  // Filtres et recherche
+  const tabs = document.querySelectorAll('.filter-tab');
+  const cards = document.querySelectorAll('.plat-card');
+  const search = document.getElementById('searchInput');
+  const count = document.getElementById('visibleCount');
+  const noRes = document.getElementById('noResults');
+  let activeCat = 'tous';
+
+  function applyFilters() {
+    const q = search.value.toLowerCase().trim();
+    let visible = 0;
+    cards.forEach(card => {
+      const matchCat = activeCat === 'tous' || card.dataset.cat === activeCat;
+      const nom = card.dataset.nom.toLowerCase();
+      const desc = card.querySelector('.plat-desc')?.textContent.toLowerCase() || '';
+      const matchText = !q || nom.includes(q) || desc.includes(q);
+      if (matchCat && matchText) { card.classList.remove('hidden'); visible++; }
+      else { card.classList.add('hidden'); }
+    });
+    count.textContent = visible;
+    noRes.classList.toggle('visible', visible === 0);
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeCat = tab.dataset.cat;
+      applyFilters();
+    });
+  });
+  search.addEventListener('input', applyFilters);
+</script>
+</body>
+</html>

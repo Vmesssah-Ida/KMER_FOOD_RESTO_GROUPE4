@@ -9,3 +9,4 @@ def menu(request2):
 
 def apropos(request3):
     return render(request3,"apropos.html") 
+

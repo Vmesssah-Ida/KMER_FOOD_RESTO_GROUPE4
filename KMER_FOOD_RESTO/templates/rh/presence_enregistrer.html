@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Enregistrement des présences</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label"><strong>Date</strong></label>
+      <input type="date" name="date" class="form-control w-auto" value="{{ today }}">
+    </div>
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr><th>Employé</th><th>Poste</th><th>Présent</th><th>Heure arrivée</th><th>Heure départ</th></tr>
+      </thead>
+      <tbody>
+        {% for employe in employes %}
+        <tr>
+          <td>{{ employe.utilisateur.get_full_name }}</td>
+          <td>{{ employe.get_poste_display }}</td>
+          <td><input type="checkbox" name="present_{{ employe.pk }}" checked></td>
+          <td><input type="time" name="arrivee_{{ employe.pk }}" class="form-control form-control-sm"></td>
+          <td><input type="time" name="depart_{{ employe.pk }}" class="form-control form-control-sm"></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a href="{% url 'personnel_liste' %}" class="btn btn-secondary">Annuler</a>
+  </form>
+</div>
+{% endblock %}

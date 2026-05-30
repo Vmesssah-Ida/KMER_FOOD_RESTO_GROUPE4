@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Facture — Commande #{{ commande.pk }}</h2>
+  <p><strong>Date :</strong> {{ commande.date_creation|date:"d/m/Y H:i" }}</p>
+  <p><strong>Type :</strong> {{ commande.get_type_commande_display }}</p>
+  <p><strong>Statut :</strong> {{ commande.get_statut_display }}</p>
+  <p><strong>Serveur :</strong> {{ commande.serveur.get_full_name|default:commande.serveur.username }}</p>
+
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Produit</th>
+        <th>Qté</th>
+        <th>Prix unitaire</th>
+        <th>Sous-total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ligne in lignes %}
+      <tr>
+        <td>{{ ligne.produit.nom }}</td>
+        <td>{{ ligne.quantite }}</td>
+        <td>{{ ligne.prix_unitaire }} FCFA</td>
+        <td>{{ ligne.sous_total }} FCFA</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3"><strong>TOTAL</strong></td>
+        <td><strong>{{ commande.montant_total }} FCFA</strong></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  {% if commande.peut_etre_annulee %}
+  <a href="{% url 'commande_annuler' commande.pk %}" class="btn btn-danger">Annuler la commande</a>
+  {% endif %}
+  <a href="{% url 'commande_creer' %}" class="btn btn-primary">Nouvelle commande</a>
+</div>
+{% endblock %}

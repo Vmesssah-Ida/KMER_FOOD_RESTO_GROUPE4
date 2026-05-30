@@ -1,0 +1,373 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon Panier – KMER FOOD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--vert:#2D6A2D;--rouge:#C0392B;--jaune:#F0A500;--ivoire:#FAF3E0;
+      --brun:#3E2009;--texte:#1A1A1A;--blanc:#FFFFFF;--nav-bg:rgba(30,12,2,0.88);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Lato',sans-serif;color:var(--texte);background:var(--ivoire);}
+
+    /* NAVBAR */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--nav-bg);
+      backdrop-filter:blur(10px);display:flex;align-items:center;
+      justify-content:space-between;padding:0 2.5rem;height:68px;border-bottom:2px solid var(--jaune);}
+    .nav-logo{display:flex;align-items:center;gap:0.6rem;text-decoration:none;}
+    .nav-logo .logo-icon{width:42px;height:42px;background:var(--jaune);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+    .nav-logo .logo-text{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--jaune);letter-spacing:2px;}
+    .nav-logo .logo-sub{font-size:0.6rem;color:rgba(255,255,255,0.55);letter-spacing:3px;text-transform:uppercase;display:block;line-height:1;}
+    .nav-links{display:flex;align-items:center;gap:0.2rem;list-style:none;}
+    .nav-links a{display:block;padding:0.45rem 1.1rem;color:rgba(255,255,255,0.85);text-decoration:none;
+      font-size:0.88rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+      border-radius:4px;transition:color 0.25s;position:relative;}
+    .nav-links a::after{content:'';position:absolute;bottom:2px;left:50%;right:50%;
+      height:2px;background:var(--jaune);border-radius:2px;transition:left 0.25s,right 0.25s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--jaune);}
+    .nav-links a:hover::after,.nav-links a.active::after{left:1rem;right:1rem;}
+    .btn-deconnexion{margin-left:1.5rem;padding:0.5rem 1.4rem;background:var(--rouge);
+      color:var(--blanc)!important;border-radius:30px;font-weight:700!important;
+      border:2px solid transparent;text-decoration:none;font-size:0.88rem;transition:background 0.25s;}
+    .btn-deconnexion::after{display:none!important;}
+    .btn-deconnexion:hover{background:transparent!important;border-color:var(--rouge)!important;color:var(--rouge)!important;}
+
+    /* PAGE PRINCIPALE */
+    .page-main{max-width:1000px;margin:0 auto;padding:6rem 2rem 4rem;}
+    .page-header{margin-bottom:3rem;}
+    .page-header h1{font-family:'Playfair Display',serif;font-size:2.5rem;color:var(--brun);margin-bottom:0.5rem;}
+    .page-header h1 span{color:var(--rouge);}
+    .page-header p{color:#777;font-size:0.95rem;}
+    .divider{width:60px;height:3px;background:linear-gradient(90deg,var(--vert),var(--jaune),var(--rouge));
+      border-radius:2px;margin:1rem 0;}
+
+    /* ONGLETS */
+    .tabs-bar{display:flex;gap:0;border-bottom:2px solid rgba(62,32,9,0.1);margin-bottom:2.5rem;}
+    .tab-btn{padding:1rem 2rem;font-size:0.88rem;font-weight:700;letter-spacing:1.5px;
+      text-transform:uppercase;color:#888;background:none;border:none;cursor:pointer;
+      border-bottom:3px solid transparent;margin-bottom:-2px;transition:color 0.25s,border-color 0.25s;}
+    .tab-btn.active{color:var(--rouge);border-bottom-color:var(--rouge);}
+    .tab-btn:hover{color:var(--brun);}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+
+    /* CARTE COMMANDE */
+    .commande-card{background:var(--blanc);border-radius:16px;padding:1.5rem;
+      box-shadow:0 4px 20px rgba(62,32,9,0.08);margin-bottom:1.2rem;
+      display:flex;align-items:flex-start;gap:1.5rem;flex-wrap:wrap;
+      border-left:5px solid var(--jaune);transition:box-shadow 0.3s;}
+    .commande-card:hover{box-shadow:0 8px 32px rgba(62,32,9,0.12);}
+    .commande-card.statut-prete{border-left-color:var(--vert);}
+    .commande-card.statut-servie{border-left-color:#999;}
+    .commande-card.statut-annulee{border-left-color:var(--rouge);opacity:0.7;}
+    .commande-icon{font-size:2.5rem;flex-shrink:0;}
+    .commande-info{flex:1;min-width:200px;}
+    .commande-nom{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--brun);margin-bottom:0.3rem;}
+    .commande-detail{font-size:0.83rem;color:#777;line-height:1.7;}
+    .commande-detail strong{color:var(--texte);}
+    .commande-right{display:flex;flex-direction:column;align-items:flex-end;gap:0.8rem;}
+    .commande-prix{font-size:1.2rem;font-weight:700;color:var(--vert);}
+    .statut-badge{padding:0.3rem 0.9rem;border-radius:20px;font-size:0.72rem;font-weight:700;
+      letter-spacing:1px;text-transform:uppercase;}
+    .statut-en-attente{background:#fff3cd;color:#856404;}
+    .statut-en-cours{background:#cfe2ff;color:#0a3d8f;}
+    .statut-prete{background:#d1e7dd;color:var(--vert);}
+    .statut-servie{background:#f0f0f0;color:#555;}
+    .statut-annulee{background:#f8d7da;color:var(--rouge);}
+    .commande-actions{display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:flex-end;}
+    .btn-action{padding:0.38rem 1rem;border-radius:20px;font-size:0.76rem;font-weight:700;
+      border:none;cursor:pointer;transition:transform 0.15s,opacity 0.2s;font-family:'Lato',sans-serif;}
+    .btn-recom{background:var(--jaune);color:var(--brun);}
+    .btn-recom:hover{opacity:0.85;transform:scale(1.04);}
+    .btn-annuler{background:var(--rouge);color:var(--blanc);}
+    .btn-annuler:hover{opacity:0.85;transform:scale(1.04);}
+    .btn-annuler:disabled{background:#ccc;cursor:not-allowed;transform:none;}
+
+    /* VIDE */
+    .empty-state{text-align:center;padding:4rem 1rem;color:#aaa;}
+    .empty-state .emoji{font-size:3.5rem;margin-bottom:1rem;}
+    .empty-state p{font-size:0.95rem;margin-bottom:1.5rem;}
+    .btn-primary{padding:0.75rem 2rem;background:var(--jaune);color:var(--brun);
+      font-weight:700;font-size:0.9rem;border-radius:30px;text-decoration:none;
+      transition:transform 0.2s;display:inline-block;}
+    .btn-primary:hover{transform:translateY(-2px);}
+
+    /* RÉCAPITULATIF */
+    .recap-band{background:var(--brun);border-radius:16px;padding:1.5rem 2rem;
+      display:flex;justify-content:space-between;align-items:center;
+      flex-wrap:wrap;gap:1rem;margin-top:2rem;}
+    .recap-item{text-align:center;}
+    .recap-num{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--jaune);}
+    .recap-label{font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+
+    /* MODAL CONFIRMATION ANNULATION */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(10,5,0,0.75);backdrop-filter:blur(6px);
+      z-index:200;display:flex;align-items:center;justify-content:center;
+      opacity:0;pointer-events:none;transition:opacity 0.3s;}
+    .modal-backdrop.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--blanc);border-radius:20px;width:100%;max-width:400px;
+      padding:2.5rem;position:relative;transform:translateY(20px);transition:transform 0.3s;
+      box-shadow:0 24px 80px rgba(0,0,0,0.3);text-align:center;}
+    .modal-backdrop.open .modal{transform:translateY(0);}
+    .modal-close{position:absolute;top:1rem;right:1.2rem;background:none;border:none;
+      cursor:pointer;font-size:1.3rem;color:#bbb;}
+    .modal-close:hover{color:var(--rouge);}
+    .modal h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brun);margin-bottom:0.8rem;}
+    .modal p{color:#777;font-size:0.88rem;margin-bottom:1.5rem;}
+    .modal-btns{display:flex;gap:0.8rem;justify-content:center;}
+    .btn-confirm-annul{padding:0.7rem 1.8rem;background:var(--rouge);color:var(--blanc);
+      border:none;border-radius:30px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;}
+    .btn-cancel{padding:0.7rem 1.8rem;background:#eee;color:var(--brun);
+      border:none;border-radius:30px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;}
+
+    /* FOOTER */
+    footer{background:var(--brun);color:rgba(255,255,255,0.7);text-align:center;
+      padding:2rem 1rem;font-size:0.82rem;}
+    footer strong{color:var(--jaune);}
+    .footer-ribbon{width:100%;height:4px;display:flex;}
+    .footer-ribbon span{flex:1;}
+    .footer-ribbon span:nth-child(1){background:var(--vert);}
+    .footer-ribbon span:nth-child(2){background:var(--rouge);}
+    .footer-ribbon span:nth-child(3){background:var(--jaune);}
+
+    @media(max-width:768px){nav{padding:0 1rem;}.commande-card{flex-direction:column;}
+      .commande-right{align-items:flex-start;}.recap-band{flex-direction:column;text-align:center;}}
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="{% url 'client' %}" class="nav-logo">
+    <div class="logo-icon">🍽️</div>
+    <div>
+      <span class="logo-text">KMER FOOD</span>
+      <span class="logo-sub">Saveurs du Cameroun</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="{% url 'client' %}">Accueil</a></li>
+    <li><a href="{% url 'menu_client' %}">Menu</a></li>
+    <li><a href="{% url 'panier' %}" class="active">Mon Panier 🛒</a></li>
+    <li><a href="{% url 'logout' %}" class="btn-deconnexion">Déconnexion</a></li>
+  </ul>
+</nav>
+
+<!-- CONTENU PRINCIPAL -->
+<div class="page-main">
+  <div class="page-header">
+    <h1>Mon <span>Panier</span></h1>
+    <div class="divider"></div>
+    <p>Bonjour <strong>{{ user.first_name|default:user.username }}</strong> — retrouvez ici toutes vos commandes et réservations.</p>
+  </div>
+
+  <!-- RÉCAPITULATIF -->
+  <div class="recap-band">
+    <div class="recap-item">
+      <div class="recap-num">{{ commandes|length }}</div>
+      <div class="recap-label">Commandes totales</div>
+    </div>
+    <div class="recap-item">
+      <div class="recap-num">{{ commandes_actives }}</div>
+      <div class="recap-label">En cours</div>
+    </div>
+    <div class="recap-item">
+      <div class="recap-num">{{ reservations|length }}</div>
+      <div class="recap-label">Réservations</div>
+    </div>
+    <div class="recap-item">
+      <div class="recap-num">{{ total_depense|default:"0" }} FCFA</div>
+      <div class="recap-label">Total dépensé</div>
+    </div>
+  </div>
+
+  <!-- ONGLETS -->
+  <div style="margin-top:2.5rem;">
+    <div class="tabs-bar">
+      <button class="tab-btn active" onclick="switchTab('commandes', this)">🍽️ Mes Commandes</button>
+      <button class="tab-btn" onclick="switchTab('reservations', this)">📅 Mes Réservations</button>
+    </div>
+
+    <!-- ONGLET COMMANDES -->
+    <div class="tab-panel active" id="panel-commandes">
+      {% if commandes %}
+        {% for cmd in commandes %}
+        <div class="commande-card statut-{{ cmd.statut|lower|cut:' ' }}">
+          <div class="commande-icon">
+            {% if cmd.statut == 'En attente' %}⏳
+            {% elif cmd.statut == 'En cours' %}👨‍🍳
+            {% elif cmd.statut == 'Prête' %}✅
+            {% elif cmd.statut == 'Servie' %}🍽️
+            {% elif cmd.statut == 'Annulée' %}❌
+            {% else %}🛒{% endif %}
+          </div>
+          <div class="commande-info">
+            <div class="commande-nom">Commande #{{ cmd.id_Commande }}</div>
+            <div class="commande-detail">
+              <strong>Date :</strong> {{ cmd.Date|date:"d/m/Y H:i" }}<br/>
+              <strong>Type :</strong> {{ cmd.Type }}<br/>
+              <strong>Paiement :</strong> {{ cmd.Mode_de_Paiement }}<br/>
+              {% if cmd.statut == 'Servie' %}
+                <span style="color:var(--vert);font-weight:700;">✅ Commande servie</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="commande-right">
+            <div class="commande-prix">{{ cmd.Montant_Total|default:"–" }} FCFA</div>
+            <span class="statut-badge statut-{{ cmd.statut|lower|cut:' ' }}">{{ cmd.statut }}</span>
+            <div class="commande-actions">
+              <!-- Re-commander disponible toujours -->
+              <form method="POST" action="{% url 'recommander' cmd.id_Commande %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-action btn-recom">🔄 Re-commander</button>
+              </form>
+              <!-- Annuler seulement si pas encore prête -->
+              {% if cmd.statut == 'En attente' or cmd.statut == 'En cours' %}
+                <button class="btn-action btn-annuler"
+                        onclick="confirmerAnnulation('{{ cmd.id_Commande }}')">
+                  ✕ Annuler
+                </button>
+              {% else %}
+                <button class="btn-action btn-annuler" disabled title="Impossible d'annuler — commande {{ cmd.statut|lower }}">
+                  ✕ Annuler
+                </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <div class="emoji">🛒</div>
+          <p>Vous n'avez pas encore passé de commande.</p>
+          <a href="{% url 'menu_client' %}" class="btn-primary">Voir le menu</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ONGLET RÉSERVATIONS -->
+    <div class="tab-panel" id="panel-reservations">
+      {% if reservations %}
+        {% for res in reservations %}
+        <div class="commande-card statut-{{ res.Statut|lower }}">
+          <div class="commande-icon">
+            {% if res.Statut == 'Confirmée' %}📅
+            {% elif res.Statut == 'Annulée' %}❌
+            {% else %}⏳{% endif %}
+          </div>
+          <div class="commande-info">
+            <div class="commande-nom">Réservation #{{ res.id_Reservation }}</div>
+            <div class="commande-detail">
+              <strong>Date :</strong> {{ res.Date|date:"d/m/Y" }}<br/>
+              <strong>Heure :</strong> {{ res.Heure }}<br/>
+              <strong>Table :</strong> {{ res.Numero_Table|default:"–" }}<br/>
+              <strong>Statut :</strong> {{ res.Statut }}
+            </div>
+          </div>
+          <div class="commande-right">
+            <span class="statut-badge {% if res.Statut == 'Confirmée' %}statut-prete{% elif res.Statut == 'Annulée' %}statut-annulee{% else %}statut-en-attente{% endif %}">
+              {{ res.Statut }}
+            </span>
+            <div class="commande-actions">
+              {% if res.Statut == 'Confirmée' %}
+                <button class="btn-action btn-annuler"
+                        onclick="confirmerAnnulationRes('{{ res.id_Reservation }}')">
+                  ✕ Annuler
+                </button>
+              {% else %}
+                <button class="btn-action btn-annuler" disabled>✕ Annuler</button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <div class="emoji">📅</div>
+          <p>Vous n'avez pas encore de réservation.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ANNULATION COMMANDE -->
+<div class="modal-backdrop" id="modalAnnul">
+  <div class="modal">
+    <button class="modal-close" onclick="fermerModalAnnul()">✕</button>
+    <h2>⚠️ Annuler la commande ?</h2>
+    <p>Cette action est irréversible. Voulez-vous vraiment annuler cette commande ?</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fermerModalAnnul()">Non, garder</button>
+      <form method="POST" id="formAnnul" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn-confirm-annul">Oui, annuler</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ANNULATION RÉSERVATION -->
+<div class="modal-backdrop" id="modalAnnulRes">
+  <div class="modal">
+    <button class="modal-close" onclick="fermerModalAnnulRes()">✕</button>
+    <h2>⚠️ Annuler la réservation ?</h2>
+    <p>Voulez-vous vraiment annuler cette réservation ?</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fermerModalAnnulRes()">Non, garder</button>
+      <form method="POST" id="formAnnulRes" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn-confirm-annul">Oui, annuler</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-ribbon"><span></span><span></span><span></span></div>
+  <p>© 2026 <strong>KMER FOOD</strong> · Fait à Yaoundé, Cameroun</p>
+</footer>
+
+<script>
+  // Onglets
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // Modal annulation commande
+  function confirmerAnnulation(id) {
+    document.getElementById('formAnnul').action = '/commandes/annuler/' + id + '/';
+    document.getElementById('modalAnnul').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function fermerModalAnnul() {
+    document.getElementById('modalAnnul').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Modal annulation réservation
+  function confirmerAnnulationRes(id) {
+    document.getElementById('formAnnulRes').action = '/reservations/annuler/' + id + '/';
+    document.getElementById('modalAnnulRes').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function fermerModalAnnulRes() {
+    document.getElementById('modalAnnulRes').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Fermer avec Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fermerModalAnnul(); fermerModalAnnulRes(); }
+  });
+</script>
+</body>
+</html>

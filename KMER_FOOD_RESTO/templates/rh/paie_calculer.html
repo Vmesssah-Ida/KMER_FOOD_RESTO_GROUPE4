@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Calculer la paie — {{ employe.utilisateur.get_full_name }}</h2>
+  <p><strong>Salaire de base :</strong> {{ employe.salaire_base }} FCFA</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Mois</label>
+      <select name="mois" class="form-select w-auto">
+        {% for m in "123456789101112"|make_list %}{% endfor %}
+        <option value="1">Janvier</option><option value="2">Février</option>
+        <option value="3">Mars</option><option value="4">Avril</option>
+        <option value="5">Mai</option><option value="6">Juin</option>
+        <option value="7">Juillet</option><option value="8">Août</option>
+        <option value="9">Septembre</option><option value="10">Octobre</option>
+        <option value="11">Novembre</option><option value="12">Décembre</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Année</label>
+      <input type="number" name="annee" class="form-control w-auto" value="{{ today.year }}">
+    </div>
+    <button type="submit" class="btn btn-success">Calculer automatiquement</button>
+    <a href="{% url 'personnel_detail' employe.pk %}" class="btn btn-secondary">Annuler</a>
+  </form>
+</div>
+{% endblock %}

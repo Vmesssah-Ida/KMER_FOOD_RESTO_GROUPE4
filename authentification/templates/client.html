@@ -1,22 +1,286 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <title>Espace Client — KMER FOOD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon Espace – KMER FOOD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
   <style>
-    body { font-family: sans-serif; background: #FAF3E0; display: flex;
-           align-items: center; justify-content: center; min-height: 100vh; }
-    .box { background: white; padding: 2rem 3rem; border-radius: 16px;
-           text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
-    h1 { color: #3E2009; }
-    a { color: #C0392B; font-weight: bold; }
+    :root {
+      --vert:#2D6A2D; --vert-clair:#4CAF50; --rouge:#C0392B;
+      --jaune:#F0A500; --ivoire:#FAF3E0; --brun:#3E2009;
+      --texte:#1A1A1A; --blanc:#FFFFFF;
+      --overlay:rgba(20,10,0,0.60); --nav-bg:rgba(30,12,2,0.88);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Lato',sans-serif;color:var(--texte);background:var(--ivoire);overflow-x:hidden;}
+
+    /* NAVBAR */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--nav-bg);
+      backdrop-filter:blur(10px);display:flex;align-items:center;
+      justify-content:space-between;padding:0 2.5rem;height:68px;
+      border-bottom:2px solid var(--jaune);}
+    .nav-logo{display:flex;align-items:center;gap:0.6rem;text-decoration:none;}
+    .nav-logo .logo-icon{width:42px;height:42px;background:var(--jaune);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+      box-shadow:0 0 10px rgba(240,165,0,0.5);}
+    .nav-logo .logo-text{font-family:'Playfair Display',serif;font-size:1.4rem;
+      font-weight:700;color:var(--jaune);letter-spacing:2px;}
+    .nav-logo .logo-sub{font-size:0.6rem;color:rgba(255,255,255,0.55);
+      letter-spacing:3px;text-transform:uppercase;display:block;line-height:1;}
+    .nav-links{display:flex;align-items:center;gap:0.2rem;list-style:none;}
+    .nav-links a{display:block;padding:0.45rem 1.1rem;color:rgba(255,255,255,0.85);
+      text-decoration:none;font-size:0.88rem;font-weight:700;letter-spacing:1.5px;
+      text-transform:uppercase;border-radius:4px;transition:color 0.25s;position:relative;}
+    .nav-links a::after{content:'';position:absolute;bottom:2px;left:50%;right:50%;
+      height:2px;background:var(--jaune);border-radius:2px;transition:left 0.25s,right 0.25s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--jaune);}
+    .nav-links a:hover::after,.nav-links a.active::after{left:1rem;right:1rem;}
+    .btn-deconnexion{margin-left:1.5rem;padding:0.5rem 1.4rem;background:var(--rouge);
+      color:var(--blanc)!important;border-radius:30px;font-weight:700!important;
+      letter-spacing:1px!important;border:2px solid transparent;cursor:pointer;
+      font-family:'Lato',sans-serif;font-size:0.88rem;text-decoration:none;
+      transition:background 0.25s,transform 0.2s;}
+    .btn-deconnexion:hover{background:transparent!important;border-color:var(--rouge)!important;
+      color:var(--rouge)!important;transform:translateY(-1px);}
+    .btn-deconnexion::after{display:none!important;}
+
+    /* HERO */
+    #accueil{position:relative;min-height:100vh;display:flex;align-items:center;
+      justify-content:center;text-align:center;overflow:hidden;}
+    .hero-bg{position:absolute;inset:0;
+      background-image:url('{% static "images/votre-image-de-fond.png" %}');
+      background-size:cover;background-position:center;background-color:var(--brun);
+      transform:scale(1.04);animation:heroZoom 18s ease-in-out infinite alternate;}
+    @keyframes heroZoom{from{transform:scale(1.04);}to{transform:scale(1.12);}}
+    .hero-overlay{position:absolute;inset:0;background:var(--overlay);}
+    .hero-ribbon{position:absolute;bottom:0;left:0;right:0;height:6px;display:flex;}
+    .hero-ribbon span{flex:1;}
+    .hero-ribbon span:nth-child(1){background:var(--vert);}
+    .hero-ribbon span:nth-child(2){background:var(--rouge);}
+    .hero-ribbon span:nth-child(3){background:var(--jaune);}
+    .hero-content{position:relative;z-index:2;padding:0 1rem;animation:fadeUp 1s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+    .hero-badge{display:inline-block;border:1px solid var(--jaune);color:var(--jaune);
+      font-size:0.72rem;letter-spacing:4px;text-transform:uppercase;padding:0.35rem 1.2rem;
+      border-radius:20px;margin-bottom:1.4rem;font-weight:700;}
+    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,4rem);
+      color:var(--blanc);line-height:1.1;margin-bottom:1.2rem;}
+    .hero-title em{font-style:italic;color:var(--jaune);}
+    .hero-subtitle{font-size:clamp(0.95rem,2vw,1.1rem);color:rgba(255,255,255,0.80);
+      max-width:540px;margin:0 auto 2.5rem;line-height:1.7;font-weight:300;}
+    .hero-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+    .btn-primary{padding:0.85rem 2.2rem;background:var(--jaune);color:var(--brun);
+      font-weight:700;font-size:0.9rem;letter-spacing:1px;text-decoration:none;
+      border-radius:30px;transition:transform 0.2s,box-shadow 0.2s;
+      box-shadow:0 4px 18px rgba(240,165,0,0.35);}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,165,0,0.45);}
+    .btn-secondary{padding:0.85rem 2.2rem;border:2px solid rgba(255,255,255,0.6);
+      color:var(--blanc);font-weight:700;font-size:0.9rem;letter-spacing:1px;
+      text-decoration:none;border-radius:30px;transition:background 0.25s;}
+    .btn-secondary:hover{background:rgba(255,255,255,0.12);}
+
+    /* SECTION COMMUNE */
+    section{padding:6rem 2rem;}
+    .section-label{display:inline-block;font-size:0.7rem;letter-spacing:4px;
+      text-transform:uppercase;color:var(--vert);font-weight:700;margin-bottom:0.7rem;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);
+      color:var(--brun);line-height:1.2;margin-bottom:1rem;}
+    .section-title span{color:var(--rouge);}
+    .divider{width:60px;height:3px;
+      background:linear-gradient(90deg,var(--vert),var(--jaune),var(--rouge));
+      border-radius:2px;margin-bottom:1.5rem;}
+    .section-desc{font-size:1rem;color:#555;line-height:1.8;max-width:560px;}
+
+    /* STATS */
+    .stats-band{background:var(--brun);padding:3rem 2rem;display:flex;
+      justify-content:center;gap:4rem;flex-wrap:wrap;}
+    .stat{text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;
+      color:var(--jaune);line-height:1;}
+    .stat-label{font-size:0.78rem;letter-spacing:2px;text-transform:uppercase;
+      color:rgba(255,255,255,0.6);margin-top:0.4rem;}
+
+    /* SECTION SPÉCIALITÉS */
+    #specialites{background:var(--ivoire);}
+    .specialites-inner{max-width:1100px;margin:0 auto;}
+    .specialites-header{display:flex;align-items:flex-end;justify-content:space-between;
+      gap:2rem;margin-bottom:3rem;flex-wrap:wrap;}
+    .specialites-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.8rem;}
+    .card{background:var(--blanc);border-radius:16px;overflow:hidden;
+      box-shadow:0 4px 20px rgba(62,32,9,0.08);transition:transform 0.3s,box-shadow 0.3s;}
+    .card:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(62,32,9,0.14);}
+    .card-badge{position:absolute;top:12px;right:12px;background:var(--rouge);
+      color:var(--blanc);font-size:0.68rem;font-weight:700;padding:0.25rem 0.65rem;
+      border-radius:20px;text-transform:uppercase;}
+    .card-body{padding:1.2rem 1.4rem 1.5rem;}
+    .card-name{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--brun);margin-bottom:0.4rem;}
+    .card-desc{font-size:0.85rem;color:#777;line-height:1.6;margin-bottom:1rem;}
+    .card-footer{display:flex;align-items:center;justify-content:space-between;}
+    .card-price{font-size:1.05rem;font-weight:700;color:var(--vert);}
+    .card-price span{font-size:0.75rem;color:#999;font-weight:400;}
+    .btn-mini{padding:0.35rem 1rem;background:var(--jaune);color:var(--brun);
+      font-size:0.78rem;font-weight:700;border-radius:20px;text-decoration:none;
+      border:none;cursor:pointer;transition:background 0.2s;}
+    .btn-mini:hover{background:#e09400;}
+
+    /* FOOTER */
+    footer{background:var(--brun);color:rgba(255,255,255,0.7);text-align:center;
+      padding:2.5rem 1rem;font-size:0.82rem;}
+    footer strong{color:var(--jaune);}
+    .footer-ribbon{width:100%;height:4px;display:flex;margin-bottom:1.5rem;}
+    .footer-ribbon span{flex:1;}
+    .footer-ribbon span:nth-child(1){background:var(--vert);}
+    .footer-ribbon span:nth-child(2){background:var(--rouge);}
+    .footer-ribbon span:nth-child(3){background:var(--jaune);}
+
+    /* RESPONSIVE */
+    @media(max-width:820px){
+      nav{padding:0 1.2rem;}
+      .nav-logo .logo-sub{display:none;}
+    }
+    @media(max-width:600px){
+      .stats-band{gap:2rem;}
+      .nav-links a{padding:0.4rem 0.65rem;font-size:0.75rem;}
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>🍽️ Bienvenue, {{ user.first_name }} !</h1>
-    <p style="color:#777; margin: 1rem 0;">Vous êtes connecté en tant que <strong>Client</strong>.</p>
-    <a href="{% url 'logout' %}">Se déconnecter</a>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="{% url 'client' %}" class="nav-logo">
+    <div class="logo-icon">🍽️</div>
+    <div>
+      <span class="logo-text">KMER FOOD</span>
+      <span class="logo-sub">Saveurs du Cameroun</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="{% url 'client' %}" class="active">Accueil</a></li>
+    <li><a href="{% url 'menu_client' %}">Menu</a></li>
+    <li><a href="{% url 'panier' %}">Mon Panier 🛒</a></li>
+    <li><a href="{% url 'logout' %}" class="btn-deconnexion">Déconnexion</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="accueil">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🌿 Bienvenue dans votre espace</div>
+    <h1 class="hero-title">
+      Bonjour, <em>{{ user.first_name|default:user.username }}</em> !
+    </h1>
+    <p class="hero-subtitle">
+      Découvrez nos saveurs authentiques camerounaises et passez votre commande
+      en quelques clics. Livraison ou sur place, à votre convenance.
+    </p>
+    <div class="hero-actions">
+      <a href="{% url 'menu_client' %}" class="btn-primary">🍽️ Voir le Menu</a>
+      <a href="{% url 'panier' %}" class="btn-secondary">🛒 Mon Panier</a>
+    </div>
   </div>
+  <div class="hero-ribbon"><span></span><span></span><span></span></div>
+</section>
+
+<!-- SPÉCIALITÉS -->
+<section id="specialites">
+  <div class="specialites-inner">
+    <div class="specialites-header">
+      <div>
+        <span class="section-label">🌶️ À la une</span>
+        <h2 class="section-title">Nos <span>Spécialités</span></h2>
+        <div class="divider"></div>
+        <p class="section-desc">Une sélection de nos plats emblématiques, préparés chaque jour avec fraîcheur et passion.</p>
+      </div>
+      <a href="{% url 'menu_client' %}" class="btn-primary" style="white-space:nowrap;">Voir tout le menu</a>
+    </div>
+    <div class="specialites-grid">
+      <div class="card">
+        <div style="position:relative;">
+          <img src="{% static 'images/ndole.png' %}" alt="Ndolé" style="width:100%;height:190px;object-fit:cover;display:block;"/>
+          <span class="card-badge">Populaire</span>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Ndolé Camerounais</div>
+          <p class="card-desc">Feuilles de ndolé, crevettes fumées, arachides et viande. Un classique incontournable.</p>
+          <div class="card-footer">
+            <div class="card-price">2 500 FCFA <span>/ portion</span></div>
+            <a href="{% url 'menu_client' %}#ndole" class="btn-mini">Commander</a>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="position:relative;">
+          <img src="{% static 'images/d-g.png' %}" alt="Poulet DG" style="width:100%;height:190px;object-fit:cover;display:block;"/>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Poulet DG</div>
+          <p class="card-desc">Poulet braisé aux plantains mûrs, légumes sautés et épices locales généreuses.</p>
+          <div class="card-footer">
+            <div class="card-price">3 000 FCFA <span>/ portion</span></div>
+            <a href="{% url 'menu_client' %}" class="btn-mini">Commander</a>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="position:relative;">
+          <img src="{% static 'images/eru.png' %}" alt="Eru" style="width:100%;height:190px;object-fit:cover;display:block;"/>
+          <span class="card-badge" style="background:var(--vert)">Maison</span>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Eru &amp; Waterleaf</div>
+          <p class="card-desc">Feuilles d'eru finement hachées, huile de palme et bœuf mijoté à la perfection.</p>
+          <div class="card-footer">
+            <div class="card-price">2 800 FCFA <span>/ portion</span></div>
+            <a href="{% url 'menu_client' %}" class="btn-mini">Commander</a>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="position:relative;">
+          <img src="{% static 'images/poisson-braise.png' %}" alt="Poisson Braisé" style="width:100%;height:190px;object-fit:cover;display:block;"/>
+        </div>
+        <div class="card-body">
+          <div class="card-name">Poisson Braisé</div>
+          <p class="card-desc">Poisson frais du jour grillé au bois, servi avec miondo et sauce tomate pimentée.</p>
+          <div class="card-footer">
+            <div class="card-price">3 500 FCFA <span>/ portion</span></div>
+            <a href="{% url 'menu_client' %}" class="btn-mini">Commander</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-band">
+  <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Plats au menu</div></div>
+  <div class="stat"><div class="stat-num">10</div><div class="stat-label">Années d'expérience</div></div>
+  <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Clients satisfaits / mois</div></div>
+  <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Ingrédients locaux</div></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-ribbon"><span></span><span></span><span></span></div>
+  <p>© 2026 <strong>KMER FOOD</strong> · Fait à Yaoundé, Cameroun</p>
+  <p style="margin-top:0.4rem;font-size:0.75rem;opacity:0.5;">Tous droits réservés · Saveurs authentiques du Cameroun</p>
+</footer>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a:not(.btn-deconnexion)');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if(window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+    navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+  });
+</script>
 </body>
 </html>
