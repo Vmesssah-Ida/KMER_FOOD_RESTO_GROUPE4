@@ -158,9 +158,9 @@
     <span class="logo-text">KMER FOOD</span>
   </a>
   <ul class="nav-links">
-    <li><a href="/recettes/">Recettes</a></li>
-    <li><a href="/inventaire/">Inventaire</a></li>
-    <li><a href="/dashboard/">Dashboard</a></li>
+    <li><a href="{% url 'recettes' %}">Recettes</a></li>
+    <li><a href="{% url 'inventaire' %}">Inventaire</a></li>
+    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
   </ul>
 </nav>
 
@@ -169,7 +169,7 @@
   <h1>📋 Nos <em>Recettes</em></h1>
 </div>
 
-<!-- CONTENU -->
+<!-- CONTENU 
 <div class="container">
 
   {% if messages %}
@@ -180,7 +180,7 @@
     {{ message }}
   </div>
   {% endfor %}
-  {% endif %}
+  {% endif %}-->
 
   <div class="actions-bar">
     <a href="{% url 'creer_recette' %}" class="btn btn-primary">+ Nouvelle Recette</a>

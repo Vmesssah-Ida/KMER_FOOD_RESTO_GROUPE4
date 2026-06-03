@@ -58,7 +58,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'KMER_FOOD_RESTO.urls'
-
+ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

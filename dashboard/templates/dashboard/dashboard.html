@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Dashboard – KMER FOOD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--vert:#2D6A2D;--vert-clair:#4CAF50;--rouge:#C0392B;--jaune:#F0A500;--ivoire:#FAF3E0;--brun:#3E2009;--texte:#1A1A1A;--blanc:#FFFFFF;--nav-bg:rgba(30,12,2,0.88);--card-shadow:0 4px 20px rgba(62,32,9,0.08);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Lato',sans-serif;color:var(--texte);background:var(--ivoire);}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:68px;border-bottom:2px solid var(--jaune);}
+    .nav-logo{display:flex;align-items:center;gap:0.6rem;text-decoration:none;}
+    .logo-icon{width:42px;height:42px;background:var(--jaune);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+    .logo-text{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--jaune);}
+    .nav-links{display:flex;align-items:center;gap:0.2rem;list-style:none;}
+    .nav-links a{padding:0.45rem 1.1rem;color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.88rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.25s;}
+    .nav-links a:hover{color:var(--jaune);}
+    .page-hero{margin-top:68px;height:220px;background:linear-gradient(135deg,var(--brun) 0%,var(--vert) 100%);display:flex;align-items:center;justify-content:center;text-align:center;position:relative;}
+    .page-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--vert),var(--rouge),var(--jaune));}
+    .page-hero h1{font-family:'Playfair Display',serif;font-size:2.8rem;color:var(--blanc);}
+    .page-hero h1 em{font-style:italic;color:var(--jaune);}
+    .page-hero p{color:rgba(255,255,255,0.75);margin-top:0.5rem;}
+    .container{max-width:1200px;margin:0 auto;padding:2.5rem 1.5rem;}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;margin-bottom:2.5rem;}
+    .stat-card{background:var(--blanc);border-radius:12px;box-shadow:var(--card-shadow);padding:1.8rem;display:flex;align-items:center;gap:1.2rem;transition:transform 0.3s;}
+    .stat-card:hover{transform:translateY(-4px);}
+    .stat-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;}
+    .stat-icon.green{background:#d4edda;}
+    .stat-icon.yellow{background:#fff3cd;}
+    .stat-icon.red{background:#f8d7da;}
+    .stat-icon.blue{background:#d1ecf1;}
+    .stat-info .value{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--brun);}
+    .stat-info .label{font-size:0.82rem;color:#888;text-transform:uppercase;letter-spacing:1px;}
+
+    /* SECTIONS */
+    .sections-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;}
+    @media(max-width:768px){.sections-grid{grid-template-columns:1fr;}}
+    .section-card{background:var(--blanc);border-radius:12px;box-shadow:var(--card-shadow);overflow:hidden;}
+    .section-header{padding:1.2rem 1.5rem;background:linear-gradient(135deg,var(--brun),var(--vert));color:var(--blanc);}
+    .section-header h2{font-family:'Playfair Display',serif;font-size:1.1rem;}
+    .section-body{padding:1.2rem 1.5rem;}
+    .item-row{display:flex;justify-content:space-between;align-items:center;padding:0.7rem 0;border-bottom:1px solid rgba(62,32,9,0.06);}
+    .item-row:last-child{border-bottom:none;}
+    .item-name{font-weight:700;color:var(--brun);}
+    .item-value{font-size:0.85rem;color:#888;}
+    .badge{display:inline-block;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:700;}
+    .badge-alerte{background:#f8d7da;color:#721c24;}
+
+    /* LIENS RAPIDES */
+    .quick-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
+    .quick-link{background:var(--blanc);border-radius:10px;box-shadow:var(--card-shadow);padding:1.2rem;text-align:center;text-decoration:none;color:var(--texte);transition:transform 0.25s,box-shadow 0.25s;}
+    .quick-link:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(62,32,9,0.14);}
+    .quick-link .icon{font-size:2rem;margin-bottom:0.5rem;}
+    .quick-link .name{font-size:0.82rem;font-weight:700;color:var(--brun);text-transform:uppercase;letter-spacing:1px;}
+
+    footer{text-align:center;padding:2rem;background:var(--brun);color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:4rem;}
+    .footer-ribbon{height:5px;display:flex;}
+    .footer-ribbon span{flex:1;}
+    .footer-ribbon span:nth-child(1){background:var(--vert);}
+    .footer-ribbon span:nth-child(2){background:var(--rouge);}
+    .footer-ribbon span:nth-child(3){background:var(--jaune);}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><div class="logo-icon">🍽️</div><span class="logo-text">KMER FOOD</span></a>
+  <ul class="nav-links">
+    <li><a href="{% url 'recettes' %}">Recettes</a></li>
+    <li><a href="{% url 'produits' %}">Produits</a></li>
+    <li><a href="{% url 'inventaire' %}">Inventaire</a></li>
+    <li><a href="{% url 'commande' %}">Commandes</a></li>
+    <li><a href="{% url 'dashboard' %}" style="color:var(--jaune);">Dashboard</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <div>
+    <h1>📊 Tableau de <em>Bord</em></h1>
+    <p>Vue d'ensemble de KMER FOOD</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon green">📦</div>
+      <div class="stat-info">
+        <div class="value">{{ total_commandes }}</div>
+        <div class="label">Total commandes</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon yellow">⏳</div>
+      <div class="stat-info">
+        <div class="value">{{ commandes_en_attente }}</div>
+        <div class="label">En attente</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue">🍽️</div>
+      <div class="stat-info">
+        <div class="value">{{ total_produits }}</div>
+        <div class="label">Produits</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red">⚠️</div>
+      <div class="stat-info">
+        <div class="value" style="color:var(--rouge);">{{ alertes_stock }}</div>
+        <div class="label">Alertes stock</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIENS RAPIDES -->
+  <h2 style="font-family:'Playfair Display',serif;color:var(--brun);margin-bottom:1rem;">🔗 Accès rapide</h2>
+  <div class="quick-links">
+    <a href="/recettes/" class="quick-link"><div class="icon">🍲</div><div class="name">Recettes</div></a>
+    <a href="/produits/" class="quick-link"><div class="icon">🍽️</div><div class="name">Produits</div></a>
+    <a href="/inventaire/" class="quick-link"><div class="icon">📦</div><div class="name">Inventaire</div></a>
+    <a href="/commandes/" class="quick-link"><div class="icon">🛒</div><div class="name">Commandes</div></a>
+    <a href="/rh/" class="quick-link"><div class="icon">👥</div><div class="name">RH</div></a>
+  </div>
+
+  <!-- SECTIONS -->
+  <div class="sections-grid">
+
+    <!-- TOP PRODUITS -->
+    <div class="section-card">
+      <div class="section-header"><h2>🏆 Top Produits</h2></div>
+      <div class="section-body">
+        {% for produit in top_produits %}
+        <div class="item-row">
+          <span class="item-name">{{ produit.nom }}</span>
+          <span class="item-value">{{ produit.nb_commandes }} commande(s)</span>
+        </div>
+        {% empty %}
+        <p style="color:#888;text-align:center;padding:1rem;">Aucune donnée disponible</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ALERTES STOCK -->
+    <div class="section-card">
+      <div class="section-header" style="background:linear-gradient(135deg,#721c24,var(--rouge));"><h2>⚠️ Alertes Stock</h2></div>
+      <div class="section-body">
+        {% for article in articles_alerte %}
+        <div class="item-row">
+          <span class="item-name">{{ article.nom }}</span>
+          <span class="badge badge-alerte">{{ article.quantite_disponible }} {{ article.unite }}</span>
+        </div>
+        {% empty %}
+        <p style="color:#888;text-align:center;padding:1rem;">✅ Tous les stocks sont OK !</p>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="footer-ribbon"><span></span><span></span><span></span></div>
+<footer><strong>KMER FOOD</strong> · Saveurs authentiques du Cameroun</footer>
+
+</body>
+</html>

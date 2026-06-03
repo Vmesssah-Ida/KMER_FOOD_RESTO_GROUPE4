@@ -179,24 +179,25 @@
   <div class="sidebar-logo">
     <!-- TODO: Remplacez src="" par le logo du restaurant -->
     <img src="" alt="Logo" />
-    <div><span>Le Gourmet</span><small>Interface Chef</small></div>
+    <div><span>KMER FOOD</span><small>Interface Chef</small></div>
   </div>
   <div class="role-badge">
     <!-- TODO: Remplacez src="" par la photo du chef (ex: src="assets/chef.jpg") -->
     <img src="" alt="Chef" />
-    <div><span>Chef Cuisinier</span><small>Ahmed Bensaid</small></div>
+    <div><span>Chef Cuisinier</span></div>
   </div>
   <nav>
     <div class="nav-section">Cuisine</div>
     <a class="nav-item active" onclick="showSection('plonge', this)"><span>&#127859;</span> Tickets cuisine <span class="nav-badge">7</span></a>
-    <a class="nav-item" onclick="showSection('menu', this)"><span>&#128203;</span> Menu du restaurant</a>
-    <a class="nav-item" onclick="showSection('recettes', this)"><span>&#128214;</span> Livre de recettes</a>
+    <a class="nav-item" href="{% url 'menu' %}" class="logout-btn">Menu</a>
+    <a class="nav-item" href="{% url 'liste_recettes' %}" class="logout-btn">Livre de recettes</a>
     <div class="nav-section">Équipe</div>
     <a class="nav-item" onclick="showSection('cuisiniers', this)"><span>&#128081;</span> Mon équipe</a>
     <a class="nav-item" onclick="showSection('plannings', this)"><span>&#128197;</span> Planning semaine</a>
   </nav>
   <div class="sidebar-footer">
-    <button class="logout-btn">&#8617; Fin de service</button>
+   <a href="{% url 'logout' %}" class="logout-btn">Déconnexion</a> 
+
   </div>
 </aside>
 
@@ -204,7 +205,7 @@
   <header class="topbar">
     <div>
       <h1 id="page-title">Tickets cuisine</h1>
-      <p>Service midi — 14 mai 2026</p>
+      <p>Service midi</p>
     </div>
     <div class="topbar-right">
       <span style="font-size:0.82rem;background:var(--bg);padding:6px 14px;border-radius:8px;font-weight:600;color:var(--primary)">7 tickets actifs</span>

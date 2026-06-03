@@ -170,12 +170,15 @@
     </div>
     <div class="nav-item" onclick="showTab('vehicules',this)">
       <span class="icon">🚗</span> Véhicules
+
     </div>
+
   </div>
 
   <div class="sidebar-footer">
     <div class="user-chip">
       <div class="user-avatar">FA</div>
+      
       <div>
         <!-- Django : {{ employe.Prenom }} {{ employe.Nom }} -->
         <div class="user-name">{{ employe.Prenom }} {{ employe.Nom }}</div>
@@ -184,7 +187,7 @@
     </div>
     <form method="POST" action="/logout/">
       {% csrf_token %}
-      <button type="submit" class="btn-logout">⎋ Déconnexion</button>
+      <button class="btn-logout"> <a href="{% url 'logout' %}" class="btn-logout">Déconnexion</a> </button>
     </form>
   </div>
 </aside>

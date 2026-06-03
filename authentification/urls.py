@@ -7,7 +7,10 @@ urlpatterns = [
     path('logout/',                  views.logout_view,        name='logout'),
     path('menu/',                    views.menu,               name='menu'),        # ← ajouté
     path('a-propos/',                views.a_propos,           name='a_propos'),    # ← ajouté
-
+    path('recettes/templates/recettes/',                    views.recettes,               name='recettes'), 
+     path('produits/templates/produits/',                    views.produits,               name='produits'), 
+      path('inventaire/templates/inventaire/',                    views.inventaire,               name='inventaire'), 
+       path('dashboard/templates/dashboard/',                    views.dashboard,               name='dashboard'),    
     path('dashboard/directeur/',          views.dashboard_directeur, name='dashboard_directeur'),
     path('dashboard/caissier/',           views.caissier,            name='caissier'),
     path('dashboard/chef-cuisinier/',     views.chef_cuisinier,      name='chef_cuisinier'),

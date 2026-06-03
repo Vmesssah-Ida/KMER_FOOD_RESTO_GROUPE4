@@ -1,0 +1,228 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Espace Directeur – KMER FOOD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --accent:  #1A3A5C;
+      --accent2: #2563a8;
+      --vert:    #2D6A2D;
+      --rouge:   #C0392B;
+      --jaune:   #F0A500;
+      --brun:    #3E2009;
+      --ivoire:  #FAF3E0;
+      --blanc:   #FFFFFF;
+      --sidebar-w: 240px;
+      --bg:      #F4F6FB;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Lato',sans-serif;background:var(--bg);display:flex;min-height:100vh;}
+
+    /* ── SIDEBAR ── */
+    .sidebar{
+      width:var(--sidebar-w);flex-shrink:0;
+      background:var(--accent);
+      display:flex;flex-direction:column;
+      position:fixed;top:0;left:0;bottom:0;z-index:50;
+    }
+    .sidebar-logo{
+      padding:1.4rem 1.2rem;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+      display:flex;align-items:center;gap:.7rem;
+    }
+    .sidebar-logo .icon{font-size:1.6rem;}
+    .sidebar-logo .texts .app{font-family:'Playfair Display',serif;font-size:1rem;color:var(--jaune);letter-spacing:1px;}
+    .sidebar-logo .texts .role{font-size:.65rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;}
+    .nav-section{padding:.8rem 0;border-bottom:1px solid rgba(255,255,255,.08);}
+    .nav-label{font-size:.6rem;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;padding:.4rem 1.2rem .2rem;}
+    .nav-item{
+      display:flex;align-items:center;gap:.7rem;
+      padding:.65rem 1.2rem;cursor:pointer;
+      color:rgba(255,255,255,.7);font-size:.85rem;font-weight:700;
+      border-left:3px solid transparent;
+      transition:background .2s,color .2s,border-color .2s;
+    }
+    .nav-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+    .nav-item.active{background:rgba(255,255,255,.12);color:var(--jaune);border-left-color:var(--jaune);}
+    .nav-item .icon{font-size:1rem;width:20px;text-align:center;}
+    .sidebar-footer{margin-top:auto;padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.1);}
+    .user-chip{display:flex;align-items:center;gap:.6rem;}
+    .user-avatar{width:34px;height:34px;border-radius:50%;background:var(--jaune);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:var(--brun);}
+    .user-name{font-size:.8rem;color:#fff;font-weight:700;}
+    .user-since{font-size:.65rem;color:rgba(255,255,255,.45);}
+    .btn-logout{margin-top:.8rem;width:100%;padding:.5rem;background:rgba(192,57,43,.25);color:#ff8a7a;border:1px solid rgba(192,57,43,.4);border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;transition:background .2s;}
+    .btn-logout:hover{background:rgba(192,57,43,.45);}
+
+    /* ── MAIN ── */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+    .topbar{
+      background:var(--blanc);
+      padding:.9rem 2rem;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid #e8eaf0;
+      position:sticky;top:0;z-index:40;
+    }
+    .topbar-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--brun);}
+    .topbar-right{display:flex;align-items:center;gap:1rem;}
+    .badge-role{background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.25rem .7rem;border-radius:20px;}
+    .date-chip{font-size:.78rem;color:#999;}
+    .content{padding:2rem;flex:1;}
+
+    /* ── TAB PANEL ── */
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+
+    /* ── KPI CARDS ── */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;margin-bottom:2rem;}
+    .kpi{background:var(--blanc);border-radius:16px;padding:1.3rem 1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);border-top:4px solid var(--accent);}
+    .kpi.vert{border-top-color:var(--vert);}
+    .kpi.rouge{border-top-color:var(--rouge);}
+    .kpi.jaune{border-top-color:var(--jaune);}
+    .kpi-label{font-size:.72rem;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;}
+    .kpi-val{font-size:1.8rem;font-weight:700;color:var(--brun);}
+    .kpi-sub{font-size:.72rem;color:#aaa;margin-top:.3rem;}
+
+    /* ── TABLES ── */
+    .section-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--brun);margin-bottom:1rem;display:flex;align-items:center;gap:.7rem;}
+    .section-title::after{content:'';flex:1;height:1px;background:rgba(62,32,9,.1);}
+    .card{background:var(--blanc);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;margin-bottom:2rem;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{background:#f8f9fc;padding:.75rem 1rem;text-align:left;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#888;border-bottom:1px solid #eee;}
+    tbody td{padding:.8rem 1rem;font-size:.85rem;color:#444;border-bottom:1px solid #f5f5f5;}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover{background:#fafbff;}
+    .pill{display:inline-block;font-size:.65rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+    .pill-vert{background:#e8f5e9;color:#2D6A2D;}
+    .pill-rouge{background:#fdecea;color:#C0392B;}
+    .pill-jaune{background:#fff8e1;color:#c47900;}
+    .pill-bleu{background:#e3f2fd;color:#1A3A5C;}
+
+    /* ── FORMULAIRE ── */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.5rem;}
+    .form-group{display:flex;flex-direction:column;gap:.4rem;}
+    .form-group.full{grid-column:1/-1;}
+    label{font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#777;}
+    input,select{padding:.65rem .9rem;border:1.5px solid #e0e0e0;border-radius:8px;font-family:'Lato',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;}
+    input:focus,select:focus{border-color:var(--accent);}
+    .btn{padding:.6rem 1.4rem;border:none;border-radius:8px;font-family:'Lato',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:background .2s,transform .15s;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-primary:hover{background:var(--accent2);}
+    .btn-danger{background:var(--rouge);color:#fff;}
+    .btn-danger:hover{background:#a93226;}
+    .form-actions{padding:.8rem 1.5rem 1.5rem;display:flex;gap:.8rem;}
+
+    /* ── CHART PLACEHOLDER ── */
+    .chart-placeholder{background:linear-gradient(135deg,#f0f4ff,#e8f0ff);border-radius:12px;height:200px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.85rem;margin:1rem 1.5rem 1.5rem;}
+
+    /* ── ALERTE ── */
+    .alert-box{background:#fff8e1;border-left:4px solid var(--jaune);border-radius:8px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.83rem;color:#555;display:flex;gap:.6rem;align-items:flex-start;}
+  </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="icon"></div>
+    <div class="texts">
+      <div class="app">KMER FOOD</div>
+      <div class="role">Directeur des ressources humaines</div>
+    </div>
+  </div>
+
+    <!-- ══ ONGLET : EMPLOYÉS ══ -->
+    <div class="tab-panel" id="tab-employes">
+      <h3 class="section-title">Liste des employés</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>ID</th><th>Nom</th><th>Prénom</th><th>Téléphone</th><th>Salaire</th><th>Embauche</th><th>Poste actuel</th></tr></thead>
+          <tbody>
+            {% for e in employes %}
+            <tr>
+              <td>{{ e.id_Employe }}</td>
+              <td>{{ e.Nom }}</td>
+              <td>{{ e.Prenom }}</td>
+              <td>{{ e.Tel }}</td>
+              <td>{{ e.Salaire }} FCFA</td>
+              <td>{{ e.Date_Embauche|date:"d/m/Y" }}</td>
+              <td><span class="pill pill-bleu">{{ e.poste_actuel|default:"—" }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center;color:#aaa;">Aucun employé</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="section-title">Ajouter un employé</h3>
+      <div class="card">
+        <!--
+          Vue : rh/views.py → ajouter_employe(request)
+          POST → crée Employe + Affectation dans la BDD
+        -->
+        <form method="POST" action="/rh/employes/ajouter/">
+          {% csrf_token %}
+          <div class="form-grid">
+            <div class="form-group"><label>Nom</label><input type="text" name="nom" required/></div>
+            <div class="form-group"><label>Prénom</label><input type="text" name="prenom" required/></div>
+            <div class="form-group"><label>Téléphone</label><input type="tel" name="tel" required/></div>
+            <div class="form-group"><label>Salaire (FCFA)</label><input type="number" name="salaire" required/></div>
+            <div class="form-group"><label>Date d'embauche</label><input type="date" name="date_embauche" required/></div>
+            <div class="form-group">
+              <label>Poste</label>
+              <select name="poste">
+                {% for p in postes %}
+                <option value="{{ p.id_Poste }}">{{ p.Libelle_Poste }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Enregistrer</button></div>
+        </form>
+      </div>
+    </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Ressources Humaines</div>
+    <div class="nav-item" onclick="showTab('employes',this)">
+      <span class="icon">👥</span> Employés
+    </div>
+    <div class="nav-item" onclick="showTab('postes',this)">
+      <span class="icon">🏷️</span> Postes &amp; Affectations
+    </div>
+    <div class="nav-item" onclick="showTab('salaires',this)">
+      <span class="icon">💳</span> Paie
+    </div>
+    <div class="nav-item" onclick="showTab('supervision',this)">
+      <span class="icon">🔭</span> Supervision
+    </div>
+  </div>
+    <!-- ══ ONGLET : POSTES & AFFECTATIONS ══ -->
+    <div class="tab-panel" id="tab-postes">
+      <h3 class="section-title">Affectations actuelles</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>Employé</th><th>Poste</th><th>Depuis</th><th>Fin</th></tr></thead>
+          <tbody>
+            {% for a in affectations %}
+            <tr>
+              <td>{{ a.employe.Prenom }} {{ a.employe.Nom }}</td>
+              <td><span class="pill pill-bleu">{{ a.poste.Libelle_Poste }}</span></td>
+              <td>{{ a.Date_debut|date:"d/m/Y" }}</td>
+              <td>{{ a.Date_fin|date:"d/m/Y"|default:"En cours" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:#aaa;">Aucune affectation</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+</body>
+</html>

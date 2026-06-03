@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -158,7 +159,7 @@
   <div class="sidebar-logo">
     <!-- TODO: Remplacez src="" par le logo du restaurant -->
     <img src="" alt="Logo" />
-    <div><span>Le Gourmet</span><small>Interface Caissier</small></div>
+    <div><span>KMERFOOD</span><small>Interface Caissier</small></div>
   </div>
   <div class="role-badge">
     <!-- TODO: Remplacez src="" par la photo du caissier -->
@@ -175,7 +176,7 @@
     <a class="nav-item" onclick="showSection('cloture', this)"><span>&#128274;</span> Clôture de caisse</a>
   </nav>
   <div class="sidebar-footer">
-    <button class="logout-btn">&#8617; Fin de service</button>
+    <button class="logout-btn"> <a href="{% url 'logout' %}" class="logout-btn">Déconnexion</a></button>
   </div>
 </aside>
 

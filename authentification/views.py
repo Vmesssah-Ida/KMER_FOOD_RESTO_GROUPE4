@@ -105,6 +105,21 @@ def menu_client(request):
     return render(request, 'menu_client.html')
 
 @login_required
+def recettes(request):
+    return render(request, 'liste_recettes.html')
+@login_required
+def inventaire(request):
+    return render(request, 'detail_article.html')
+@login_required
+def produits(request):
+    return render(request, 'liste_produits.html')
+@login_required
+def dashboard(request):
+    return render(request, 'dashboard.html')
+
+
+
+@login_required
 def panier(request):
     from django.db import connection
     commandes, reservations = [], []

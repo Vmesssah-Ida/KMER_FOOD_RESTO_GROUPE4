@@ -199,6 +199,86 @@
     @media(max-width:768px){nav{padding:0 1rem;}.nav-links{display:none;}}
   </style>
 </head>
+{% load static %}
+
+<div id="kemi-chat" style="position:fixed;bottom:24px;right:24px;z-index:9999;font-family:sans-serif">
+  <div id="chat-box" style="display:none;width:320px;background:white;border-radius:16px;
+       box-shadow:0 8px 32px rgba(0,0,0,0.18);overflow:hidden;border:1px solid #e0e0e0">
+    <div style="background:#1B5E20;color:white;padding:14px 16px;font-weight:600;font-size:15px">
+      🌿 KEMI — Conseillère nutrition
+    </div>
+    <div id="kemi-messages" style="height:260px;overflow-y:auto;padding:12px;
+         display:flex;flex-direction:column;gap:8px;background:#fafafa"></div>
+    <div style="display:flex;padding:10px;gap:8px;background:white;border-top:1px solid #eee">
+      <input id="kemi-input" type="text" placeholder="Votre question..."
+        style="flex:1;border:1px solid #ddd;border-radius:8px;padding:8px 12px;font-size:14px;outline:none"
+        onkeydown="if(event.key==='Enter') kemiSend()">
+      <button onclick="kemiSend()"
+        style="background:#1B5E20;color:white;border:none;border-radius:8px;
+               padding:8px 14px;cursor:pointer;font-size:16px">→</button>
+    </div>
+  </div>
+  <button onclick="kemiToggle()"
+    style="width:58px;height:58px;border-radius:50%;background:#1B5E20;color:white;
+           border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.25);
+           display:block;margin-left:auto">💬</button>
+</div>
+
+<script>
+function kemiToggle() {
+  const box = document.getElementById('chat-box');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+function kemiAddMsg(text, isUser) {
+  const div = document.createElement('div');
+  div.style.cssText = `
+    max-width:82%;padding:9px 13px;border-radius:${isUser?'14px 14px 4px 14px':'14px 14px 14px 4px'};
+    background:${isUser?'#1B5E20':'#fff'};color:${isUser?'#fff':'#333'};
+    font-size:14px;line-height:1.5;align-self:${isUser?'flex-end':'flex-start'};
+    border:${isUser?'none':'1px solid #e8e8e8'};`;
+  div.textContent = text;
+  const msgs = document.getElementById('kemi-messages');
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function kemiSend() {
+  const input = document.getElementById('kemi-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  kemiAddMsg(msg, true);
+  input.value = '';
+  kemiAddMsg('...', false);  // indicateur de frappe
+
+  try {
+    const res = await fetch('/api/chat/client/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({message: msg})
+    });
+    const data = await res.json();
+    // Remplacer les "..."
+    const msgs = document.getElementById('kemi-messages');
+    msgs.removeChild(msgs.lastChild);
+    kemiAddMsg(data.response || 'Désolée, une erreur est survenue.', false);
+  } catch(e) {
+    const msgs = document.getElementById('kemi-messages');
+    msgs.removeChild(msgs.lastChild);
+    kemiAddMsg('Connexion impossible. Réessayez.', false);
+  }
+}
+
+// Message de bienvenue automatique
+window.addEventListener('load', () => {
+  setTimeout(() => kemiAddMsg(
+    'Bonjour ! Je suis KEMI 🌿 Comment puis-je vous aider à bien manger aujourd\'hui ?', false
+  ), 800);
+});
+</script>
 <body>
 
 <!-- NAVBAR -->
@@ -263,7 +343,7 @@
   <div class="plats-grid">
 
     <div class="plat-card" data-cat="plats" data-prix="5000" data-nom="Poulet DG">
-      <div class="plat-img-wrap"><img src="" alt="Poulet DG" loading="lazy"/>
+      <div class="plat-img-wrap"><img src="/static/images/d-g.png" alt="Poulet DG" loading="lazy"/>
         <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
         <div class="plat-temps">⏱ 2 h · 3 pers.</div></div>
       <div class="plat-body"><h3 class="plat-nom">Poulet DG</h3>
@@ -281,7 +361,7 @@
         </div></div></div>
 
     <div class="plat-card" data-cat="plats" data-prix="8000" data-nom="Ndolé">
-      <div class="plat-img-wrap"><img src="" alt="Ndolé" loading="lazy"/>
+      <div class="plat-img-wrap"><img src="/static/images/ndole.png" alt="Ndolé" loading="lazy"/>
         <div class="badge-wrap"><span class="badge badge-maison">Maison</span><span class="badge badge-populaire">Populaire</span></div>
         <div class="plat-temps">⏱ 2 h · 4 pers.</div></div>
       <div class="plat-body"><h3 class="plat-nom">Ndolé</h3>
@@ -299,7 +379,7 @@
         </div></div></div>
 
     <div class="plat-card" data-cat="plats" data-prix="4500" data-nom="Riz Sauté">
-      <div class="plat-img-wrap"><img src="" alt="Riz Sauté" loading="lazy"/>
+      <div class="plat-img-wrap"><img src="/static/images/riz-saute.png" alt="Riz Sauté" loading="lazy"/>
         <div class="badge-wrap"><span class="badge badge-nouveau">Nouveau</span></div>
         <div class="plat-temps">⏱ 1 h · 3 pers.</div></div>
       <div class="plat-body"><h3 class="plat-nom">Riz Sauté</h3>
@@ -317,7 +397,7 @@
         </div></div></div>
 
     <div class="plat-card" data-cat="plats" data-prix="6500" data-nom="Eru et Waterleaf">
-      <div class="plat-img-wrap"><img src="" alt="Eru" loading="lazy"/>
+      <div class="plat-img-wrap"><img src="/static/images/eru.png" alt="Eru" loading="lazy"/>
         <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
         <div class="plat-temps">⏱ 2 h · 4 pers.</div></div>
       <div class="plat-body"><h3 class="plat-nom">Eru et Waterleaf</h3>
@@ -343,7 +423,7 @@
   <p class="section-subtitle">14 références · Boissons locales &amp; fraîches</p>
   <div class="plats-grid">
     <div class="plat-card" data-cat="boissons" data-prix="1500" data-nom="Jus de Gingembre">
-      <div class="plat-img-wrap"><img src="" alt="Jus de Gingembre" loading="lazy"/>
+      <div class="plat-img-wrap"><img src="/static/images/jus-gingembre.png" alt="Jus de Gingembre" loading="lazy"/>
         <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
         <div class="plat-temps">⏱ 45 min</div></div>
       <div class="plat-body"><h3 class="plat-nom">Jus de Gingembre</h3>
@@ -361,7 +441,7 @@
         </div></div></div>
 
     <div class="plat-card" data-cat="boissons" data-prix="1500" data-nom="Jus de Bissap">
-      <div class="plat-img-wrap"><img src="" alt="Jus de Bissap" loading="lazy"/>
+      <div class="plat-img-wrap"><img src="/static/images/boisson.png" alt="Jus de Bissap" loading="lazy"/>
         <div class="badge-wrap"><span class="badge badge-maison">Maison</span></div>
         <div class="plat-temps">⏱ 30 min</div></div>
       <div class="plat-body"><h3 class="plat-nom">Jus de Bissap</h3>
@@ -386,7 +466,7 @@
   <p class="section-subtitle">6 créations · Fins de repas gourmandes</p>
   <div class="plats-grid">
     <div class="plat-card" data-cat="desserts" data-prix="2000" data-nom="Beignets Sucre Cannelle">
-      <div class="plat-img-wrap"><img src="" alt="Beignets" loading="lazy"/>
+      <div class="plat-img-wrap"><img src="/static/images/dessert.png" alt="Beignets" loading="lazy"/>
         <div class="badge-wrap"><span class="badge badge-populaire">Populaire</span></div>
         <div class="plat-temps">⏱ 30 min</div></div>
       <div class="plat-body"><h3 class="plat-nom">Beignets Sucre-Cannelle</h3>

@@ -14,789 +14,108 @@
       --card-shadow:0 2px 14px rgba(62,32,9,0.08);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html{scroll-behavior:smooth;}
     body{font-family:'Lato',sans-serif;color:var(--texte);background:var(--ivoire);display:flex;min-height:100vh;}
 
-    /* ===== SIDEBAR ===== */
-    .sidebar{width:var(--sidebar-w);background:var(--brun);display:flex;flex-direction:column;
-      position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto;}
-    .sidebar-logo{padding:24px 20px 16px;display:flex;align-items:center;gap:10px;
-      border-bottom:1px solid rgba(255,255,255,0.1);}
-    .sidebar-logo .logo-icon{width:40px;height:40px;background:var(--jaune);border-radius:50%;
-      display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
-    .sidebar-logo .logo-text{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--jaune);}
-    .sidebar-logo .logo-sub{font-size:0.62rem;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;}
-    .role-badge{margin:14px 12px 6px;padding:12px;background:rgba(240,165,0,0.12);
-      border-radius:10px;display:flex;align-items:center;gap:10px;}
-    .role-avatar{width:36px;height:36px;background:var(--jaune);border-radius:50%;
-      display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
-    .role-name{font-size:0.78rem;font-weight:700;color:var(--jaune);}
-    .role-sub{font-size:0.68rem;color:rgba(255,255,255,0.45);}
-    .nav-section{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;
-      color:rgba(255,255,255,0.3);padding:14px 14px 5px;}
-    .nav-item{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:8px;
-      color:rgba(255,255,255,0.6);font-size:0.86rem;cursor:pointer;
-      transition:all 0.17s;margin:2px 8px;text-decoration:none;border:none;background:none;width:calc(100% - 16px);}
-    .nav-item:hover{background:rgba(255,255,255,0.08);color:#fff;}
-    .nav-item.active{background:var(--jaune);color:var(--brun);font-weight:700;}
-    .nav-badge{margin-left:auto;background:var(--rouge);color:#fff;font-size:0.63rem;
-      padding:2px 7px;border-radius:20px;font-weight:700;}
-    .nav-item.active .nav-badge{background:var(--brun);color:var(--jaune);}
-    .sidebar-footer{padding:14px;border-top:1px solid rgba(255,255,255,0.1);margin-top:auto;}
-    .logout-btn{width:100%;padding:10px;background:rgba(192,57,43,0.2);color:#fca5a5;
-      border:none;border-radius:8px;cursor:pointer;font-size:0.83rem;font-weight:600;
-      font-family:'Lato',sans-serif;transition:background 0.2s;}
-    .logout-btn:hover{background:rgba(192,57,43,0.4);}
+    .sidebar{width:var(--sidebar-w);background:var(--brun);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:10;padding:1.5rem 0;}
+    .sidebar-brand{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--ivoire);text-align:center;padding-bottom:2rem;border-bottom:1px solid rgba(250,243,224,0.1);margin-bottom:1.5rem;}
+    .sidebar-brand span{color:var(--jaune);}
+    
+    .nav-menu{list-style:none;display:flex;flex-direction:column;gap:0.25rem;}
+    .nav-item a{display:flex;align-items:center;padding:0.85rem 1.5rem;color:var(--ivoire);text-decoration:none;font-weight:400;transition:all 0.2s;}
+    .nav-item.active a, .nav-item a:hover{background:var(--vert);color:var(--blanc);}
+    
+    .logout-box{margin-top:auto;padding:0 1rem;}
+    .btn-sidebar-logout{display:block;width:100%;background:var(--rouge);color:var(--blanc);text-align:center;padding:0.7rem;border-radius:4px;text-decoration:none;font-weight:700;}
 
-    /* ===== MAIN ===== */
-    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
-    .topbar{background:var(--blanc);border-bottom:1px solid rgba(62,32,9,0.1);
-      padding:0 28px;height:64px;display:flex;align-items:center;
-      justify-content:space-between;position:sticky;top:0;z-index:50;
-      box-shadow:0 2px 10px rgba(62,32,9,0.06);}
-    .topbar h1{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--brun);}
-    .topbar p{font-size:0.76rem;color:#888;margin-top:1px;}
-    .topbar-right{display:flex;align-items:center;gap:12px;}
-    .service-badge{background:#dcfce7;color:var(--vert);font-size:0.78rem;
-      font-weight:700;padding:5px 14px;border-radius:20px;}
-    .content{padding:24px 28px;flex:1;}
-    .section{display:none;}
-    .section.active{display:block;}
-
-    /* ===== STATS MINI ===== */
-    .mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-    .mini-stat{background:var(--blanc);border-radius:12px;padding:18px 20px;
-      box-shadow:var(--card-shadow);border-left:4px solid var(--jaune);}
-    .mini-stat.rouge{border-left-color:var(--rouge);}
-    .mini-stat.vert{border-left-color:var(--vert);}
-    .mini-stat.brun{border-left-color:var(--brun);}
-    .mini-stat .value{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--brun);}
-    .mini-stat .label{font-size:0.73rem;color:#888;margin-top:3px;text-transform:uppercase;letter-spacing:0.5px;}
-
-    /* ===== TABLES PLAN ===== */
-    .tables-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
-    .table-card{background:var(--blanc);border-radius:12px;padding:16px 14px;text-align:center;
-      box-shadow:var(--card-shadow);cursor:pointer;transition:all 0.18s;border:2px solid transparent;}
-    .table-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(62,32,9,0.13);}
-    .table-card.libre{border-color:#86efac;}
-    .table-card.occupee{border-color:#fca5a5;background:#fff5f5;}
-    .table-card.reservee{border-color:var(--jaune);background:#fffbeb;}
-    .table-card.nettoyage{border-color:#93c5fd;background:#eff6ff;}
-    .table-num{font-size:1.4rem;font-weight:800;color:var(--brun);}
-    .table-statut{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-top:4px;}
-    .table-card.libre .table-statut{color:var(--vert);}
-    .table-card.occupee .table-statut{color:var(--rouge);}
-    .table-card.reservee .table-statut{color:#b45309;}
-    .table-card.nettoyage .table-statut{color:#2563eb;}
-    .table-covers{font-size:0.72rem;color:#888;margin-top:3px;}
-    .table-timer{font-size:0.7rem;font-weight:700;color:var(--rouge);margin-top:3px;}
-
-    /* ===== CARDS ===== */
-    .card{background:var(--blanc);border-radius:14px;box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:20px;}
-    .card-header{padding:16px 22px;border-bottom:1px solid rgba(62,32,9,0.08);
-      display:flex;align-items:center;justify-content:space-between;}
-    .card-header h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--brun);}
-    .card-body{padding:0;}
-
-    /* ===== ONGLETS ===== */
-    .tabs{display:flex;gap:4px;background:rgba(62,32,9,0.05);padding:4px;border-radius:10px;margin-bottom:20px;}
-    .tab{padding:8px 18px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;
-      border:none;background:none;color:#888;transition:all 0.17s;font-family:'Lato',sans-serif;}
-    .tab.active{background:var(--blanc);color:var(--rouge);box-shadow:0 1px 6px rgba(0,0,0,0.08);}
-
-    /* ===== COMMANDES ===== */
-    .commandes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
-    .cmd-card{border:1.5px solid rgba(62,32,9,0.1);border-radius:12px;padding:16px;position:relative;
-      background:var(--blanc);transition:box-shadow 0.2s;}
-    .cmd-card:hover{box-shadow:0 6px 20px rgba(62,32,9,0.1);}
-    .cmd-card.urgent{border-color:var(--rouge);}
-    .cmd-card.prete{border-color:var(--vert);background:#f0fdf4;}
-    .cmd-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-    .cmd-title{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--brun);font-weight:700;}
-    .cmd-items{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
-    .cmd-item{display:flex;justify-content:space-between;align-items:center;font-size:0.83rem;padding:4px 0;}
-    .cmd-item-qty{background:var(--ivoire);border-radius:5px;padding:2px 8px;font-size:0.75rem;font-weight:700;margin-right:8px;color:var(--brun);}
-    .cmd-item-name{flex:1;color:var(--texte);}
-    .cmd-item-price{color:var(--vert);font-weight:700;min-width:70px;text-align:right;}
-    .cmd-total{border-top:1px solid rgba(62,32,9,0.08);margin-top:10px;padding-top:10px;
-      display:flex;justify-content:space-between;font-weight:800;font-size:0.9rem;}
-    .cmd-total span:last-child{color:var(--vert);}
-    .cmd-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap;}
-
-    /* ===== BADGES ===== */
-    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.71rem;font-weight:700;}
-    .badge-attente{background:#fef3c7;color:#92400e;}
-    .badge-preparation{background:#dbeafe;color:#1d4ed8;}
-    .badge-prete{background:#dcfce7;color:var(--vert);}
-    .badge-servie{background:#f1f5f9;color:#475569;}
-    .badge-annulee{background:#fee2e2;color:var(--rouge);}
-    .badge-livraison{background:#ede9fe;color:#6d28d9;}
-
-    /* ===== BOUTONS ===== */
-    .btn{padding:7px 16px;border-radius:8px;font-size:0.79rem;font-weight:600;
-      border:none;cursor:pointer;transition:all 0.17s;font-family:'Lato',sans-serif;
-      display:inline-flex;align-items:center;gap:5px;}
-    .btn-primary{background:var(--jaune);color:var(--brun);}
-    .btn-primary:hover{background:#e09400;}
-    .btn-success{background:#dcfce7;color:var(--vert);}
-    .btn-success:hover{background:#bbf7d0;}
-    .btn-danger{background:#fee2e2;color:var(--rouge);}
-    .btn-danger:hover{background:#fecaca;}
-    .btn-ghost{background:var(--ivoire);color:var(--texte);border:1px solid rgba(62,32,9,0.12);}
-    .btn-ghost:hover{background:rgba(62,32,9,0.05);}
-    .btn-warning{background:#fef3c7;color:#92400e;}
-    .btn-warning:hover{background:#fde68a;}
-    .btn-sm{padding:5px 12px;font-size:0.75rem;}
-
-    /* ===== TABLE DATA ===== */
-    table{width:100%;border-collapse:collapse;}
-    th{font-size:0.72rem;font-weight:700;color:#888;text-transform:uppercase;
-      letter-spacing:0.05em;padding:12px 16px;background:var(--ivoire);text-align:left;}
-    td{padding:12px 16px;font-size:0.84rem;border-bottom:1px solid rgba(62,32,9,0.06);vertical-align:middle;}
-    tr:last-child td{border-bottom:none;}
-    tr:hover td{background:rgba(240,165,0,0.04);}
-
-    /* ===== RÉSERVATIONS ===== */
-    .resa-row{display:flex;align-items:center;gap:14px;padding:13px 22px;border-bottom:1px solid rgba(62,32,9,0.06);}
-    .resa-row:last-child{border-bottom:none;}
-    .resa-time{background:var(--brun);color:var(--jaune);border-radius:8px;
-      padding:6px 10px;font-size:0.8rem;font-weight:700;min-width:58px;text-align:center;}
-    .resa-info{flex:1;}
-    .resa-info strong{font-size:0.88rem;display:block;color:var(--brun);}
-    .resa-info span{font-size:0.74rem;color:#888;}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-
-    /* ===== MODAL ===== */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,5,0,0.6);
-      z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-    .modal-overlay.open{display:flex;}
-    .modal{background:var(--blanc);border-radius:18px;width:520px;max-width:95vw;
-      box-shadow:0 24px 80px rgba(0,0,0,0.25);animation:slideUp 0.3s ease both;}
-    @keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-    .modal-header{padding:18px 24px;border-bottom:1px solid rgba(62,32,9,0.08);
-      display:flex;align-items:center;justify-content:space-between;}
-    .modal-header h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--brun);}
-    .modal-close{background:none;border:none;font-size:1.3rem;cursor:pointer;color:#aaa;}
-    .modal-close:hover{color:var(--rouge);}
-    .modal-body{padding:22px 24px;}
-    .modal-footer{padding:14px 24px;border-top:1px solid rgba(62,32,9,0.08);
-      display:flex;justify-content:flex-end;gap:10px;}
-    .form-group{margin-bottom:14px;}
-    .form-group label{font-size:0.75rem;font-weight:700;color:#888;display:block;
-      margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
-    .form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 13px;
-      border:1.5px solid rgba(62,32,9,0.15);border-radius:8px;font-size:0.86rem;
-      font-family:'Lato',sans-serif;outline:none;transition:border 0.17s;}
-    .form-group input:focus,.form-group select:focus{border-color:var(--jaune);}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-
-    /* ===== LIGNES COMMANDE DANS MODAL ===== */
-    .lignes-commande{border:1px solid rgba(62,32,9,0.1);border-radius:10px;padding:10px;margin-bottom:14px;}
-    .ligne-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-    .ligne-item:last-child{margin-bottom:0;}
-    .ligne-item select{flex:2;}
-    .ligne-item input{flex:1;}
-    .ligne-item .btn-remove{flex-shrink:0;width:28px;height:28px;padding:0;
-      display:flex;align-items:center;justify-content:center;border-radius:50%;
-      background:#fee2e2;color:var(--rouge);border:none;cursor:pointer;font-size:1rem;}
-    .btn-add-ligne{width:100%;padding:8px;border:1.5px dashed rgba(62,32,9,0.2);
-      background:none;border-radius:8px;color:#888;cursor:pointer;font-size:0.82rem;
-      font-family:'Lato',sans-serif;transition:all 0.2s;}
-    .btn-add-ligne:hover{border-color:var(--jaune);color:var(--brun);}
-    .total-preview{background:var(--ivoire);border-radius:8px;padding:10px 14px;
-      font-weight:700;color:var(--vert);font-size:0.95rem;text-align:right;}
-
-    /* ===== NOTIFICATION ===== */
-    .notif{position:fixed;bottom:24px;right:24px;z-index:300;
-      background:var(--vert);color:#fff;padding:12px 20px;border-radius:12px;
-      font-weight:700;font-size:0.88rem;box-shadow:0 8px 24px rgba(0,0,0,0.2);
-      transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none;}
-    .notif.show{transform:translateY(0);opacity:1;}
-    .notif.error{background:var(--rouge);}
-
-    @media(max-width:900px){.main{margin-left:0;}.sidebar{display:none;}.tables-grid{grid-template-columns:repeat(3,1fr);}
-      .mini-stats{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}}
+    .main-content{margin-left:var(--sidebar-w);flex:1;padding:2rem 3rem;}
+    .header-page{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;border-bottom:2px solid rgba(62,32,9,0.1);padding-bottom:1rem;}
+    
+    .card-form{background:var(--blanc);padding:2rem;border-radius:8px;box-shadow:var(--card-shadow);max-width:700px;}
+    .form-group{margin-bottom:1.25rem;}
+    .form-group label{display:block;margin-bottom:0.5rem;font-weight:700;color:var(--brun);}
+    .form-group select, .form-group input{width:100%;padding:0.7rem;border:1px solid #ccc;border-radius:4px;}
+    
+    .ligne-item{display:flex;gap:1rem;align-items:center;margin-bottom:0.8rem;}
+    .btn-danger{background:var(--rouge);color:var(--blanc);border:none;padding:0.7rem;border-radius:4px;cursor:pointer;}
+    .total-preview{font-size:1.3rem;font-weight:700;color:var(--vert);margin:1.5rem 0;text-align:right;}
+    .btn-submit{background:var(--vert);color:var(--blanc);border:none;padding:0.8rem 2rem;font-weight:700;border-radius:4px;cursor:pointer;}
   </style>
 </head>
 <body>
 
-<!-- ===== SIDEBAR ===== -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-icon">🍽️</div>
-    <div>
-      <div class="logo-text">KMER FOOD</div>
-      <div class="logo-sub">Interface Serveur</div>
+  <div class="sidebar">
+    <div class="sidebar-brand">KMER<span>FOOD</span> <br/><small style="font-size:0.75rem;opacity:0.6;">Espace Serveur</small></div>
+    <ul class="nav-menu">
+      <li class="nav-item active"><a href="#">Prise de commande </a></li>
+      <li class="nav-item"><a href="#">Tables en salle</a></li>
+    </ul>
+    <div class="logout-box">
+    <a href="{% url 'logout' %}" class="btn-logout">Deconnexion</a> 
     </div>
   </div>
-  <div class="role-badge">
-    <div class="role-avatar">👤</div>
-    <div>
-      <div class="role-name">{{ user.get_full_name|default:user.username }}</div>
-      <div class="role-sub">Serveur · En service</div>
-    </div>
-  </div>
-  <nav>
-    <div class="nav-section">Mon service</div>
-    <button class="nav-item active" onclick="showSection('tables',this)">
-      🗺️ Plan des tables
-    </button>
-    <button class="nav-item" onclick="showSection('commandes',this)">
-      📋 Commandes
-      <span class="nav-badge" id="badge-cmd">{{ commandes_actives|default:"0" }}</span>
-    </button>
-    <button class="nav-item" onclick="showSection('reservations',this)">
-      📅 Réservations
-      <span class="nav-badge" id="badge-res">{{ reservations_aujourdhui|default:"0" }}</span>
-    </button>
-    <div class="nav-section">Historique</div>
-    <button class="nav-item" onclick="showSection('historique',this)">
-      🕐 Historique du jour
-    </button>
-  </nav>
-  <div class="sidebar-footer">
-    <a href="{% url 'logout' %}" class="logout-btn">⬅ Fin de service</a>
-  </div>
-</aside>
 
-<!-- ===== MAIN ===== -->
-<main class="main">
-  <header class="topbar">
-    <div>
-      <h1 id="page-title">Plan des tables</h1>
-      <p id="page-date">Service en cours — KMER FOOD Yaoundé</p>
-    </div>
-    <div class="topbar-right">
-      <span class="service-badge">● Service actif</span>
-      <button class="btn btn-primary" onclick="ouvrirModalCommande()">+ Nouvelle commande</button>
-    </div>
-  </header>
-
-  <div class="content">
-
-    <!-- ═══ PLAN DES TABLES ═══ -->
-    <div id="tables" class="section active">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
-        <div style="display:flex;gap:16px;font-size:0.78rem;flex-wrap:wrap;">
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#86efac;margin-right:4px;"></span>Libre</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fca5a5;margin-right:4px;"></span>Occupée</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fde68a;margin-right:4px;"></span>Réservée</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#93c5fd;margin-right:4px;"></span>Nettoyage</span>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="ouvrirModalResa()">+ Réservation</button>
-      </div>
-
-      <div class="tables-grid">
-        {% if tables %}
-          {% for table in tables %}
-          <div class="table-card {{ table.statut|default:'libre' }}" onclick="selectTable('{{ table.Numero_Table }}','{{ table.statut|default:'libre' }}')">
-            <div class="table-num">{{ table.Numero_Table }}</div>
-            <div class="table-statut">{{ table.statut|default:"Libre"|capfirst }}</div>
-            <div class="table-covers">{{ table.Capacite }} couverts</div>
-          </div>
-          {% endfor %}
-        {% else %}
-          <!-- Tables statiques si pas encore connectées -->
-          <div class="table-card libre" onclick="selectTable('T1','libre')"><div class="table-num">T1</div><div class="table-statut">Libre</div><div class="table-covers">4 couverts</div></div>
-          <div class="table-card occupee" onclick="selectTable('T2','occupee')"><div class="table-num">T2</div><div class="table-statut">Occupée</div><div class="table-covers">6 couverts</div><div class="table-timer">45 min</div></div>
-          <div class="table-card reservee" onclick="selectTable('T3','reservee')"><div class="table-num">T3</div><div class="table-statut">Réservée</div><div class="table-covers">2 couverts</div></div>
-          <div class="table-card libre" onclick="selectTable('T4','libre')"><div class="table-num">T4</div><div class="table-statut">Libre</div><div class="table-covers">8 couverts</div></div>
-          <div class="table-card occupee" onclick="selectTable('T5','occupee')"><div class="table-num">T5</div><div class="table-statut">Occupée</div><div class="table-covers">4 couverts</div><div class="table-timer">1h 20min</div></div>
-        {% endif %}
-      </div>
-
-      <div class="mini-stats">
-        <div class="mini-stat rouge"><div class="value">{{ tables_occupees|default:"2" }}</div><div class="label">Tables occupées</div></div>
-        <div class="mini-stat vert"><div class="value">{{ tables_libres|default:"2" }}</div><div class="label">Tables libres</div></div>
-        <div class="mini-stat"><div class="value">{{ commandes_actives|default:"0" }}</div><div class="label">Commandes en cours</div></div>
-        <div class="mini-stat brun"><div class="value">{{ ca_jour|default:"0" }} FCFA</div><div class="label">CA du jour</div></div>
-      </div>
+  <div class="main-content">
+    <div class="header-page">
+      <h1 id="page-title">Nouvelle Commande sur Place </h1>
+      <span id="page-date" style="opacity:0.6;">Service en cours...</span>
     </div>
 
-    <!-- ═══ COMMANDES ═══ -->
-    <div id="commandes" class="section">
-      <div class="tabs">
-        <button class="tab active" onclick="switchTab('en-cours',this)">En cours</button>
-        <button class="tab" onclick="switchTab('en-attente',this)">En attente cuisine</button>
-        <button class="tab" onclick="switchTab('pretes',this)">Prêtes à servir 🔔</button>
-        <button class="tab" onclick="switchTab('servies',this)">Servies aujourd'hui</button>
-      </div>
-
-      <!-- EN COURS -->
-      <div id="tab-en-cours" class="commandes-grid">
-        {% if commandes_en_cours %}
-          {% for cmd in commandes_en_cours %}
-          <div class="cmd-card {% if cmd.duree_min > 60 %}urgent{% endif %}">
-            <div class="cmd-top">
-              <span class="cmd-title">
-                {% if cmd.Type == 'Sur place' %}🍽️{% elif cmd.Type == 'À livrer' %}🛵{% else %}📦{% endif %}
-                {{ cmd.Type }} · Cmd #{{ cmd.id_Commande }}
-              </span>
-              <span class="badge badge-preparation">En cuisine</span>
-            </div>
-            <div class="cmd-items">
-              {% for ligne in cmd.lignes %}
-              <div class="cmd-item">
-                <span class="cmd-item-qty">x{{ ligne.Quantite }}</span>
-                <span class="cmd-item-name">{{ ligne.Nom_Produit }}</span>
-                <span class="cmd-item-price">{{ ligne.Prix_Unitaire }} FCFA</span>
-              </div>
-              {% endfor %}
-            </div>
-            <div class="cmd-total">
-              <span>Total</span>
-              <span>{{ cmd.Montant_Total }} FCFA</span>
-            </div>
-            <div class="cmd-actions">
-              <form method="POST" action="{% url 'commande_marquer_servie' cmd.id_Commande %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success btn-sm">✅ Servie</button>
-              </form>
-              <button class="btn btn-ghost btn-sm" onclick="ouvrirDetailCmd({{ cmd.id_Commande }})">👁 Détail</button>
-              <button class="btn btn-warning btn-sm" onclick="ouvrirFacture({{ cmd.id_Commande }})">🧾 Facture</button>
-            </div>
-          </div>
-          {% endfor %}
-        {% else %}
-          <!-- Commandes statiques de démonstration -->
-          <div class="cmd-card urgent">
-            <div class="cmd-top">
-              <span class="cmd-title">🍽️ Sur place · Table T2</span>
-              <span class="badge badge-preparation">En cuisine · 45 min</span>
-            </div>
-            <div class="cmd-items">
-              <div class="cmd-item"><span class="cmd-item-qty">x2</span><span class="cmd-item-name">Ndolé Camerounais</span><span class="cmd-item-price">16 000 FCFA</span></div>
-              <div class="cmd-item"><span class="cmd-item-qty">x2</span><span class="cmd-item-name">Jus de Gingembre</span><span class="cmd-item-price">3 000 FCFA</span></div>
-            </div>
-            <div class="cmd-total"><span>Total</span><span>19 000 FCFA</span></div>
-            <div class="cmd-actions">
-              <button class="btn btn-success btn-sm">✅ Marquer servie</button>
-              <button class="btn btn-ghost btn-sm">👁 Détail</button>
-              <button class="btn btn-warning btn-sm">🧾 Facture</button>
-            </div>
-          </div>
-          <div class="cmd-card prete">
-            <div class="cmd-top">
-              <span class="cmd-title">🛵 Livraison · Cmd #0042</span>
-              <span class="badge badge-prete">✅ Prête</span>
-            </div>
-            <div class="cmd-items">
-              <div class="cmd-item"><span class="cmd-item-qty">x1</span><span class="cmd-item-name">Poulet DG</span><span class="cmd-item-price">5 000 FCFA</span></div>
-              <div class="cmd-item"><span class="cmd-item-qty">x1</span><span class="cmd-item-name">Riz Sauté</span><span class="cmd-item-price">4 500 FCFA</span></div>
-            </div>
-            <div class="cmd-total"><span>Total</span><span>9 500 FCFA</span></div>
-            <div class="cmd-actions">
-              <button class="btn btn-success btn-sm">✅ Marquer servie</button>
-              <button class="btn btn-warning btn-sm">🧾 Facture</button>
-            </div>
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- EN ATTENTE CUISINE -->
-      <div id="tab-en-attente" style="display:none;">
-        <div class="card">
-          <div class="card-header"><h3>Commandes en attente de préparation</h3></div>
-          <div class="card-body">
-            <table>
-              <thead><tr><th>#Cmd</th><th>Type</th><th>Client / Table</th><th>Montant</th><th>Heure</th><th>Actions</th></tr></thead>
-              <tbody>
-                {% if commandes_attente %}
-                  {% for cmd in commandes_attente %}
-                  <tr>
-                    <td><strong>#{{ cmd.id_Commande }}</strong></td>
-                    <td>{{ cmd.Type }}</td>
-                    <td>{{ cmd.client_nom|default:"—" }}</td>
-                    <td><strong>{{ cmd.Montant_Total }} FCFA</strong></td>
-                    <td>{{ cmd.Date|time:"H:i" }}</td>
-                    <td>
-                      <div style="display:flex;gap:6px;">
-                        <form method="POST" action="{% url 'commande_annuler' cmd.id_Commande %}" style="display:inline;">
-                          {% csrf_token %}
-                          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Annuler la commande ?')">✕ Annuler</button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                  {% endfor %}
-                {% else %}
-                  <tr><td colspan="6" style="text-align:center;color:#aaa;padding:2rem;">Aucune commande en attente</td></tr>
-                {% endif %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- PRÊTES -->
-      <div id="tab-pretes" style="display:none;">
-        <div class="commandes-grid">
-          {% if commandes_pretes %}
-            {% for cmd in commandes_pretes %}
-            <div class="cmd-card prete">
-              <div class="cmd-top">
-                <span class="cmd-title">Cmd #{{ cmd.id_Commande }} · {{ cmd.Type }}</span>
-                <span class="badge badge-prete">✅ Prête</span>
-              </div>
-              <div class="cmd-total"><span>Total</span><span>{{ cmd.Montant_Total }} FCFA</span></div>
-              <div class="cmd-actions">
-                <form method="POST" action="{% url 'commande_marquer_servie' cmd.id_Commande %}">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-success btn-sm">🍽️ Marquer servie</button>
-                </form>
-                <button class="btn btn-warning btn-sm" onclick="ouvrirFacture({{ cmd.id_Commande }})">🧾 Facture</button>
-              </div>
-            </div>
-            {% endfor %}
-          {% else %}
-            <p style="color:#aaa;padding:2rem;grid-column:1/-1;text-align:center;">Aucune commande prête pour le moment.</p>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- SERVIES -->
-      <div id="tab-servies" style="display:none;">
-        <div class="card">
-          <div class="card-header"><h3>Commandes servies aujourd'hui</h3></div>
-          <div class="card-body">
-            <table>
-              <thead><tr><th>#Cmd</th><th>Type</th><th>Montant</th><th>Paiement</th><th>Heure</th><th>Facture</th></tr></thead>
-              <tbody>
-                {% if commandes_servies %}
-                  {% for cmd in commandes_servies %}
-                  <tr>
-                    <td><strong>#{{ cmd.id_Commande }}</strong></td>
-                    <td>{{ cmd.Type }}</td>
-                    <td><strong style="color:var(--vert);">{{ cmd.Montant_Total }} FCFA</strong></td>
-                    <td>{{ cmd.Mode_de_Paiement }}</td>
-                    <td>{{ cmd.Date|time:"H:i" }}</td>
-                    <td><button class="btn btn-ghost btn-sm" onclick="ouvrirFacture({{ cmd.id_Commande }})">🧾</button></td>
-                  </tr>
-                  {% endfor %}
-                {% else %}
-                  <tr><td colspan="6" style="text-align:center;color:#aaa;padding:2rem;">Aucune commande servie pour l'instant.</td></tr>
-                {% endif %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ RÉSERVATIONS ═══ -->
-    <div id="reservations" class="section">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--brun);">Réservations du jour</h3>
-        <button class="btn btn-primary" onclick="ouvrirModalResa()">+ Nouvelle réservation</button>
-      </div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><h3>🌞 Midi</h3></div>
-          <div class="card-body">
-            {% if reservations_midi %}
-              {% for res in reservations_midi %}
-              <div class="resa-row">
-                <div class="resa-time">{{ res.Heure }}</div>
-                <div class="resa-info">
-                  <strong>{{ res.client_nom }}</strong>
-                  <span>Table {{ res.Numero_Table }} · {{ res.Capacite }} couverts</span>
-                </div>
-                <span class="badge {% if res.Statut == 'Confirmée' %}badge-prete{% else %}badge-attente{% endif %}">{{ res.Statut }}</span>
-              </div>
-              {% endfor %}
-            {% else %}
-              <div class="resa-row"><div class="resa-time">12h00</div><div class="resa-info"><strong>Famille Ngono</strong><span>Table T1 · 4 couverts</span></div><span class="badge badge-prete">Confirmée</span></div>
-              <div class="resa-row"><div class="resa-time">13h00</div><div class="resa-info"><strong>M. Kamdem</strong><span>Table T3 · 2 couverts</span></div><span class="badge badge-attente">À confirmer</span></div>
-            {% endif %}
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h3>🌙 Soir</h3></div>
-          <div class="card-body">
-            {% if reservations_soir %}
-              {% for res in reservations_soir %}
-              <div class="resa-row">
-                <div class="resa-time">{{ res.Heure }}</div>
-                <div class="resa-info">
-                  <strong>{{ res.client_nom }}</strong>
-                  <span>Table {{ res.Numero_Table }}</span>
-                </div>
-                <span class="badge {% if res.Statut == 'Confirmée' %}badge-prete{% else %}badge-attente{% endif %}">{{ res.Statut }}</span>
-              </div>
-              {% endfor %}
-            {% else %}
-              <div class="resa-row"><div class="resa-time">19h30</div><div class="resa-info"><strong>Mme Tchoumi</strong><span>Table T2 · 6 couverts (VIP)</span></div><span class="badge badge-prete">Confirmée</span></div>
-              <div class="resa-row"><div class="resa-time">20h00</div><div class="resa-info"><strong>Entreprise BTP</strong><span>Table T4 · 8 couverts</span></div><span class="badge badge-attente">À confirmer</span></div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ HISTORIQUE ═══ -->
-    <div id="historique" class="section">
-      <div class="card">
-        <div class="card-header">
-          <h3>Historique des commandes — Aujourd'hui</h3>
-          <span style="font-size:0.82rem;color:#888;">{{ commandes_servies|length|default:"0" }} commandes · {{ ca_jour|default:"0" }} FCFA</span>
-        </div>
-        <div class="card-body">
-          <table>
-            <thead><tr><th>#Cmd</th><th>Type</th><th>Montant</th><th>Paiement</th><th>Heure</th><th>Statut</th><th>Actions</th></tr></thead>
-            <tbody>
-              {% if toutes_commandes %}
-                {% for cmd in toutes_commandes %}
-                <tr>
-                  <td><strong>#{{ cmd.id_Commande }}</strong></td>
-                  <td>{{ cmd.Type }}</td>
-                  <td><strong>{{ cmd.Montant_Total }} FCFA</strong></td>
-                  <td>{{ cmd.Mode_de_Paiement }}</td>
-                  <td>{{ cmd.Date|time:"H:i" }}</td>
-                  <td><span class="badge badge-{{ cmd.statut|lower|cut:' ' }}">{{ cmd.statut }}</span></td>
-                  <td><button class="btn btn-ghost btn-sm" onclick="ouvrirFacture({{ cmd.id_Commande }})">🧾</button></td>
-                </tr>
-                {% endfor %}
-              {% else %}
-                <tr><td style="background:#fff3cd;color:#92400e;padding:6px 10px;border-radius:4px;font-size:0.78rem;" colspan="7">#0041 · Sur place · 6 500 FCFA · Orange Money · 09:15 · <span class="badge badge-servie">Servie</span></td></tr>
-              {% endif %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /content -->
-</main>
-
-<!-- ===== MODAL NOUVELLE COMMANDE ===== -->
-<div class="modal-overlay" id="modal-cmd">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>🍽️ Nouvelle commande</h3>
-      <button class="modal-close" onclick="fermerModal('modal-cmd')">✕</button>
-    </div>
-    <form method="POST" action="{% url 'commande_creer' %}">
-      {% csrf_token %}
-      <div class="modal-body">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Type de commande</label>
-            <select name="type_commande" required>
-              <option value="Sur place">🍽️ Sur place</option>
-              <option value="À livrer">🛵 À livrer</option>
-              <option value="À emporter">📦 À emporter</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Mode de paiement</label>
-            <select name="mode_paiement" required>
-              <option value="Orange Money">Orange Money</option>
-              <option value="MTN MoMo">MTN MoMo</option>
-              <option value="Espèces">Espèces</option>
-            </select>
-          </div>
-        </div>
+    <div class="card-form">
+      <form method="POST" action="">
+        {% csrf_token %}
         <div class="form-group">
-          <label>Client (email ou nom)</label>
-          <input type="text" name="client_email" placeholder="patrick@gmail.com ou Ngono Patrick"/>
+          <label>Numéro de Table</label>
+          <input type="number" required placeholder="Ex: 5" min="1"/>
         </div>
 
-        <!-- Lignes de commande -->
-        <label style="font-size:0.75rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px;">Plats commandés</label>
-        <div class="lignes-commande" id="lignes-container">
-          <div class="ligne-item">
-            <select name="produit[]" style="flex:2;">
-              <option value="">— Choisir un plat —</option>
-              <option value="1" data-prix="5000">Poulet DG — 5 000 FCFA</option>
-              <option value="2" data-prix="8000">Ndolé — 8 000 FCFA</option>
-              <option value="3" data-prix="4500">Riz Sauté — 4 500 FCFA</option>
-              <option value="4" data-prix="6500">Eru et Waterleaf — 6 500 FCFA</option>
-              <option value="5" data-prix="5500">Poisson Braisé — 5 500 FCFA</option>
-              <option value="4_b" data-prix="1500">Jus de Gingembre — 1 500 FCFA</option>
-              <option value="5_b" data-prix="1500">Jus de Bissap — 1 500 FCFA</option>
-            </select>
-            <input type="number" name="quantite[]" value="1" min="1" max="20" style="flex:0.6;" onchange="calculerTotal()"/>
-            <button type="button" class="btn-remove" onclick="supprimerLigne(this)">×</button>
-          </div>
-        </div>
-        <button type="button" class="btn-add-ligne" onclick="ajouterLigne()">+ Ajouter un plat</button>
-        <div class="total-preview" id="total-preview" style="margin-top:12px;">Total : 0 FCFA</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-ghost" onclick="fermerModal('modal-cmd')">Annuler</button>
-        <button type="submit" class="btn btn-primary">✅ Enregistrer la commande</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ===== MODAL RÉSERVATION ===== -->
-<div class="modal-overlay" id="modal-resa">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>📅 Nouvelle réservation</h3>
-      <button class="modal-close" onclick="fermerModal('modal-resa')">✕</button>
-    </div>
-    <form method="POST" action="{% url 'reservation_creer' %}">
-      {% csrf_token %}
-      <div class="modal-body">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nom du client</label>
-            <input type="text" name="nom_client" placeholder="Nom complet" required/>
-          </div>
-          <div class="form-group">
-            <label>Téléphone</label>
-            <input type="tel" name="telephone" placeholder="+237 6XX XXX XXX"/>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" name="date" required/>
-          </div>
-          <div class="form-group">
-            <label>Heure</label>
-            <input type="time" name="heure" required/>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nombre de couverts</label>
-            <input type="number" name="couverts" min="1" max="20" placeholder="2" required/>
-          </div>
-          <div class="form-group">
-            <label>Table</label>
-            <select name="table">
-              <option value="">— Pas de préférence —</option>
-              <option value="1">T1 — Fenêtre (4 pers.)</option>
-              <option value="2">T2 — VIP (6 pers.)</option>
-              <option value="3">T3 — Couple (2 pers.)</option>
-              <option value="4">T4 — Famille (8 pers.)</option>
-              <option value="5">T5 — Standard (4 pers.)</option>
-            </select>
-          </div>
-        </div>
         <div class="form-group">
-          <label>Notes spéciales</label>
-          <input type="text" name="notes" placeholder="Anniversaire, allergie, demande particulière…"/>
+          <label>Sélection des Plats [cite: 146]</label>
+          <div id="lignes-container">
+            <div class="ligne-item">
+              <select name="produit[]" onchange="calculerTotal()">
+                <option value="ndole" data-prix="4500">Ndolè Royal — 4 500 FCFA</option>
+                <option value="poisson" data-prix="5000">Poisson Braisé — 5 000 FCFA</option>
+              </select>
+              <input type="number" name="quantite[]" value="1" min="1" style="width:80px;" oninput="calculerTotal()"/>
+              <button type="button" class="btn-danger" onclick="this.closest('.ligne-item').remove(); calculerTotal();">X</button>
+            </div>
+          </div>
+          <button type="button" style="margin-top:0.5rem; background:#eee; padding:0.4rem 1rem; border:none; cursor:pointer;" onclick="ajouterLigne()">+ Ajouter un plat</button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-ghost" onclick="fermerModal('modal-resa')">Annuler</button>
-        <button type="submit" class="btn btn-primary">✅ Confirmer la réservation</button>
-      </div>
-    </form>
+
+        <div class="total-preview" id="total-preview">Total : 4 500 FCFA [cite: 145, 147]</div>
+        <button type="submit" class="btn-submit">Envoyer en cuisine </button>
+      </form>
+    </div>
   </div>
-</div>
 
-<!-- NOTIFICATION -->
-<div class="notif" id="notif"></div>
-
-<script>
-  // Navigation sections
-  function showSection(id, el) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if (el) el.classList.add('active');
-    const titles = {tables:'Plan des tables', commandes:'Gestion des commandes',
-                    reservations:'Réservations', historique:'Historique du jour'};
-    document.getElementById('page-title').textContent = titles[id] || '';
-  }
-
-  // Onglets commandes
-  function switchTab(id, btn) {
-    ['en-cours','en-attente','pretes','servies'].forEach(t => {
-      const el = document.getElementById('tab-'+t);
-      if(el) el.style.display = 'none';
-    });
-    const target = document.getElementById('tab-'+id);
-    if(target) target.style.display = id === 'en-attente' || id === 'servies' ? 'block' : 'grid';
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  // Tables
-  function selectTable(num, statut) {
-    if(statut === 'libre') {
-      if(confirm('Table ' + num + ' libre — Ouvrir une nouvelle commande ?')) ouvrirModalCommande();
-    } else {
-      showSection('commandes', document.querySelector('.nav-item:nth-child(2)'));
-    }
-  }
-
-  // Modals
-  function ouvrirModalCommande() { document.getElementById('modal-cmd').classList.add('open'); }
-  function ouvrirModalResa() { document.getElementById('modal-resa').classList.add('open'); }
-  function fermerModal(id) { document.getElementById(id).classList.remove('open'); }
-  function ouvrirDetailCmd(id) { showNotif('Détail commande #' + id + ' — à implémenter'); }
-  function ouvrirFacture(id) {
-    window.open('/commandes/facture/' + id + '/', '_blank');
-  }
-
-  // Fermer modal en cliquant dehors ou Escape
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => { if(e.target === overlay) overlay.classList.remove('open'); });
-  });
-  document.addEventListener('keydown', e => {
-    if(e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
-  });
-
-  // Lignes de commande dynamiques
-  const PRODUITS_PRIX = {
-    '1':5000,'2':8000,'3':4500,'4':6500,'5':5500,'4_b':1500,'5_b':1500
-  };
-
-  function ajouterLigne() {
-    const container = document.getElementById('lignes-container');
-    const ligne = container.querySelector('.ligne-item').cloneNode(true);
-    ligne.querySelector('select').value = '';
-    ligne.querySelector('input').value = 1;
-    container.appendChild(ligne);
-  }
-
-  function supprimerLigne(btn) {
-    const container = document.getElementById('lignes-container');
-    if(container.querySelectorAll('.ligne-item').length > 1) {
-      btn.closest('.ligne-item').remove();
+  <script>
+    function ajouterLigne() {
+      const container = document.getElementById('lignes-container');
+      const div = document.createElement('div');
+      div.className = 'ligne-item';
+      div.innerHTML = `
+        <select name="produit[]" onchange="calculerTotal()">
+          <option value="ndole" data-prix="4500">Ndolè Royal — 4 500 FCFA</option>
+          <option value="poisson" data-prix="5000">Poisson Braisé — 5 000 FCFA</option>
+        </select>
+        <input type="number" name="quantite[]" value="1" min="1" style="width:80px;" oninput="calculerTotal()"/>
+        <button type="button" class="btn-danger" onclick="this.closest('.ligne-item').remove(); calculerTotal();">X</button>
+      `;
+      container.appendChild(div);
       calculerTotal();
     }
-  }
 
-  function calculerTotal() {
-    let total = 0;
-    document.querySelectorAll('#lignes-container .ligne-item').forEach(ligne => {
-      const sel = ligne.querySelector('select');
-      const qty = parseInt(ligne.querySelector('input').value) || 0;
-      const prix = PRODUITS_PRIX[sel.value] || 0;
-      total += prix * qty;
-    });
-    document.getElementById('total-preview').textContent = 'Total : ' + total.toLocaleString('fr-FR') + ' FCFA';
-  }
-
-  // Recalcul au changement de sélection
-  document.getElementById('lignes-container').addEventListener('change', calculerTotal);
-
-  // Notification
-  function showNotif(msg, isError=false) {
-    const n = document.getElementById('notif');
-    n.textContent = msg;
-    n.className = 'notif' + (isError ? ' error' : '');
-    n.classList.add('show');
-    setTimeout(() => n.classList.remove('show'), 3000);
-  }
-
-  // Messages Django
-  {% if messages %}
-    {% for message in messages %}
-      window.addEventListener('DOMContentLoaded', () => showNotif('{{ message }}'));
-    {% endfor %}
-  {% endif %}
-
-  // Date
-  document.getElementById('page-date').textContent =
-    'Service en cours — ' + new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-</script>
+    function calculerTotal() {
+      let total = 0;
+      document.querySelectorAll('.ligne-item').forEach(ligne => {
+        const select = ligne.querySelector('select');
+        const price = parseInt(select.options[select.selectedIndex].dataset.prix);
+        const qty = parseInt(ligne.querySelector('input').value) || 0;
+        total += price * qty;
+      });
+      document.getElementById('total-preview').textContent = 'Total : ' + total.toLocaleString('fr-FR') + ' FCFA';
+    }
+  </script>
 </body>
 </html>

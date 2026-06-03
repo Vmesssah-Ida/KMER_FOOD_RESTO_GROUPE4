@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -141,25 +142,25 @@
 <aside class="sidebar">
   <div class="sidebar-logo">
     <!-- TODO: Remplacez src="" par le logo du restaurant -->
-    <img src="" alt="Logo" />
-    <div><span>Le Gourmet</span><small>Interface Stock</small></div>
+    <img src="/static/images/logo.png" alt="Logo" />
+    <div><span>KMER FOOD</span><small>Interface Stock</small></div>
   </div>
   <div class="role-badge">
     <!-- TODO: Remplacez src="" par la photo du responsable stock -->
     <img src="" alt="Resp. Stock" />
-    <div><span>Resp. Stock</span><small>Karim Nassif</small></div>
+    <div><span>Responsable du Stock</div>
   </div>
   <nav>
     <div class="nav-section">Inventaire</div>
-    <a class="nav-item active" onclick="showSection('stocks', this)"><span>&#128218;</span> Stocks & Inventaire</a>
+   <a class="nav-item" href="inventaire/templates/inventaire/detail_article.html"><span>&#127970;</span> Stocks et articles</a>
     <a class="nav-item" onclick="showSection('alertes', this)"><span>&#9888;</span> Alertes stock <span class="nav-badge">5</span></a>
-    <a class="nav-item" onclick="showSection('mouvements', this)"><span>&#8645;</span> Mouvements</a>
+    <a class="nav-item" href="inventaire/templates/inventaire/form_mouvement.html"><span>&#127970;</span> Mouvements</a>
     <div class="nav-section">Approvisionnement</div>
-    <a class="nav-item" onclick="showSection('commandes', this)"><span>&#128230;</span> Commandes fournisseurs</a>
-    <a class="nav-item" onclick="showSection('fournisseurs', this)"><span>&#127970;</span> Fournisseurs</a>
+    <a class="nav-item" href=""><span>&#128230;</span> Commandes fournisseurs</a>
+    <a class="nav-item" href="inventaire/templates/inventaire/liste_fournisseurs.html"><span>&#127970;</span> Fournisseurs</a>
   </nav>
   <div class="sidebar-footer">
-    <button class="logout-btn">&#8617; Déconnexion</button>
+    <button class="logout-btn"> <a href="{% url 'logout' %}" class="logout-btn">Deconnexion</a> </button>
   </div>
 </aside>
 
@@ -167,11 +168,12 @@
   <header class="topbar">
     <div>
       <h1 id="page-title">Stocks & Inventaire</h1>
-      <p>Dernière mise à jour : 14/05/2026 — 09:30</p>
+      <p>Dernière mise à jour</p>
     </div>
     <div class="topbar-right">
-      <button class="btn btn-ghost btn-sm">&#8635; Actualiser inventaire</button>
+      <a class="nav-item" href="inventaire/templates/inventaire/liste_articles.html"><span>&#127970;</span> Fournisseurs</a>
       <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-article').classList.add('open')">+ Nouvel article</button>
+     
     </div>
   </header>
 

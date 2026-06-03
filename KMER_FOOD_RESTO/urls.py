@@ -35,6 +35,6 @@ urlpatterns = [
     path('inventaire/',  include('inventaire.urls')),
     path('produits/',    include('produits.urls')),
     path('rh/',          include('rh.urls')),
-    
+     path('api/', include('ia.urls')), 
 
 ] + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])

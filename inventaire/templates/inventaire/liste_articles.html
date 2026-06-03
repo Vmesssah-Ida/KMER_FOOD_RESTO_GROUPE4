@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ingrédients – KMER FOOD</title>
+  <title>Inventaire – KMER FOOD</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -13,6 +13,7 @@
       --texte: #1A1A1A; --blanc: #FFFFFF;
       --nav-bg: rgba(30,12,2,0.88);
       --card-shadow: 0 4px 20px rgba(62,32,9,0.08);
+      --card-hover: 0 12px 32px rgba(62,32,9,0.16);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Lato', sans-serif; color: var(--texte); background: var(--ivoire); }
@@ -30,30 +31,67 @@
     .nav-links a { padding: 0.45rem 1.1rem; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.88rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; transition: color 0.25s; }
     .nav-links a:hover { color: var(--jaune); }
     .page-hero {
-      margin-top: 68px; height: 200px;
-      background: linear-gradient(135deg, var(--brun) 0%, var(--vert) 100%);
+      margin-top: 68px; height: 220px;
+      background: linear-gradient(135deg, var(--brun) 0%, #1a4a2e 100%);
       display: flex; align-items: center; justify-content: center;
-      text-align: center; position: relative;
+      text-align: center; position: relative; overflow: hidden;
     }
     .page-hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--vert), var(--rouge), var(--jaune)); }
-    .page-hero h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--blanc); }
+    .page-hero h1 { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: var(--blanc); animation: fadeUp 0.8s ease both; }
     .page-hero h1 em { font-style: italic; color: var(--jaune); }
-    .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .container { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; }
     .btn { display: inline-block; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; text-decoration: none; transition: all 0.25s; cursor: pointer; border: none; }
     .btn-primary { background: var(--vert); color: var(--blanc); }
-    .btn-primary:hover { background: var(--vert-clair); transform: translateY(-2px); }
+    .btn-primary:hover { background: var(--vert-clair); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(45,106,45,0.4); }
     .btn-warning { background: var(--jaune); color: var(--brun); }
     .btn-warning:hover { transform: translateY(-2px); }
+    .btn-danger { background: var(--rouge); color: var(--blanc); }
+    .btn-danger:hover { background: #a93226; transform: translateY(-2px); }
     .btn-secondary { background: #888; color: var(--blanc); }
     .btn-secondary:hover { background: #666; }
+    .btn-info { background: #2980b9; color: var(--blanc); }
+    .btn-info:hover { background: #1f6391; transform: translateY(-2px); }
     .actions-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+
+    /* ALERTE */
+    .alert-box {
+      background: #fef3f2; border-left: 5px solid var(--rouge);
+      border-radius: 8px; padding: 1.2rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .alert-box h3 { color: var(--rouge); font-size: 1rem; margin-bottom: 0.5rem; }
+    .alert-box p { color: #666; font-size: 0.88rem; margin: 0.2rem 0; }
+
+    /* STATS */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem; margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--blanc); border-radius: 10px;
+      box-shadow: var(--card-shadow); padding: 1.2rem 1.5rem;
+      text-align: center;
+    }
+    .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--brun); }
+    .stat-label { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* TABLE */
     .table-card { background: var(--blanc); border-radius: 12px; box-shadow: var(--card-shadow); overflow: hidden; }
     table { width: 100%; border-collapse: collapse; }
-    thead { background: linear-gradient(135deg, var(--brun), var(--vert)); color: var(--blanc); }
+    thead { background: linear-gradient(135deg, var(--brun), #1a4a2e); color: var(--blanc); }
     thead th { padding: 1rem 1.2rem; text-align: left; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-size: 0.82rem; }
     tbody tr { border-bottom: 1px solid rgba(62,32,9,0.08); transition: background 0.2s; }
     tbody tr:hover { background: rgba(240,165,0,0.05); }
     tbody td { padding: 1rem 1.2rem; }
+    .badge {
+      display: inline-block; padding: 0.3rem 0.8rem;
+      border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .badge-ok { background: #d4edda; color: #155724; }
+    .badge-alerte { background: #f8d7da; color: #721c24; }
     .empty-state { text-align: center; padding: 4rem 2rem; color: #888; }
     .empty-state .emoji { font-size: 4rem; margin-bottom: 1rem; }
     footer { text-align: center; padding: 2rem; background: var(--brun); color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-top: 4rem; }
@@ -79,44 +117,84 @@
 </nav>
 
 <div class="page-hero">
-  <h1>🥕 Nos <em>Ingrédients</em></h1>
+  <h1>📦 Gestion de l'<em>Inventaire</em></h1>
 </div>
 
 <div class="container">
 
+  {% if alertes %}
+  <div class="alert-box">
+    <h3>⚠️ {{ alertes.count }} article(s) en alerte de stock !</h3>
+    {% for article in alertes %}
+    <p>→ <strong>{{ article.nom }}</strong> : {{ article.quantite_disponible }} {{ article.unite }} restants (seuil : {{ article.seuil_critique }})</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-value">{{ articles.count }}</div>
+      <div class="stat-label">Articles</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-value" style="color:var(--rouge);">{{ alertes.count }}</div>
+      <div class="stat-label">En alerte</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value" style="color:var(--vert);">{{ articles.count|add:alertes.count|add:"-"|add:alertes.count }}</div>
+      <div class="stat-label">Stock OK</div>
+    </div>
+  </div>
+
   <div class="actions-bar">
-    <a href="{% url 'creer_ingredient' %}" class="btn btn-primary">+ Nouvel Ingrédient</a>
-    <a href="{% url 'liste_recettes' %}" class="btn btn-secondary">← Retour aux recettes</a>
+    <a href="{% url 'creer_article' %}" class="btn btn-primary">+ Ajouter un article</a>
+    <a href="{% url 'liste_fournisseurs' %}" class="btn btn-info">🏭 Fournisseurs</a>
   </div>
 
   <div class="table-card">
     <table>
       <thead>
         <tr>
-          <th>Nom</th>
+          <th>Article</th>
           <th>Unité</th>
-          <th>Prix unitaire</th>
+          <th>Quantité</th>
           <th>Seuil critique</th>
+          <th>Prix unitaire</th>
+          <th>Statut</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        {% for ingredient in ingredients %}
+        {% for article in articles %}
         <tr>
-          <td><strong>{{ ingredient.nom }}</strong></td>
-          <td>{{ ingredient.unite }}</td>
-          <td>{{ ingredient.prix_unitaire }} FCFA</td>
-          <td>{{ ingredient.seuil_critique }}</td>
+          <td><strong>{{ article.nom }}</strong></td>
+          <td>{{ article.unite }}</td>
+          <td>{{ article.quantite_disponible }}</td>
+          <td>{{ article.seuil_critique }}</td>
+          <td>{{ article.prix_unitaire }} FCFA</td>
           <td>
-            <a href="{% url 'modifier_ingredient' ingredient.pk %}" class="btn btn-warning" style="padding:0.3rem 0.9rem; font-size:0.78rem;">✏️ Modifier</a>
+            {% if article.alerte %}
+            <span class="badge badge-alerte">⚠️ Alerte</span>
+            {% else %}
+            <span class="badge badge-ok">✅ OK</span>
+            {% endif %}
+          </td>
+          <td style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <a href="{% url 'detail_article' article.pk %}" class="btn btn-info" style="padding:0.3rem 0.8rem; font-size:0.78rem;">Voir</a>
+            <a href="{% url 'modifier_article' article.pk %}" class="btn btn-warning" style="padding:0.3rem 0.8rem; font-size:0.78rem;">✏️</a>
+            <a href="{% url 'supprimer_article' article.pk %}" class="btn btn-danger" style="padding:0.3rem 0.8rem; font-size:0.78rem;">🗑️</a>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="5">
+          <td colspan="7">
             <div class="empty-state">
-              <div class="emoji">🥕</div>
-              <p>Aucun ingrédient disponible.</p>
+              <div class="emoji">📦</div>
+              <p>Aucun article dans l'inventaire.</p>
             </div>
           </td>
         </tr>

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -178,7 +179,8 @@
     <a class="nav-item" onclick="showSection('incidents', this)"><span>&#9888;</span> Incidents <span class="nav-badge">1</span></a>
   </nav>
   <div class="sidebar-footer">
-    <button class="logout-btn">&#8617; Fin de tournée</button>
+    <button class="logout-btn"> <a href="{% url 'logout' %}" class="logout-btn">Fin de tournée </a> </button>
+</button>
   </div>
 </aside>
 
