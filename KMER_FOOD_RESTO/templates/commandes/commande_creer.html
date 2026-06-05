@@ -1,44 +1,379 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="container mt-4">
-  <h2>Nouvelle commande</h2>
-  <form method="post">
-    {% csrf_token %}
+{% load static %}
 
-    <div class="mb-3">
-      <label class="form-label">Type de commande</label>
-      <select name="type_commande" class="form-select">
-        <option value="sur_place">Sur place</option>
-        <option value="livraison">Livraison</option>
-      </select>
+{% block title %}Nouvelle commande — KMER FOOD{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">➕ Nouvelle commande</h1>
+    <p class="page-sub">Prise de commande par {{ request.user.get_full_name|default:request.user.username }}</p>
+  </div>
+  <a href="{% url 'commandes:commande_liste' %}" class="btn btn-ghost">← Retour à la liste</a>
+</div>
+
+{# ── Messages d'erreur ───────────────────────────────────────────────────── #}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible">
+      {{ message }}
+      <button type="button" class="alert-close" onclick="this.parentElement.remove()">✕</button>
+    </div>
+  {% endfor %}
+{% endif %}
+
+{# ── Alertes stock spécifiques ────────────────────────────────────────────── #}
+{% if erreurs_stock %}
+  <div class="alert-stock-block">
+    <div class="alert-stock-title">⚠️ Stock insuffisant — commande rejetée</div>
+    <ul class="alert-stock-list">
+      {% for err in erreurs_stock %}
+        <li>{{ err }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+{# ── Formulaire ──────────────────────────────────────────────────────────── #}
+<form method="post" action="{% url 'commandes:commande_creer' %}" id="form-commande">
+  {% csrf_token %}
+
+  <div class="form-layout">
+
+    {# ── Colonne gauche : infos commande ─────────────────────────────────── #}
+    <div class="form-left">
+
+      {# Type de commande #}
+      <div class="form-card">
+        <div class="form-card-title">📋 Type de commande</div>
+        <div class="type-toggle">
+          <label class="type-option">
+            <input type="radio" name="type_commande" value="sur_place"
+                   {% if not post.type_commande or post.type_commande == 'sur_place' %}checked{% endif %}
+                   onchange="toggleTypeFields(this.value)" />
+            <span class="type-label">
+              <span class="type-icon">🪑</span>
+              <strong>Sur place</strong>
+              <small>Service en salle</small>
+            </span>
+          </label>
+          <label class="type-option">
+            <input type="radio" name="type_commande" value="livraison"
+                   {% if post.type_commande == 'livraison' %}checked{% endif %}
+                   onchange="toggleTypeFields(this.value)" />
+            <span class="type-label">
+              <span class="type-icon">🛵</span>
+              <strong>Livraison</strong>
+              <small>Livraison à domicile</small>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      {# Champs sur place #}
+      <div class="form-card" id="bloc-sur-place"
+           {% if post.type_commande == 'livraison' %}style="display:none"{% endif %}>
+        <div class="form-card-title">🍽️ Table</div>
+        <div class="form-group">
+          <label for="id_numero_table">Numéro de table</label>
+          <input type="text" id="id_numero_table" name="numero_table"
+                 placeholder="ex : 03, VIP-1, Bar-2"
+                 value="{{ post.numero_table|default:'' }}" maxlength="10" />
+          <span class="field-hint">Laisser vide si inconnu.</span>
+        </div>
+      </div>
+
+      {# Champs livraison #}
+      <div class="form-card" id="bloc-livraison"
+           {% if not post.type_commande or post.type_commande == 'sur_place' %}style="display:none"{% endif %}>
+        <div class="form-card-title">🛵 Informations livraison</div>
+        <div class="form-group">
+          <label for="id_client_nom">Nom du client <span class="req">*</span></label>
+          <input type="text" id="id_client_nom" name="client_nom"
+                 placeholder="Prénom et nom du client"
+                 value="{{ post.client_nom|default:'' }}" />
+        </div>
+        <div class="form-group">
+          <label for="id_client_telephone">Téléphone</label>
+          <input type="tel" id="id_client_telephone" name="client_telephone"
+                 placeholder="+237 6XX XXX XXX"
+                 value="{{ post.client_telephone|default:'' }}" />
+        </div>
+        <div class="form-group">
+          <label for="id_adresse_livraison">Adresse de livraison <span class="req">*</span></label>
+          <textarea id="id_adresse_livraison" name="adresse_livraison"
+                    rows="2" placeholder="Quartier, rue, repère...">{{ post.adresse_livraison|default:'' }}</textarea>
+        </div>
+      </div>
+
+      {# Note cuisine #}
+      <div class="form-card">
+        <div class="form-card-title">📝 Note pour la cuisine</div>
+        <div class="form-group">
+          <textarea name="note_cuisine" rows="2"
+                    placeholder="Instructions spéciales : cuisson, allergies, modifications de plats...">{{ post.note_cuisine|default:'' }}</textarea>
+        </div>
+      </div>
+
     </div>
 
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Produit</th>
-          <th>Prix unitaire</th>
-          <th>Quantité</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for produit in produits %}
-        <tr>
-          <td>
-            {{ produit.nom }}
-            <input type="hidden" name="produit_id" value="{{ produit.pk }}">
-          </td>
-          <td>{{ produit.prix }} FCFA</td>
-          <td>
-            <input type="number" name="quantite" value="0" min="0" class="form-control" style="width:80px">
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    {# ── Colonne droite : sélection des produits ──────────────────────────── #}
+    <div class="form-right">
+      <div class="form-card">
+        <div class="form-card-title" style="display:flex;justify-content:space-between;align-items:center">
+          <span>🍽️ Produits disponibles</span>
+          <span class="produits-count">{{ produits|length }} articles</span>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Valider la commande</button>
-    <a href="{% url 'serveur' %}" class="btn btn-secondary">Annuler</a>
-  </form>
-</div>
+        {% if produits %}
+          <div class="search-bar">
+            <input type="text" id="search-produit" placeholder="🔍 Filtrer les produits..."
+                   oninput="filterProduits(this.value)" />
+          </div>
+
+          <div class="produits-table-wrap">
+            <table class="produits-table" id="produits-table">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Catégorie</th>
+                  <th>Prix unitaire</th>
+                  <th>Quantité</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for produit in produits %}
+                <tr class="produit-row" data-nom="{{ produit.nom|lower }}"
+                    data-cat="{{ produit.categorie|lower|default:'' }}">
+                  <td>
+                    <strong>{{ produit.nom }}</strong>
+                    {# Snapshot du prix transmis au backend #}
+                    <input type="hidden" name="produit_id" value="{{ produit.pk }}" />
+                  </td>
+                  <td>
+                    <span class="cat-badge">{{ produit.categorie|default:"—" }}</span>
+                  </td>
+                  <td class="prix-cell">
+                    <strong>{{ produit.prix }} FCFA</strong>
+                  </td>
+                  <td>
+                    <input type="number"
+                           name="quantite"
+                           value="0"
+                           min="0"
+                           max="50"
+                           class="qty-input"
+                           data-prix="{{ produit.prix }}"
+                           oninput="majTotal()" />
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+        {% else %}
+          <div class="empty-produits">
+            <p>Aucun produit disponible pour le moment.</p>
+            <p class="empty-sub">Contactez le chef cuisinier pour activer des plats.</p>
+          </div>
+        {% endif %}
+
+      </div>
+
+      {# ── Récapitulatif total ──────────────────────────────────────────── #}
+      <div class="total-recap">
+        <div class="total-recap-row">
+          <span>Sous-total HT</span>
+          <span id="sous-total-ht">0 FCFA</span>
+        </div>
+        <div class="total-recap-row">
+          <span>TVA (19,25%)</span>
+          <span id="total-tva">0 FCFA</span>
+        </div>
+        <div class="total-recap-row total-big">
+          <span>TOTAL TTC</span>
+          <span id="total-ttc">0 FCFA</span>
+        </div>
+      </div>
+
+      {# ── Actions ───────────────────────────────────────────────────────── #}
+      <div class="form-actions">
+        <a href="{% url 'commandes:commande_liste' %}" class="btn btn-ghost">Annuler</a>
+        <button type="submit" class="btn btn-primary" id="btn-valider" disabled>
+          ✓ Valider la commande
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</form>
+
+<style>
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
+.page-title  { font-size: 1.25rem; font-weight: 800; margin-bottom: 2px; }
+.page-sub    { font-size: 0.78rem; color: #6b7280; }
+
+.alert { padding: 11px 16px; border-radius: 9px; margin-bottom: 12px; font-size: 0.84rem;
+         font-weight: 500; display: flex; align-items: center; justify-content: space-between; }
+.alert-close  { background: none; border: none; cursor: pointer; font-size: 1rem; color: inherit; }
+.alert-success { background: #dcfce7; color: #15803d; border-left: 4px solid #16a34a; }
+.alert-error   { background: #fee2e2; color: #dc2626; border-left: 4px solid #dc2626; }
+.alert-warning { background: #fef3c7; color: #92400e; border-left: 4px solid #d97706; }
+
+.alert-stock-block { background: #fee2e2; border-radius: 10px; padding: 14px 16px;
+                     margin-bottom: 16px; border-left: 4px solid #dc2626; }
+.alert-stock-title { font-weight: 700; color: #dc2626; margin-bottom: 8px; font-size: 0.9rem; }
+.alert-stock-list  { margin: 0; padding-left: 18px; font-size: 0.82rem; color: #7f1d1d; }
+.alert-stock-list li { margin-bottom: 4px; }
+
+/* Layout 2 colonnes */
+.form-layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .form-layout { grid-template-columns: 1fr; } }
+
+.form-card { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+             padding: 16px 18px; margin-bottom: 16px; }
+.form-card-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 14px;
+                   color: #374151; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Type toggle */
+.type-toggle { display: flex; gap: 10px; }
+.type-option { flex: 1; cursor: pointer; }
+.type-option input[type="radio"] { display: none; }
+.type-label {
+  display: flex; flex-direction: column; align-items: center; padding: 12px 8px;
+  border: 2px solid #e5e7eb; border-radius: 10px; text-align: center; transition: all 0.17s;
+  background: #f9fafb;
+}
+.type-option input:checked + .type-label { border-color: #166534; background: #f0fdf4; }
+.type-icon { font-size: 1.6rem; margin-bottom: 4px; }
+.type-label strong { font-size: 0.84rem; display: block; }
+.type-label small   { font-size: 0.71rem; color: #6b7280; }
+
+/* Formulaire */
+.form-group { margin-bottom: 12px; }
+.form-group label { font-size: 0.76rem; font-weight: 600; color: #6b7280; display: block; margin-bottom: 4px; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 8px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  font-size: 0.84rem; outline: none; font-family: inherit; background: white;
+}
+.form-group input:focus, .form-group textarea:focus { border-color: #16a34a; }
+.field-hint { font-size: 0.72rem; color: #9ca3af; }
+.req { color: #dc2626; }
+
+/* Tableau produits */
+.search-bar { margin-bottom: 12px; }
+.search-bar input { width: 100%; padding: 8px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+                     font-size: 0.84rem; outline: none; }
+.search-bar input:focus { border-color: #16a34a; }
+
+.produits-table-wrap { overflow-x: auto; max-height: 380px; overflow-y: auto; }
+.produits-table { width: 100%; border-collapse: collapse; }
+.produits-table th {
+  font-size: 0.71rem; font-weight: 700; color: #6b7280; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 9px 12px; background: #f8fafc; text-align: left;
+  position: sticky; top: 0;
+}
+.produits-table td { padding: 10px 12px; font-size: 0.83rem; border-bottom: 1px solid #f1f5f9; }
+.produits-table tr:hover td { background: #f0fdf4; }
+.produits-table tr.hidden-row { display: none; }
+
+.cat-badge { background: #f1f5f9; color: #475569; font-size: 0.71rem; font-weight: 600;
+             padding: 2px 8px; border-radius: 20px; }
+.prix-cell { font-weight: 600; color: #166534; white-space: nowrap; }
+.produits-count { font-size: 0.76rem; font-weight: 600; color: #6b7280;
+                  background: #f1f5f9; padding: 3px 10px; border-radius: 20px; }
+
+.qty-input {
+  width: 70px; padding: 6px 8px; border: 1.5px solid #e5e7eb; border-radius: 7px;
+  font-size: 0.9rem; font-weight: 700; text-align: center; outline: none;
+  -moz-appearance: textfield;
+}
+.qty-input:focus { border-color: #16a34a; }
+.qty-input::-webkit-inner-spin-button { opacity: 1; }
+
+/* Total recap */
+.total-recap { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+               padding: 16px 18px; margin-bottom: 14px; }
+.total-recap-row { display: flex; justify-content: space-between; font-size: 0.84rem;
+                   padding: 5px 0; color: #374151; }
+.total-big { font-size: 1.1rem; font-weight: 800; color: #0f4024; margin-top: 8px;
+             border-top: 2px solid #e5e7eb; padding-top: 10px; }
+
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.empty-produits { text-align: center; padding: 30px; color: #6b7280; font-size: 0.84rem; }
+.empty-sub { font-size: 0.76rem; color: #9ca3af; margin-top: 4px; }
+
+.btn { padding: 8px 18px; border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+       border: none; cursor: pointer; text-decoration: none; display: inline-flex;
+       align-items: center; gap: 5px; transition: all 0.17s; }
+.btn-primary { background: #166534; color: white; }
+.btn-primary:hover:not(:disabled) { background: #16a34a; }
+.btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+.btn-ghost { background: #f8fafc; color: #374151; border: 1px solid #e2e8f0; }
+</style>
+
+<script>
+  // ── Basculement sur-place / livraison ──────────────────────────────────────
+  function toggleTypeFields(type) {
+    document.getElementById('bloc-sur-place').style.display  = (type === 'sur_place')  ? '' : 'none';
+    document.getElementById('bloc-livraison').style.display  = (type === 'livraison')  ? '' : 'none';
+  }
+
+  // ── Calcul du total en temps réel ─────────────────────────────────────────
+  function majTotal() {
+    let total = 0;
+    document.querySelectorAll('.qty-input').forEach(input => {
+      const qte  = parseInt(input.value) || 0;
+      const prix = parseFloat(input.dataset.prix) || 0;
+      total += qte * prix;
+      // Surligner la ligne si quantité > 0
+      input.closest('tr').style.background = qte > 0 ? '#f0fdf4' : '';
+    });
+
+    const ht  = Math.round(total / 1.1925);
+    const tva = total - ht;
+    document.getElementById('sous-total-ht').textContent = formatFCFA(ht);
+    document.getElementById('total-tva').textContent     = formatFCFA(tva);
+    document.getElementById('total-ttc').textContent     = formatFCFA(total);
+
+    // Activer le bouton valider uniquement si au moins un produit sélectionné
+    document.getElementById('btn-valider').disabled = (total === 0);
+  }
+
+  function formatFCFA(n) {
+    return n.toLocaleString('fr-FR') + ' FCFA';
+  }
+
+  // ── Filtre de recherche produits ──────────────────────────────────────────
+  function filterProduits(q) {
+    const s = q.toLowerCase().trim();
+    document.querySelectorAll('.produit-row').forEach(tr => {
+      const match = !s || tr.dataset.nom.includes(s) || tr.dataset.cat.includes(s);
+      tr.classList.toggle('hidden-row', !match);
+    });
+  }
+
+  // ── Validation côté client avant soumission ───────────────────────────────
+  document.getElementById('form-commande').addEventListener('submit', function(e) {
+    const type = document.querySelector('input[name="type_commande"]:checked')?.value;
+    if (type === 'livraison') {
+      const nom = document.getElementById('id_client_nom').value.trim();
+      const adr = document.getElementById('id_adresse_livraison').value.trim();
+      if (!nom) {
+        e.preventDefault();
+        alert('Le nom du client est obligatoire pour une livraison.');
+        document.getElementById('id_client_nom').focus();
+        return;
+      }
+      if (!adr) {
+        e.preventDefault();
+        alert("L'adresse de livraison est obligatoire.");
+        document.getElementById('id_adresse_livraison').focus();
+        return;
+      }
+    }
+  });
+</script>
 {% endblock %}

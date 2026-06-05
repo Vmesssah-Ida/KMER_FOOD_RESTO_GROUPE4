@@ -72,9 +72,7 @@
     <li><a href="{% url 'recettes' %}">Recettes</a></li>
     <li><a href="{% url 'produits' %}">Produits</a></li>
     <li><a href="{% url 'inventaire' %}">Inventaire</a></li>
-    <li><a href="{% url 'commande' %}">Commandes</a></li>
-    <li><a href="{% url 'dashboard' %}" style="color:var(--jaune);">Dashboard</a></li>
-  </ul>
+    </ul>
 </nav>
 
 <div class="page-hero">
@@ -124,7 +122,7 @@
     <a href="/recettes/" class="quick-link"><div class="icon">🍲</div><div class="name">Recettes</div></a>
     <a href="/produits/" class="quick-link"><div class="icon">🍽️</div><div class="name">Produits</div></a>
     <a href="/inventaire/" class="quick-link"><div class="icon">📦</div><div class="name">Inventaire</div></a>
-    <a href="/commandes/" class="quick-link"><div class="icon">🛒</div><div class="name">Commandes</div></a>
+    <a href="/commandes/liste/" class="quick-link"><div class="icon">🛒</div><div class="name">Commandes</div></a>
     <a href="/rh/" class="quick-link"><div class="icon">👥</div><div class="name">RH</div></a>
   </div>
 
@@ -132,20 +130,7 @@
   <div class="sections-grid">
 
     <!-- TOP PRODUITS -->
-    <div class="section-card">
-      <div class="section-header"><h2>🏆 Top Produits</h2></div>
-      <div class="section-body">
-        {% for produit in top_produits %}
-        <div class="item-row">
-          <span class="item-name">{{ produit.nom }}</span>
-          <span class="item-value">{{ produit.nb_commandes }} commande(s)</span>
-        </div>
-        {% empty %}
-        <p style="color:#888;text-align:center;padding:1rem;">Aucune donnée disponible</p>
-        {% endfor %}
-      </div>
-    </div>
-
+   
     <!-- ALERTES STOCK -->
     <div class="section-card">
       <div class="section-header" style="background:linear-gradient(135deg,#721c24,var(--rouge));"><h2>⚠️ Alertes Stock</h2></div>

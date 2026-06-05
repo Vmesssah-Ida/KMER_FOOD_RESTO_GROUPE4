@@ -16,7 +16,7 @@ def dashboard(request):
     
     # Top produits
     top_produits = Produit.objects.annotate(
-        nb_commandes=Count('ligne_commande')
+        nb_commandes=Count('lignecommande')
     ).order_by('-nb_commandes')[:5]
     
     # Articles en alerte
@@ -30,3 +30,13 @@ def dashboard(request):
         'top_produits': top_produits,
         'articles_alerte': articles_alerte,
     })
+@login_required
+def commande_facture(request, cmd_id):
+    commande = get_object_or_404(Commande, pk=cmd_id)
+    lignes   = commande.lignes.select_related('produit').all()
+    return render(request, 'commandes/facture.html', {
+        'commande': commande,
+        'lignes':   lignes,
+        'titre':    f'Facture — Commande #{commande.pk}',
+    })
+

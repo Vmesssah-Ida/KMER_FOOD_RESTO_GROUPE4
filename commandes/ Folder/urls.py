@@ -8,7 +8,7 @@ app_name = 'commandes'
 
 urlpatterns = [
     # ── Vues principales (personnel interne) ─────────────────────────────────
-    path('liste/',                      views.commande_liste,          name='commandes'),
+    path('liste/',                      views.commande_liste,          name='commande_liste'),
     path('creer/',                      views.commande_creer,          name='commande_creer'),
     path('<int:cmd_id>/facture/',       views.commande_facture,        name='commande_facture'),
     path('<int:cmd_id>/preparation/',   views.commande_en_preparation, name='commande_en_preparation'),
@@ -18,23 +18,23 @@ urlpatterns = [
 
     # ── API JSON — Communication temps réel entre modules ────────────────────
     # Chef cuisinier : polling des commandes actives en cuisine
-    path('api/cuisine/',                views.api_cuisine,          name='api_cuisine'),
+    path('api/cuisine/',                views.api_cuisine,    name='api_cuisine'),
     # Chef : accepter un ticket (en_attente → en_preparation)
-    path('api/<int:cmd_id>/preparer/', views.api_preparer,          name='api_preparer'),
-    # Chef : marquer une commande comme prête (en_preparation → prete)
-    path('api/<int:cmd_id>/servir/',   views.api_servir,            name='api_servir'),
-    # Serveur : commandes prêtes en salle / à emporter
-    path('api/serveur/',               views.api_serveur,           name='api_serveur'),
-    # Serveur : confirmer qu'une commande en salle a été remise (prete → servie)
-    path('api/<int:cmd_id>/serveur-servir/', views.api_serveur_servir, name='api_serveur_servir'),
+    path('api/<int:cmd_id>/preparer/', views.api_preparer,   name='api_preparer'),
+    # Chef : marquer une commande comme servie/prête (→ visible caissier & livreur)
+    path('api/<int:cmd_id>/servir/',   views.api_servir,     name='api_servir'),
     # Caissier : commandes servies en attente d'encaissement
-    path('api/caisse/',                views.api_caisse,            name='api_caisse'),
-    # Livreur : commandes de type livraison prêtes à prendre en charge
-    path('api/livraisons/',            views.api_livraisons,        name='api_livraisons'),
-    # Livreur : confirmer une livraison effectuée (prete → servie)
-    path('api/<int:cmd_id>/livrer/',   views.api_livrer,            name='api_livrer'),
+    path('api/caisse/',                views.api_caisse,     name='api_caisse'),
+    # Livreur : commandes de type livraison à prendre en charge
+    path('api/livraisons/',            views.api_livraisons, name='api_livraisons'),
+    # Livreur : confirmer une livraison effectuée
+    path('api/<int:cmd_id>/livrer/',   views.api_livrer,     name='api_livrer'),
     # Client : suivi en temps réel de ses propres commandes (polling panier.html)
-    path('api/mes-commandes/',         views.api_mes_commandes,     name='api_mes_commandes'),
+    path('api/mes-commandes/',         views.api_mes_commandes, name='api_mes_commandes'),
+
+    # ── Routes client ────────────────────────────────────────────────────────
+    path('client/ajouter/',                  views.commande_ajouter_client, name='commande_ajouter_client'),
+    path('client/<int:cmd_id>/recommander/', views.commande_recommander,    name='commande_recommander'),
 ]
 
 

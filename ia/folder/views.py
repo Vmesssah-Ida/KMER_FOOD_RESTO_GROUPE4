@@ -20,15 +20,8 @@ def client_chat(request):
         response = ask_client_assistant(message, client_profile)
         return JsonResponse({'response': response})
 
-    except ValueError as e:
-        # Clé API manquante
-        return JsonResponse({
-            'response': "Je suis KEMI 🌿 Je ne suis pas encore activée — la clé API n'est pas configurée. Mais n'hésitez pas à consulter notre menu pour choisir vos plats !"
-        })
     except Exception as e:
-        return JsonResponse({
-            'response': f"Erreur : {str(e)}" 
-        })
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @csrf_exempt
@@ -45,18 +38,21 @@ def employee_chat(request):
         response = ask_employee_assistant(message, context_data)
         return JsonResponse({'response': response})
 
-    except ValueError as e:
-        return JsonResponse({'response': "Assistant IA non activé — clé API manquante."})
     except Exception as e:
-        return JsonResponse({'response': f"Erreur : {str(e)}"})
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 def _get_restaurant_context():
     try:
         from produits.models import Produit
         from commandes.models import Commande
+
         produits = Produit.objects.all()[:15]
-        produits_info = "\n".join([f"- {p.nom}: prix={p.prix}" for p in produits])
+        produits_info = "\n".join([
+            f"- {p.nom}: prix={p.prix}"
+            for p in produits
+        ])
+
         nb_commandes = Commande.objects.count()
         return f"PRODUITS:\n{produits_info}\n\nNB COMMANDES TOTAL: {nb_commandes}"
     except Exception:

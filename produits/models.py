@@ -25,8 +25,7 @@ class Produit(models.Model):
         Categorie,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='produits'
-    )
+        related_name='produits')
     disponible = models.BooleanField(default=True)
     image_url = models.URLField(blank=True)
     temps_preparation = models.IntegerField(
@@ -41,4 +40,4 @@ class Produit(models.Model):
     class Meta:
         verbose_name = "Produit"
         verbose_name_plural = "Produits"
-        ordering = ['categorie', 'nom']
+        ordering = [ 'categorie','nom']

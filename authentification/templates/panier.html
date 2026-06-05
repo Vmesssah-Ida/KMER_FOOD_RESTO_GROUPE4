@@ -196,43 +196,51 @@
     <div class="tab-panel active" id="panel-commandes">
       {% if commandes %}
         {% for cmd in commandes %}
-        <div class="commande-card statut-{{ cmd.statut|lower|cut:' ' }}">
+        <div class="commande-card statut-{{ cmd.statut }}">
           <div class="commande-icon">
-            {% if cmd.statut == 'En attente' %}⏳
-            {% elif cmd.statut == 'En cours' %}👨‍🍳
-            {% elif cmd.statut == 'Prête' %}✅
-            {% elif cmd.statut == 'Servie' %}🍽️
-            {% elif cmd.statut == 'Annulée' %}❌
+            {% if cmd.statut == 'en_attente' %}⏳
+            {% elif cmd.statut == 'en_preparation' %}👨‍🍳
+            {% elif cmd.statut == 'servie' %}🍽️
+            {% elif cmd.statut == 'annulee' %}❌
             {% else %}🛒{% endif %}
           </div>
           <div class="commande-info">
-            <div class="commande-nom">Commande #{{ cmd.id_Commande }}</div>
+            <div class="commande-nom">
+              Commande #{{ cmd.pk }}
+              {% if cmd.client_nom %} — {{ cmd.client_nom }}{% endif %}
+            </div>
             <div class="commande-detail">
-              <strong>Date :</strong> {{ cmd.Date|date:"d/m/Y H:i" }}<br/>
-              <strong>Type :</strong> {{ cmd.Type }}<br/>
-              <strong>Paiement :</strong> {{ cmd.Mode_de_Paiement }}<br/>
-              {% if cmd.statut == 'Servie' %}
+              <strong>Date :</strong> {{ cmd.date_creation|date:"d/m/Y H:i" }}<br/>
+              <strong>Type :</strong> {{ cmd.get_type_commande_display }}<br/>
+              {% if cmd.lignes.all %}
+                <strong>Plats :</strong>
+                {% for ligne in cmd.lignes.all %}{{ ligne.quantite }}× {{ ligne.produit.nom }}{% if not forloop.last %}, {% endif %}{% endfor %}<br/>
+              {% elif cmd.note_cuisine %}
+                <strong>Plat :</strong> {{ cmd.note_cuisine }}<br/>
+              {% endif %}
+              {% if cmd.statut == 'servie' %}
                 <span style="color:var(--vert);font-weight:700;">✅ Commande servie</span>
               {% endif %}
             </div>
           </div>
           <div class="commande-right">
-            <div class="commande-prix">{{ cmd.Montant_Total|default:"–" }} FCFA</div>
-            <span class="statut-badge statut-{{ cmd.statut|lower|cut:' ' }}">{{ cmd.statut }}</span>
+            <div class="commande-prix">{{ cmd.montant_total|floatformat:0 }} FCFA</div>
+            <span class="statut-badge statut-{{ cmd.statut }}">{{ cmd.get_statut_display }}</span>
             <div class="commande-actions">
-              <!-- Re-commander disponible toujours -->
-              <form method="POST" action="{% url 'recommander' cmd.id_Commande %}" style="display:inline;">
+              <!-- Re-commander : toujours disponible -->
+              <form method="POST" action="{% url 'recommander' cmd.pk %}" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit" class="btn-action btn-recom">🔄 Re-commander</button>
               </form>
-              <!-- Annuler seulement si pas encore prête -->
-              {% if cmd.statut == 'En attente' or cmd.statut == 'En cours' %}
+              <!-- Annuler : uniquement si statut en_attente (pas encore en cuisine) -->
+              {% if cmd.statut == 'en_attente' %}
                 <button class="btn-action btn-annuler"
-                        onclick="confirmerAnnulation('{{ cmd.id_Commande }}')">
+                        onclick="confirmerAnnulation('{{ cmd.pk }}')">
                   ✕ Annuler
                 </button>
               {% else %}
-                <button class="btn-action btn-annuler" disabled title="Impossible d'annuler — commande {{ cmd.statut|lower }}">
+                <button class="btn-action btn-annuler" disabled
+                        title="Impossible d'annuler — {{ cmd.get_statut_display }}">
                   ✕ Annuler
                 </button>
               {% endif %}
@@ -344,7 +352,7 @@
 
   // Modal annulation commande
   function confirmerAnnulation(id) {
-    document.getElementById('formAnnul').action = '/commandes/annuler/' + id + '/';
+    document.getElementById('formAnnul').action = '/commandes/' + id + '/annuler/';
     document.getElementById('modalAnnul').classList.add('open');
     document.body.style.overflow = 'hidden';
   }

@@ -510,6 +510,7 @@ window.addEventListener('load', () => {
       <input type="hidden" name="plat_nom" id="inputPlatNom"/>
       <input type="hidden" name="plat_prix" id="inputPlatPrix"/>
       <input type="hidden" name="quantite" id="inputQuantite"/>
+      <input type="hidden" name="quantite_affichage" id="inputQtyAffichage" value="1"/>
 
       <div class="form-group">
         <label>Quantité</label>
@@ -567,6 +568,7 @@ window.addEventListener('load', () => {
   function updateTotal() {
     const qty = parseInt(document.getElementById('modalQty').value) || 1;
     document.getElementById('inputQuantite').value = qty;
+    document.getElementById('inputQtyAffichage').value = qty;
     const total = prixUnitaire * qty;
     document.getElementById('modalTotal').textContent = 'Total : ' + total.toLocaleString('fr-FR') + ' FCFA';
   }

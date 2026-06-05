@@ -35,7 +35,7 @@ except ImportError:
 def commande_liste(request):
     commandes = (
         Commande.objects
-        .filter(statut__in=['en_attente', 'en_preparation', 'prete'])
+        .filter(statut__in=['en_attente', 'en_preparation'])
         .prefetch_related('lignes__produit')
         .select_related('serveur')
         .order_by('-date_creation')
@@ -138,6 +138,7 @@ def commande_creer(request):
 
         messages.success(request, f"Commande #{commande.pk} créée — {commande.montant_total} FCFA.")
 
+        # Rediriger le client vers son panier, les autres vers la facture
         if hasattr(request.user, 'profil') and getattr(request.user.profil, 'role', '') == 'client':
             return redirect('panier')
         return redirect('commandes:commande_facture', cmd_id=commande.pk)
@@ -206,6 +207,7 @@ def commande_annuler(request, cmd_id):
         messages.success(request, f"Commande #{commande.pk} annulée.")
     else:
         messages.error(request, f"Impossible d'annuler (statut : {commande.get_statut_display()}).")
+    # Rediriger client vers panier, autres vers liste
     if hasattr(request.user, 'profil') and getattr(request.user.profil, 'role', '') == 'client':
         return redirect('panier')
     return redirect('commandes:commande_liste')
@@ -222,8 +224,8 @@ def commande_historique(request):
         .select_related('serveur')
         .order_by('-date_creation')
     )
-    statut     = request.GET.get('statut', '')
-    type_c     = request.GET.get('type_commande', '')
+    statut = request.GET.get('statut', '')
+    type_c = request.GET.get('type_commande', '')
     date_debut = request.GET.get('date_debut', '')
     date_fin   = request.GET.get('date_fin', '')
 
@@ -256,6 +258,10 @@ def commande_historique(request):
 # ─────────────────────────────────────────────────────────────────────────────
 @login_required
 def client_accueil(request):
+    """
+    Page d'accueil de l'espace client.
+    Passe les 4 premiers produits disponibles comme spécialités en vedette.
+    """
     specialites = Produit.objects.filter(disponible=True).order_by('?')[:4]
     nb_produits = Produit.objects.filter(disponible=True).count()
     return render(request, 'client/client.html', {
@@ -269,6 +275,10 @@ def client_accueil(request):
 # ─────────────────────────────────────────────────────────────────────────────
 @login_required
 def menu_client(request):
+    """
+    Page menu du client : affiche tous les produits disponibles,
+    regroupés par catégorie pour les filtres JS côté client.
+    """
     produits = (
         Produit.objects
         .filter(disponible=True)
@@ -284,6 +294,12 @@ def menu_client(request):
 # ─────────────────────────────────────────────────────────────────────────────
 @login_required
 def panier_client(request):
+    """
+    Espace panier du client connecté :
+    - Affiche toutes ses commandes (passées via commande_creer)
+    - Compte les commandes actives (pour déclencher le polling JS)
+    - Calcule le total dépensé sur les commandes servies
+    """
     commandes = (
         Commande.objects
         .filter(serveur=request.user)
@@ -291,6 +307,7 @@ def panier_client(request):
         .order_by('-date_creation')
     )
 
+    # Réservations (module optionnel — silencieux si le modèle n'existe pas)
     reservations = []
     try:
         from reservations.models import Reservation
@@ -298,7 +315,7 @@ def panier_client(request):
     except Exception:
         pass
 
-    commandes_actives = commandes.filter(statut__in=['en_attente', 'en_preparation', 'prete']).count()
+    commandes_actives = commandes.filter(statut__in=['en_attente', 'en_preparation']).count()
     total_depense = (
         commandes
         .filter(statut='servie')
@@ -372,58 +389,11 @@ def api_preparer(request, cmd_id):
 def api_servir(request, cmd_id):
     """
     POST /commandes/api/<id>/servir/
-    Transition en_preparation → prete (ticket prêt, visible serveur et livreur).
-    Utilisée par le chef cuisinier via le bouton "Ticket prêt".
+    Transition → servie (commande prête, visible caissier et livreur).
     """
     if request.method != 'POST':
         return JsonResponse({'error': 'POST requis'}, status=405)
     commande = get_object_or_404(Commande, pk=cmd_id)
-    success = commande.marquer_prete()
-    return JsonResponse({'success': success, 'statut': commande.statut, 'id': cmd_id})
-
-
-@login_required
-def api_serveur(request):
-    """
-    GET /commandes/api/serveur/
-    Retourne les commandes 'prete' de type sur_place ou a_emporter pour le serveur.
-    Interrogé toutes les 5 secondes par le template serveur.html.
-    """
-    commandes = (
-        Commande.objects
-        .filter(statut='prete', type_commande__in=['sur_place', 'a_emporter'])
-        .prefetch_related('lignes__produit')
-        .order_by('date_creation')
-    )
-    data = []
-    for cmd in commandes:
-        lignes = [
-            {'nom': l.produit.nom, 'quantite': l.quantite}
-            for l in cmd.lignes.all()
-        ]
-        data.append({
-            'id': cmd.pk,
-            'statut': cmd.statut,
-            'statut_display': cmd.get_statut_display(),
-            'type_commande': cmd.type_commande,
-            'label_table': cmd.numero_table or 'À emporter',
-            'note_cuisine': cmd.note_cuisine or '',
-            'lignes': lignes,
-            'heure': cmd.date_creation.strftime('%H:%M'),
-            'montant_total': float(cmd.montant_total),
-        })
-    return JsonResponse({'commandes': data, 'total': len(data)})
-
-
-@login_required
-def api_serveur_servir(request, cmd_id):
-    """
-    POST /commandes/api/<id>/serveur-servir/
-    Transition prete → servie (serveur remet la commande au client en salle).
-    """
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST requis'}, status=405)
-    commande = get_object_or_404(Commande, pk=cmd_id, type_commande__in=['sur_place', 'a_emporter'])
     success = commande.marquer_servie()
     return JsonResponse({'success': success, 'statut': commande.statut, 'id': cmd_id})
 
@@ -473,12 +443,11 @@ def api_livraisons(request):
     """
     GET /commandes/api/livraisons/
     Retourne les commandes de type livraison pour le livreur.
-    Affiche les livraisons en cours de préparation ET prêtes à livrer.
     Interrogé toutes les 5 secondes par le template livreur.html.
     """
     commandes = (
         Commande.objects
-        .filter(type_commande='livraison', statut__in=['en_attente', 'en_preparation', 'prete'])
+        .filter(type_commande='livraison', statut__in=['en_attente', 'en_preparation', 'servie'])
         .prefetch_related('lignes__produit')
         .order_by('date_creation')
     )
@@ -509,7 +478,7 @@ def api_livraisons(request):
 def api_livrer(request, cmd_id):
     """
     POST /commandes/api/<id>/livrer/
-    Marquer une livraison comme effectuée : prete → servie (appelée par le livreur).
+    Marquer une livraison comme effectuée (appelée par le livreur).
     """
     if request.method != 'POST':
         return JsonResponse({'error': 'POST requis'}, status=405)
@@ -523,13 +492,14 @@ def api_mes_commandes(request):
     """
     GET /commandes/api/mes-commandes/
     Retourne le statut actuel des commandes actives du client connecté.
-    Interrogé toutes les 8 secondes par le template panier.html.
+    Interrogé toutes les 8 secondes par le template panier.html pour le suivi en temps réel.
+    Seules les commandes en cours sont retournées (pas les servies/annulées).
     """
     commandes = (
         Commande.objects
         .filter(
             serveur=request.user,
-            statut__in=['en_attente', 'en_preparation', 'prete', 'servie'],
+            statut__in=['en_attente', 'en_preparation', 'servie'],
         )
         .values('pk', 'statut')
         .order_by('-date_creation')[:20]
@@ -569,3 +539,96 @@ def _incrementer_stock(commande):
                 stock.save(update_fields=['quantite'])
             except Stock.DoesNotExist:
                 pass
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Vue client : Ajouter une commande depuis le menu_client
+# ─────────────────────────────────────────────────────────────────────────────
+@login_required
+@require_POST
+def commande_ajouter_client(request):
+    plat_nom      = request.POST.get('plat_nom', '').strip()
+    plat_prix     = request.POST.get('plat_prix', '0')
+    quantite      = request.POST.get('quantite', '1')
+    type_commande = request.POST.get('type_commande', 'sur_place')
+
+    try:
+        quantite  = max(1, int(quantite))
+        prix      = float(plat_prix)
+    except (ValueError, TypeError):
+        messages.error(request, "Données de commande invalides.")
+        return redirect('menu_client')
+
+    # Cherche le produit par nom (insensible à la casse)
+    try:
+        produit = Produit.objects.get(nom__iexact=plat_nom)
+    except Produit.DoesNotExist:
+        # Produit pas en base → crée une commande avec client_nom comme référence
+        produit = None
+
+    if produit:
+        commande = Commande.objects.create(
+            serveur=request.user,
+            type_commande=type_commande,
+            client_nom=request.user.get_full_name() or request.user.username,
+            statut='en_attente',
+        )
+        LigneCommande.objects.create(
+            commande=commande,
+            produit=produit,
+            quantite=quantite,
+            prix_unitaire=produit.prix,
+        )
+        commande.calculer_montant()
+    else:
+        # Le plat n'est pas encore en base (menu statique) → on enregistre quand même
+        # avec client_nom = nom du plat et montant_total fixé
+        from decimal import Decimal
+        commande = Commande.objects.create(
+            serveur=request.user,
+            type_commande=type_commande,
+            client_nom=f"{request.user.get_full_name() or request.user.username} — {plat_nom}",
+            note_cuisine=f"Plat : {plat_nom} x{quantite}",
+            montant_total=Decimal(str(prix)) * quantite,
+            statut='en_attente',
+        )
+
+    messages.success(request, f"✅ Commande #{commande.pk} ajoutée — {commande.montant_total} FCFA")
+    return redirect('panier')
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Vue client : Re-commander (même plats qu'une commande existante)
+# ─────────────────────────────────────────────────────────────────────────────
+@login_required
+@require_POST
+def commande_recommander(request, cmd_id):
+    originale = get_object_or_404(Commande, pk=cmd_id, serveur=request.user)
+
+    nouvelle = Commande.objects.create(
+        serveur=request.user,
+        type_commande=originale.type_commande,
+        client_nom=originale.client_nom,
+        client_telephone=originale.client_telephone,
+        adresse_livraison=originale.adresse_livraison,
+        note_cuisine=originale.note_cuisine,
+        statut='en_attente',
+    )
+
+    lignes = originale.lignes.all()
+    if lignes.exists():
+        for ligne in lignes:
+            LigneCommande.objects.create(
+                commande=nouvelle,
+                produit=ligne.produit,
+                quantite=ligne.quantite,
+                prix_unitaire=ligne.prix_unitaire,
+            )
+        nouvelle.calculer_montant()
+    else:
+        # Commande sans lignes ORM (menu statique) — copie le montant
+        nouvelle.montant_total = originale.montant_total
+        nouvelle.save(update_fields=['montant_total'])
+
+    messages.success(request, f"✅ Re-commande #{nouvelle.pk} créée !")
+    return redirect('panier')

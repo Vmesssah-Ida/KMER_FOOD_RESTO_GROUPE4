@@ -3,201 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chef Cuisinier — Gestion Restaurant</title>
+  <title>Chef Cuisinier — KMER FOOD</title>
   <style>
     :root {
-      --primary: #9f1239;
-      --primary-light: #e11d48;
-      --primary-dark: #6b0823;
-      --accent: #fecdd3;
-      --bg: #fff1f2;
-      --sidebar-w: 255px;
-      --white: #ffffff;
-      --text: #1f0a0d;
-      --muted: #6b7280;
-      --border: #fecdd3;
-      --success: #16a34a;
-      --danger: #dc2626;
-      --warning: #d97706;
-      --card-shadow: 0 2px 14px rgba(159,18,57,0.07);
+      --primary: #9f1239; --primary-light: #e11d48; --primary-dark: #6b0823;
+      --accent: #fecdd3; --bg: #fff1f2; --sidebar-w: 255px;
+      --white: #ffffff; --text: #1f0a0d; --muted: #6b7280;
+      --border: #fecdd3; --success: #16a34a; --danger: #dc2626;
+      --warning: #d97706; --info: #0284c7; --purple: #7c3aed;
+      --card-shadow: 0 2px 12px rgba(159,18,57,0.07);
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
 
-    .sidebar { width: var(--sidebar-w); background: var(--primary-dark); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
-    .sidebar-logo { padding: 26px 20px 18px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    /* TODO: Remplacez src="" par le logo du restaurant (ex: src="assets/logo.png") */
-    .sidebar-logo img { width: 40px; height: 40px; border-radius: 9px; background: rgba(255,255,255,0.1); object-fit: cover; }
-    .sidebar-logo span { color: #fff; font-size: 0.95rem; font-weight: 700; }
-    .sidebar-logo small { color: rgba(255,255,255,0.45); font-size: 0.68rem; display: block; }
-    .role-badge { margin: 16px 12px 6px; padding: 10px 12px; background: rgba(254,205,211,0.15); border-radius: 10px; display: flex; align-items: center; gap: 9px; }
-    /* TODO: Remplacez src="" par la photo du chef cuisinier (ex: src="assets/chef.jpg") */
-    .role-badge img { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.1); object-fit: cover; }
-    .role-badge span { color: var(--accent); font-size: 0.76rem; font-weight: 700; display: block; }
-    .role-badge small { color: rgba(255,255,255,0.45); font-size: 0.68rem; }
-    nav { flex: 1; padding: 8px 10px; }
-    .nav-section { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); padding: 13px 10px 5px; }
-    .nav-item { display: flex; align-items: center; gap: 9px; padding: 10px 11px; border-radius: 8px; color: rgba(255,255,255,0.6); font-size: 0.85rem; cursor: pointer; transition: all 0.17s; margin-bottom: 2px; }
-    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
-    .nav-item.active { background: var(--primary-light); color: #fff; font-weight: 600; }
-    .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 0.63rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
-    .sidebar-footer { padding: 14px; border-top: 1px solid rgba(255,255,255,0.1); }
-    .logout-btn { width: 100%; padding: 9px; background: rgba(239,68,68,0.14); color: #fca5a5; border: none; border-radius: 8px; cursor: pointer; font-size: 0.83rem; font-weight: 600; }
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar-w);background:var(--primary-dark);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;padding:0;z-index:10;}
+    .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.08);}
+    .sidebar-logo img{width:38px;height:38px;border-radius:8px;object-fit:cover;}
+    .sidebar-logo span{font-size:1.05rem;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+    .sidebar-logo small{display:block;font-size:0.65rem;color:rgba(255,255,255,0.45);letter-spacing:1px;}
+    .role-badge{display:flex;align-items:center;gap:10px;padding:14px 18px;background:rgba(255,255,255,0.06);margin:12px;border-radius:9px;}
+    .role-badge img{width:36px;height:36px;border-radius:50%;background:var(--accent);object-fit:cover;}
+    .role-badge span{font-size:0.82rem;font-weight:700;color:#fff;}
+    nav{flex:1;overflow-y:auto;padding:8px 10px;}
+    .nav-section{font-size:0.62rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.35);padding:14px 10px 6px;text-transform:uppercase;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;cursor:pointer;color:rgba(255,255,255,0.7);font-size:0.83rem;font-weight:500;text-decoration:none;margin-bottom:2px;transition:all 0.18s;}
+    .nav-item:hover,.nav-item.active{background:rgba(255,255,255,0.1);color:#fff;}
+    .nav-badge{margin-left:auto;background:var(--primary-light);color:#fff;font-size:0.62rem;padding:2px 7px;border-radius:20px;font-weight:700;}
+    .sidebar-footer{padding:14px 14px 20px;border-top:1px solid rgba(255,255,255,0.08);}
+    .logout-btn{display:block;text-align:center;padding:8px;border-radius:7px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.65);font-size:0.82rem;font-weight:600;text-decoration:none;cursor:pointer;border:none;width:100%;}
+    .logout-btn:hover{background:rgba(255,255,255,0.14);color:#fff;}
 
-    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
-    .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 28px; height: 62px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-    .topbar h1 { font-size: 1.05rem; font-weight: 700; }
-    .topbar p { font-size: 0.76rem; color: var(--muted); }
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
-    .content { padding: 26px 28px; flex: 1; }
-    .section { display: none; }
-    .section.active { display: block; }
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;}
+    .topbar h1{font-size:1.15rem;font-weight:800;color:var(--text);}
+    .topbar p{font-size:0.75rem;color:var(--muted);margin-top:2px;}
+    .topbar-right{display:flex;align-items:center;gap:10px;}
+    .content{padding:22px 26px;flex:1;}
 
-    .card { background: var(--white); border-radius: 13px; box-shadow: var(--card-shadow); overflow: hidden; margin-bottom: 20px; }
-    .card-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .card-header h3 { font-size: 0.93rem; font-weight: 700; }
-    .card-body { padding: 18px 22px; }
-    .btn { padding: 8px 17px; border-radius: 8px; font-size: 0.81rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.17s; display: inline-flex; align-items: center; gap: 6px; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-light); }
-    .btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-    .btn-success { background: #dcfce7; color: #16a34a; }
-    .btn-danger { background: #fee2e2; color: #dc2626; }
-    .btn-warning { background: #fef3c7; color: #92400e; }
-    .btn-sm { padding: 5px 11px; font-size: 0.75rem; }
+    /* SECTIONS */
+    .section{display:none;} .section.active{display:block;}
 
-    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 0.71rem; font-weight: 600; }
-    .badge-success { background: #dcfce7; color: #15803d; }
-    .badge-warning { background: #fef3c7; color: #92400e; }
-    .badge-danger { background: #fee2e2; color: #dc2626; }
-    .badge-info { background: #dbeafe; color: #1d4ed8; }
-    .badge-muted { background: #f1f5f9; color: #475569; }
-    .badge-rose { background: #ffe4e6; color: #9f1239; }
+    /* KPI */
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+    .kpi-card{background:var(--white);border-radius:11px;padding:15px 18px;box-shadow:var(--card-shadow);border-top:3px solid;}
+    .kpi-card.red{border-color:var(--danger);}
+    .kpi-card.green{border-color:var(--success);}
+    .kpi-card.orange{border-color:var(--warning);}
+    .kpi-card.blue{border-color:var(--info);}
+    .kpi-label{display:block;font-size:0.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+    .kpi-value{display:block;font-size:1.55rem;font-weight:800;color:var(--text);margin-bottom:2px;}
+    .kpi-sub{display:block;font-size:0.7rem;color:var(--muted);}
 
-    table { width: 100%; border-collapse: collapse; }
-    th { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 14px; background: var(--bg); text-align: left; }
-    td { padding: 12px 14px; font-size: 0.84rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
+    /* TICKETS CUISINE (AJAX) */
+    #tickets-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+    .order-ticket{background:var(--white);border-radius:11px;padding:14px;box-shadow:var(--card-shadow);border-left:4px solid var(--primary);transition:box-shadow 0.2s;}
+    .order-ticket.urgent{border-left-color:var(--danger);}
+    .order-ticket.en-preparation{border-left-color:var(--warning);}
+    .order-ticket.done{border-left-color:var(--success);opacity:0.75;}
+    .ticket-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+    .ticket-num{font-size:0.9rem;font-weight:800;color:var(--text);}
+    .badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;}
+    .badge-danger{background:#fee2e2;color:var(--danger);}
+    .badge-rose{background:var(--accent);color:var(--primary);}
+    .badge-warning{background:#fef3c7;color:var(--warning);}
+    .badge-success{background:#dcfce7;color:var(--success);}
+    .badge-info{background:#dbeafe;color:var(--info);}
+    .ticket-items-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+    .ticket-dish{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;background:var(--bg);}
+    .dish-qty{background:var(--primary);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;}
+    .dish-name{flex:1;font-size:0.8rem;font-weight:500;}
+    .ticket-note{font-size:0.73rem;color:var(--warning);font-style:italic;background:#fef3c7;padding:5px 8px;border-radius:5px;margin-bottom:8px;}
+    .ticket-meta{font-size:0.7rem;color:var(--muted);margin-bottom:8px;}
+    .ticket-actions{display:flex;gap:6px;margin-top:10px;}
 
-    /* Menu cards */
-    .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
-    .menu-item-card { background: var(--white); border-radius: 12px; box-shadow: var(--card-shadow); overflow: hidden; cursor: pointer; transition: all 0.18s; }
-    .menu-item-card:hover { transform: translateY(-3px); box-shadow: 0 6px 22px rgba(159,18,57,0.12); }
-    .menu-item-img {
-      width: 100%; height: 140px; background: linear-gradient(135deg, #fecdd3, #ffe4e6); display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative;
-      overflow: hidden;
-    }
-    /*
-      TODO: Pour chaque plat du menu, remplacez le fond de .menu-item-img par une vraie image.
-      Utilisez un style en ligne: style="background:url('assets/plats/entrecote.jpg') center/cover no-repeat"
-      ou un <img src="" alt="..."> dans le div
-    */
-    .menu-item-img-placeholder { opacity: 0.35; }
-    .menu-item-label { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.45); color: white; font-size: 0.65rem; padding: 3px 8px; border-radius: 20px; }
-    .menu-item-body { padding: 12px 14px; }
-    .menu-item-body h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
-    .menu-item-body p { font-size: 0.74rem; color: var(--muted); margin-bottom: 8px; line-height: 1.4; }
-    .menu-item-footer { display: flex; align-items: center; justify-content: space-between; }
-    .menu-price { font-size: 1rem; font-weight: 800; color: var(--primary); }
+    /* Boutons */
+    .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;font-size:0.78rem;font-weight:700;cursor:pointer;border:none;transition:all 0.18s;font-family:inherit;}
+    .btn-sm{padding:5px 10px;font-size:0.73rem;}
+    .btn-primary{background:var(--primary);color:#fff;} .btn-primary:hover{background:var(--primary-dark);}
+    .btn-success{background:var(--success);color:#fff;} .btn-success:hover{background:#15803d;}
+    .btn-warning{background:var(--warning);color:#fff;} .btn-warning:hover{background:#b45309;}
+    .btn-ghost{background:var(--bg);color:var(--text);border:1px solid var(--border);} .btn-ghost:hover{background:var(--accent);}
+    .btn:disabled{opacity:0.55;cursor:not-allowed;}
 
-    /* Recette */
-    .recipe-detail { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
-    .ingredient-list { display: flex; flex-direction: column; gap: 6px; }
-    .ingredient-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg); border-radius: 8px; font-size: 0.83rem; }
-    .ingredient-row .qty { font-weight: 700; color: var(--primary); }
+    /* Loader / vide */
+    .tickets-empty{text-align:center;padding:50px 20px;color:var(--muted);background:var(--white);border-radius:11px;box-shadow:var(--card-shadow);}
+    .tickets-empty .big-icon{font-size:3rem;margin-bottom:10px;}
+    .tickets-loading{text-align:center;padding:30px;color:var(--muted);}
 
-    /* Plonge (commandes cuisine) */
-    .order-ticket {
-      background: linear-gradient(135deg, #fff1f2, white); border: 1.5px solid var(--border); border-radius: 11px; padding: 16px;
-      margin-bottom: 12px; border-left: 4px solid var(--primary);
-    }
-    .order-ticket.done { border-left-color: var(--success); opacity: 0.7; }
-    .order-ticket.urgent { border-left-color: var(--danger); background: linear-gradient(135deg, #fff1f2, #fee2e2); }
-    .ticket-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .ticket-num { font-weight: 800; font-size: 1rem; }
-    .ticket-items-list { display: flex; flex-direction: column; gap: 6px; }
-    .ticket-dish { display: flex; align-items: center; gap: 10px; font-size: 0.84rem; }
-    .dish-qty { background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
-    .dish-name { flex: 1; }
-    .dish-check { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.17s; }
-    .dish-check.checked { background: var(--success); border-color: var(--success); color: white; font-size: 0.7rem; }
+    /* Spinner */
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .spinner{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(159,18,57,0.2);border-top-color:var(--primary);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
 
-    /* Cuisinier card */
-    .cook-card { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1.5px solid var(--border); border-radius: 11px; margin-bottom: 10px; transition: box-shadow 0.18s; }
-    .cook-card:hover { box-shadow: 0 2px 14px rgba(159,18,57,0.1); }
-    /* TODO: Remplacez src="" par la photo du cuisinier (ex: src="assets/cuisiniers/thomas.jpg") */
-    .cook-photo { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--bg); flex-shrink: 0; }
-    .cook-info { flex: 1; }
-    .cook-info strong { font-size: 0.88rem; display: block; }
-    .cook-info span { font-size: 0.74rem; color: var(--muted); }
-    .cook-post { font-size: 0.78rem; font-weight: 700; background: var(--bg); border: 1.5px solid var(--border); padding: 4px 10px; border-radius: 7px; white-space: nowrap; }
+    /* Indicateur live */
+    .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 1.5s ease infinite;margin-right:5px;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
 
-    .tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 9px; margin-bottom: 18px; }
-    .tab { padding: 7px 16px; border-radius: 7px; font-size: 0.81rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--muted); transition: all 0.17s; }
-    .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 5px rgba(0,0,0,0.07); }
-
-    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
-    .kpi-card { background: var(--white); border-radius: 13px; padding: 20px 22px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; }
-    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
-    .kpi-card.red::before { background: linear-gradient(90deg, #9f1239, #e11d48); }
-    .kpi-card.green::before { background: linear-gradient(90deg, #16a34a, #22c55e); }
-    .kpi-card.orange::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
-    .kpi-card.blue::before { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
-    .kpi-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
-    .kpi-value { font-size: 1.9rem; font-weight: 800; color: var(--text); line-height: 1.1; margin-top: 4px; }
-    .kpi-sub { font-size: 0.76rem; color: var(--success); font-weight: 600; margin-top: 3px; }
-
-    .form-group { margin-bottom: 14px; }
-    .form-group label { font-size: 0.76rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 5px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.85rem; outline: none; }
-    .form-group input:focus, .form-group select:focus { border-color: var(--primary-light); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.42); z-index: 200; align-items: center; justify-content: center; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: var(--white); border-radius: 15px; width: 560px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-    .modal-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .modal-header h3 { font-size: 0.97rem; font-weight: 700; }
-    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--muted); }
-    .modal-body { padding: 22px; max-height: 65vh; overflow-y: auto; }
-    .modal-footer { padding: 15px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
-
-    /* Notation étoiles */
-    .stars { color: #fbbf24; font-size: 0.9rem; letter-spacing: 1px; }
-
-    /* Diff badge */
-    .diff { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
-    .diff-easy { background: #dcfce7; color: #15803d; }
-    .diff-medium { background: #fef3c7; color: #92400e; }
-    .diff-hard { background: #fee2e2; color: #dc2626; }
+    /* Autres sections (équipe, planning) */
+    .team-card{background:var(--white);border-radius:11px;padding:16px;box-shadow:var(--card-shadow);display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+    .team-avatar{width:46px;height:46px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--primary);font-size:1.1rem;flex-shrink:0;}
+    .team-info strong{display:block;font-size:0.87rem;font-weight:700;}
+    .team-info span{font-size:0.75rem;color:var(--muted);}
   </style>
 </head>
 <body>
 
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <!-- TODO: Remplacez src="" par le logo du restaurant -->
-    <img src="" alt="Logo" />
-    <div><span>KMER FOOD</span><small>Interface Chef</small></div>
+    <div style="width:38px;height:38px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">&#127859;</div>
+    <div><span>KMER FOOD</span><small>INTERFACE CHEF</small></div>
   </div>
   <div class="role-badge">
-    <!-- TODO: Remplacez src="" par la photo du chef (ex: src="assets/chef.jpg") -->
-    <img src="" alt="Chef" />
-    <div><span>Chef Cuisinier</span></div>
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">&#128081;</div>
+    <div><span>Chef Cuisinier</span><br/><small style="font-size:0.65rem;color:rgba(255,255,255,0.45);">{{ request.user.get_full_name|default:request.user.username }}</small></div>
   </div>
   <nav>
     <div class="nav-section">Cuisine</div>
-    <a class="nav-item active" onclick="showSection('plonge', this)"><span>&#127859;</span> Tickets cuisine <span class="nav-badge">7</span></a>
-    <a class="nav-item" href="{% url 'menu' %}" class="logout-btn">Menu</a>
-    <a class="nav-item" href="{% url 'liste_recettes' %}" class="logout-btn">Livre de recettes</a>
+    <a class="nav-item active" onclick="showSection('cuisine',this)">
+      &#127859; Tickets cuisine <span class="nav-badge" id="badge-tickets">0</span>
+    </a>
+    <a class="nav-item active" href="{% url 'recettes' %}">
+      &#127859; Livre de recettes <span class="nav-badge" id="badge-tickets"></span>
+    </a>
     <div class="nav-section">Équipe</div>
-    <a class="nav-item" onclick="showSection('cuisiniers', this)"><span>&#128081;</span> Mon équipe</a>
-    <a class="nav-item" onclick="showSection('plannings', this)"><span>&#128197;</span> Planning semaine</a>
+    <a class="nav-item" onclick="showSection('cuisiniers',this)">&#128081; Mon équipe</a>
+    <a class="nav-item" onclick="showSection('plannings',this)">&#128197; Planning semaine</a>
   </nav>
   <div class="sidebar-footer">
-   <a href="{% url 'logout' %}" class="logout-btn">Déconnexion</a> 
-
+    <a href="{% url 'logout' %}" class="logout-btn">Déconnexion</a>
   </div>
 </aside>
 
@@ -205,530 +139,196 @@
   <header class="topbar">
     <div>
       <h1 id="page-title">Tickets cuisine</h1>
-      <p>Service midi</p>
+      <p><span class="live-dot"></span>Mise à jour automatique toutes les 5 secondes</p>
     </div>
     <div class="topbar-right">
-      <span style="font-size:0.82rem;background:var(--bg);padding:6px 14px;border-radius:8px;font-weight:600;color:var(--primary)">7 tickets actifs</span>
-      <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-recette').classList.add('open')">+ Nouvelle recette</button>
+      <span id="live-count" style="font-size:0.82rem;background:var(--bg);padding:6px 14px;border-radius:8px;font-weight:700;color:var(--primary)">
+        <span class="spinner"></span> Chargement…
+      </span>
     </div>
   </header>
 
   <div class="content">
 
-    <!-- ═══ PLONGE / TICKETS ═══ -->
-    <div id="plonge" class="section active">
+    <!-- ═══ CUISINE (AJAX) ═══ -->
+    <div id="cuisine" class="section active">
       <div class="kpi-grid">
-        <div class="kpi-card red"><span class="kpi-label">Tickets en cours</span><span class="kpi-value">7</span><span class="kpi-sub" style="color:var(--danger)">3 urgents</span></div>
-        <div class="kpi-card green"><span class="kpi-label">Plats servis (midi)</span><span class="kpi-value">43</span><span class="kpi-sub">Service en cours</span></div>
-        <div class="kpi-card orange"><span class="kpi-label">Temps moyen dressage</span><span class="kpi-value">14 min</span><span class="kpi-sub">Objectif 15 min</span></div>
-        <div class="kpi-card blue"><span class="kpi-label">Taux satisfaction</span><span class="kpi-value">96%</span><span class="kpi-sub">Retours positifs</span></div>
+        <div class="kpi-card red"><span class="kpi-label">En attente</span><span class="kpi-value" id="kpi-attente">—</span><span class="kpi-sub">À traiter</span></div>
+        <div class="kpi-card orange"><span class="kpi-label">En préparation</span><span class="kpi-value" id="kpi-prep">—</span><span class="kpi-sub">En cours</span></div>
+        <div class="kpi-card blue"><span class="kpi-label">Urgents (+20 min)</span><span class="kpi-value" id="kpi-urgent">—</span><span class="kpi-sub" style="color:var(--danger)">À prioriser</span></div>
+        <div class="kpi-card green"><span class="kpi-label">Heure actuelle</span><span class="kpi-value" id="kpi-heure" style="font-size:1.2rem;">—</span><span class="kpi-sub">Service en cours</span></div>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
-        <!-- Ticket urgent -->
-        <div class="order-ticket urgent">
-          <div class="ticket-top">
-            <span class="ticket-num">Table 01</span>
-            <span class="badge badge-danger">URGENT — 1h 12min</span>
-          </div>
-          <div class="ticket-items-list">
-            <div class="ticket-dish"><div class="dish-qty">2</div><span class="dish-name">Entrecôte sauce poivre</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-            <div class="ticket-dish"><div class="dish-qty">1</div><span class="dish-name">Saumon mi-cuit</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-            <div class="ticket-dish"><div class="dish-qty">1</div><span class="dish-name">Carpaccio de boeuf</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="btn btn-success btn-sm" style="flex:1">Ticket prêt</button>
-            <button class="btn btn-ghost btn-sm">Note cuisine</button>
-          </div>
-        </div>
-
-        <div class="order-ticket urgent">
-          <div class="ticket-top">
-            <span class="ticket-num">Table 10</span>
-            <span class="badge badge-danger">URGENT — 2h 01min</span>
-          </div>
-          <div class="ticket-items-list">
-            <div class="ticket-dish"><div class="dish-qty">3</div><span class="dish-name">Plateau fromages</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-            <div class="ticket-dish"><div class="dish-qty">3</div><span class="dish-name">Café gourmand</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="btn btn-success btn-sm" style="flex:1">Ticket prêt</button>
-            <button class="btn btn-ghost btn-sm">Note cuisine</button>
-          </div>
-        </div>
-
-        <div class="order-ticket">
-          <div class="ticket-top">
-            <span class="ticket-num">Table 07</span>
-            <span class="badge badge-rose">En cours — 28min</span>
-          </div>
-          <div class="ticket-items-list">
-            <div class="ticket-dish"><div class="dish-qty">3</div><span class="dish-name">Filet Wellington</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-            <div class="ticket-dish"><div class="dish-qty">2</div><span class="dish-name">Risotto truffes</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-            <div class="ticket-dish"><div class="dish-qty">5</div><span class="dish-name">Dessert du jour</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="btn btn-success btn-sm" style="flex:1">Ticket prêt</button>
-            <button class="btn btn-ghost btn-sm">Note cuisine</button>
-          </div>
-        </div>
-
-        <div class="order-ticket">
-          <div class="ticket-top">
-            <span class="ticket-num">Table 04</span>
-            <span class="badge badge-warning">45 min</span>
-          </div>
-          <div class="ticket-items-list">
-            <div class="ticket-dish"><div class="dish-qty">2</div><span class="dish-name">Menu déjeuner complet</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="btn btn-success btn-sm" style="flex:1">Ticket prêt</button>
-            <button class="btn btn-ghost btn-sm">Note cuisine</button>
-          </div>
-        </div>
-
-        <div class="order-ticket done">
-          <div class="ticket-top">
-            <span class="ticket-num">Table 02</span>
-            <span class="badge badge-success">Servi — Terminé</span>
-          </div>
-          <div class="ticket-items-list">
-            <div class="ticket-dish"><div class="dish-qty">2</div><span class="dish-name">Foie gras mi-cuit</span><div class="dish-check checked" onclick="toggleCheck(this)">&#10003;</div></div>
-            <div class="ticket-dish"><div class="dish-qty">2</div><span class="dish-name">Fondant chocolat</span><div class="dish-check checked" onclick="toggleCheck(this)">&#10003;</div></div>
-          </div>
-        </div>
-
-        <div class="order-ticket">
-          <div class="ticket-top">
-            <span class="ticket-num">Table 09 — Groupe</span>
-            <span class="badge badge-info">Préparer à 12h30</span>
-          </div>
-          <div class="ticket-items-list">
-            <div class="ticket-dish"><div class="dish-qty">8</div><span class="dish-name">Entrée maison</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-            <div class="ticket-dish"><div class="dish-qty">8</div><span class="dish-name">Plat du jour</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-            <div class="ticket-dish"><div class="dish-qty">8</div><span class="dish-name">Dessert</span><div class="dish-check" onclick="toggleCheck(this)"></div></div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="btn btn-primary btn-sm" style="flex:1">Démarrer préparation</button>
-          </div>
-        </div>
+      <div id="tickets-grid">
+        <div class="tickets-loading"><span class="spinner"></span> Chargement des tickets…</div>
       </div>
     </div>
 
-    <!-- ═══ MENU ═══ -->
-    <div id="menu" class="section">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-        <div class="tabs" style="margin:0">
-          <button class="tab active">Entrées</button>
-          <button class="tab">Plats</button>
-          <button class="tab">Desserts</button>
-          <button class="tab">Menus</button>
-          <button class="tab">Boissons</button>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-menu').classList.add('open')">+ Ajouter au menu</button>
-      </div>
-
-      <div class="menu-grid">
-        <!-- Plat 1 -->
-        <div class="menu-item-card">
-          <div class="menu-item-img">
-            <!--
-              TODO: Remplacez ce placeholder par une image du plat.
-              Utilisez: <img src="" alt="Carpaccio de boeuf" style="width:100%;height:100%;object-fit:cover" />
-              ou un background-image CSS: style="background:url('assets/plats/carpaccio.jpg') center/cover no-repeat"
-            -->
-            <span class="menu-item-img-placeholder" style="font-size:2.5rem">&#127859;</span>
-            <span class="menu-item-label">Entrée</span>
-          </div>
-          <div class="menu-item-body">
-            <h4>Carpaccio de boeuf</h4>
-            <p>Boeuf Angus, parmesan 24 mois, roquette sauvage, huile d'olive sicilienne</p>
-            <div class="menu-item-footer">
-              <span class="menu-price">18,00 €</span>
-              <div style="display:flex;gap:6px">
-                <button class="btn btn-ghost btn-sm">Éditer</button>
-                <button class="btn btn-danger btn-sm">Retirer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Plat 2 -->
-        <div class="menu-item-card">
-          <div class="menu-item-img">
-            <!--
-              TODO: Remplacez par une image du plat
-              <img src="" alt="Foie gras" style="width:100%;height:100%;object-fit:cover" />
-            -->
-            <span class="menu-item-img-placeholder" style="font-size:2.5rem">&#127859;</span>
-            <span class="menu-item-label">Entrée</span>
-          </div>
-          <div class="menu-item-body">
-            <h4>Foie gras mi-cuit</h4>
-            <p>Foie gras de canard artisanal, brioche maison, chutney figue-gingembre</p>
-            <div class="menu-item-footer">
-              <span class="menu-price">22,00 €</span>
-              <div style="display:flex;gap:6px">
-                <button class="btn btn-ghost btn-sm">Éditer</button>
-                <button class="btn btn-danger btn-sm">Retirer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Plat 3 -->
-        <div class="menu-item-card">
-          <div class="menu-item-img">
-            <!--
-              TODO: Remplacez par une image du plat
-              <img src="" alt="Entrecôte" style="width:100%;height:100%;object-fit:cover" />
-            -->
-            <span class="menu-item-img-placeholder" style="font-size:2.5rem">&#127830;</span>
-            <span class="menu-item-label">Plat</span>
-          </div>
-          <div class="menu-item-body">
-            <h4>Entrecôte sauce poivre</h4>
-            <p>Boeuf Angus 300g, sauce poivre vert, gratin dauphinois, haricots verts</p>
-            <div class="menu-item-footer">
-              <span class="menu-price">28,00 €</span>
-              <div style="display:flex;gap:6px">
-                <button class="btn btn-ghost btn-sm">Éditer</button>
-                <button class="btn btn-danger btn-sm">Retirer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Plat 4 -->
-        <div class="menu-item-card">
-          <div class="menu-item-img">
-            <!--
-              TODO: Remplacez par une image du plat
-              <img src="" alt="Saumon" style="width:100%;height:100%;object-fit:cover" />
-            -->
-            <span class="menu-item-img-placeholder" style="font-size:2.5rem">&#127843;</span>
-            <span class="menu-item-label">Plat</span>
-          </div>
-          <div class="menu-item-body">
-            <h4>Saumon mi-cuit</h4>
-            <p>Saumon Label Rouge, crème d'asperges, œufs de saumon, aneth frais</p>
-            <div class="menu-item-footer">
-              <span class="menu-price">24,00 €</span>
-              <div style="display:flex;gap:6px">
-                <button class="btn btn-ghost btn-sm">Éditer</button>
-                <button class="btn btn-danger btn-sm">Retirer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Plat 5 -->
-        <div class="menu-item-card">
-          <div class="menu-item-img">
-            <!--
-              TODO: Remplacez par une image du plat
-              <img src="" alt="Fondant chocolat" style="width:100%;height:100%;object-fit:cover" />
-            -->
-            <span class="menu-item-img-placeholder" style="font-size:2.5rem">&#127856;</span>
-            <span class="menu-item-label">Dessert</span>
-          </div>
-          <div class="menu-item-body">
-            <h4>Fondant chocolat</h4>
-            <p>Valrhona 70%, coeur coulant, glace vanille Bourbon, tuile dentelle</p>
-            <div class="menu-item-footer">
-              <span class="menu-price">9,00 €</span>
-              <div style="display:flex;gap:6px">
-                <button class="btn btn-ghost btn-sm">Éditer</button>
-                <button class="btn btn-danger btn-sm">Retirer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Plat 6 -->
-        <div class="menu-item-card">
-          <div class="menu-item-img">
-            <!--
-              TODO: Remplacez par une image du plat
-              <img src="" alt="Risotto truffes" style="width:100%;height:100%;object-fit:cover" />
-            -->
-            <span class="menu-item-img-placeholder" style="font-size:2.5rem">&#127860;</span>
-            <span class="menu-item-label">Plat végétarien</span>
-          </div>
-          <div class="menu-item-body">
-            <h4>Risotto aux truffes noires</h4>
-            <p>Arborio, truffes noires Périgord, parmesan Reggiano, bouillon maison</p>
-            <div class="menu-item-footer">
-              <span class="menu-price">26,00 €</span>
-              <div style="display:flex;gap:6px">
-                <button class="btn btn-ghost btn-sm">Éditer</button>
-                <button class="btn btn-danger btn-sm">Retirer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ RECETTES ═══ -->
-    <div id="recettes" class="section">
-      <div style="display:flex;justify-content:space-between;margin-bottom:18px">
-        <h3>Livre de recettes internes</h3>
-        <button class="btn btn-primary" onclick="document.getElementById('modal-recette').classList.add('open')">+ Créer recette</button>
-      </div>
-      <div class="card">
-        <div class="card-body" style="padding:0">
-          <table>
-            <thead><tr><th>Recette</th><th>Catégorie</th><th>Temps prépa</th><th>Difficulté</th><th>Note</th><th>Dernière modif.</th><th>Actions</th></tr></thead>
-            <tbody>
-              <tr>
-                <td><strong>Entrecôte sauce poivre</strong></td><td>Plats viande</td><td>25 min</td>
-                <td><span class="diff diff-medium">Intermédiaire</span></td>
-                <td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
-                <td>10/05/2026</td>
-                <td><button class="btn btn-ghost btn-sm" onclick="document.getElementById('modal-recette-detail').classList.add('open')">Voir recette</button></td>
-              </tr>
-              <tr>
-                <td><strong>Fondant chocolat Valrhona</strong></td><td>Pâtisserie</td><td>35 min</td>
-                <td><span class="diff diff-hard">Avancé</span></td>
-                <td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
-                <td>02/05/2026</td>
-                <td><button class="btn btn-ghost btn-sm" onclick="document.getElementById('modal-recette-detail').classList.add('open')">Voir recette</button></td>
-              </tr>
-              <tr>
-                <td><strong>Risotto truffes noires</strong></td><td>Plats végétariens</td><td>40 min</td>
-                <td><span class="diff diff-hard">Avancé</span></td>
-                <td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></td>
-                <td>01/05/2026</td>
-                <td><button class="btn btn-ghost btn-sm" onclick="document.getElementById('modal-recette-detail').classList.add('open')">Voir recette</button></td>
-              </tr>
-              <tr>
-                <td><strong>Bouillon maison chef</strong></td><td>Bases & fonds</td><td>3h 00</td>
-                <td><span class="diff diff-medium">Intermédiaire</span></td>
-                <td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
-                <td>15/04/2026</td>
-                <td><button class="btn btn-ghost btn-sm" onclick="document.getElementById('modal-recette-detail').classList.add('open')">Voir recette</button></td>
-              </tr>
-              <tr>
-                <td><strong>Sauce poivre vert</strong></td><td>Sauces</td><td>15 min</td>
-                <td><span class="diff diff-easy">Facile</span></td>
-                <td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
-                <td>20/04/2026</td>
-                <td><button class="btn btn-ghost btn-sm" onclick="document.getElementById('modal-recette-detail').classList.add('open')">Voir recette</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ CUISINIERS ═══ -->
+    <!-- ═══ ÉQUIPE ═══ -->
     <div id="cuisiniers" class="section">
-      <div style="display:flex;justify-content:space-between;margin-bottom:18px">
-        <h3>Mon équipe cuisine — 7 personnes</h3>
-      </div>
-      <div class="grid-2">
-        <div>
-          <div class="cook-card">
-            <!-- TODO: Remplacez src="" par la photo du cuisinier -->
-            <img class="cook-photo" src="" alt="Thomas Rivière" />
-            <div class="cook-info"><strong>Thomas Rivière</strong><span>Sous-chef · Cuisine depuis 8 ans</span></div>
-            <span class="cook-post">Poisson</span>
-            <span class="badge badge-success" style="margin-left:8px">Présent</span>
-          </div>
-          <div class="cook-card">
-            <!-- TODO: Remplacez src="" par la photo du cuisinier -->
-            <img class="cook-photo" src="" alt="Lena Marchand" />
-            <div class="cook-info"><strong>Lena Marchand</strong><span>Cuisinière · Spécialité pâtisserie</span></div>
-            <span class="cook-post">Pâtisserie</span>
-            <span class="badge badge-success" style="margin-left:8px">Présent</span>
-          </div>
-          <div class="cook-card">
-            <!-- TODO: Remplacez src="" par la photo du cuisinier -->
-            <img class="cook-photo" src="" alt="Youssef Amari" />
-            <div class="cook-info"><strong>Youssef Amari</strong><span>Cuisinier · Viandes & grillades</span></div>
-            <span class="cook-post">Viande</span>
-            <span class="badge badge-success" style="margin-left:8px">Présent</span>
-          </div>
-          <div class="cook-card">
-            <!-- TODO: Remplacez src="" par la photo du cuisinier -->
-            <img class="cook-photo" src="" alt="Sara Kim" />
-            <div class="cook-info"><strong>Sara Kim</strong><span>Commis · Préparations & entrées</span></div>
-            <span class="cook-post">Entrées</span>
-            <span class="badge badge-warning" style="margin-left:8px">Congé</span>
-          </div>
-        </div>
-        <div>
-          <div class="card">
-            <div class="card-header"><h3>Postes actifs ce service</h3></div>
-            <div class="card-body">
-              <table>
-                <thead><tr><th>Poste</th><th>Cuisinier affecté</th><th>Statut</th></tr></thead>
-                <tbody>
-                  <tr><td>Poste chaud (viandes)</td><td>Y. Amari</td><td><span class="badge badge-success">Actif</span></td></tr>
-                  <tr><td>Poste froid (entrées)</td><td>T. Rivière</td><td><span class="badge badge-success">Actif</span></td></tr>
-                  <tr><td>Poste pâtisserie</td><td>L. Marchand</td><td><span class="badge badge-success">Actif</span></td></tr>
-                  <tr><td>Garde-manger</td><td>Non affecté</td><td><span class="badge badge-warning">Incomplet</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+      <h3 style="margin-bottom:16px;font-size:1rem;color:var(--text);">Mon équipe en service</h3>
+      <div class="team-card"><div class="team-avatar">JB</div><div class="team-info"><strong>Jean-Baptiste</strong><span>Cuisinier chaud · En service</span></div></div>
+      <div class="team-card"><div class="team-avatar">MC</div><div class="team-info"><strong>Marie Colette</strong><span>Pâtissière · En service</span></div></div>
+      <div class="team-card"><div class="team-avatar">AP</div><div class="team-info"><strong>Arnaud Penda</strong><span>Plongeur · En pause</span></div></div>
     </div>
 
     <!-- ═══ PLANNING ═══ -->
     <div id="plannings" class="section">
-      <div class="card">
-        <div class="card-header"><h3>Planning équipe cuisine — Semaine du 12 au 18 mai</h3><button class="btn btn-ghost btn-sm">&#8659; Exporter</button></div>
-        <div class="card-body" style="padding:0">
-          <table>
-            <thead><tr><th>Cuisinier</th><th>Lun</th><th>Mar</th><th>Mer</th><th>Jeu</th><th>Ven</th><th>Sam</th><th>Dim</th><th>Total</th></tr></thead>
-            <tbody>
-              <tr><td><strong>Ahmed Bensaid (Chef)</strong></td><td>12h–22h</td><td>12h–22h</td><td>12h–22h</td><td>12h–22h</td><td>12h–22h</td><td>—</td><td>—</td><td>50h</td></tr>
-              <tr><td><strong>Thomas Rivière</strong></td><td>11h–21h</td><td>11h–21h</td><td>—</td><td>11h–21h</td><td>11h–21h</td><td>11h–21h</td><td>—</td><td>50h</td></tr>
-              <tr><td><strong>Lena Marchand</strong></td><td>09h–17h</td><td>09h–17h</td><td>09h–17h</td><td>—</td><td>09h–17h</td><td>09h–17h</td><td>—</td><td>40h</td></tr>
-              <tr><td><strong>Youssef Amari</strong></td><td>11h–23h</td><td>—</td><td>11h–23h</td><td>11h–23h</td><td>11h–23h</td><td>11h–23h</td><td>—</td><td>50h</td></tr>
-              <tr><td><strong>Sara Kim</strong></td><td style="color:var(--warning)">Congé</td><td style="color:var(--warning)">Congé</td><td style="color:var(--warning)">Congé</td><td style="color:var(--warning)">Congé</td><td style="color:var(--warning)">Congé</td><td>—</td><td>—</td><td>0h</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <div style="background:var(--white);border-radius:11px;padding:20px;box-shadow:var(--card-shadow);">
+        <h3 style="margin-bottom:14px;font-size:1rem;">Planning de la semaine</h3>
+        <p style="color:var(--muted);font-size:0.85rem;">Fonctionnalité à connecter au module RH.</p>
       </div>
     </div>
 
   </div>
 </main>
 
-<!-- Modal : Créer recette -->
-<div class="modal-overlay" id="modal-recette">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Créer une recette</h3>
-      <button class="modal-close" onclick="document.getElementById('modal-recette').classList.remove('open')">&#10005;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group"><label>Nom de la recette</label><input type="text" placeholder="ex: Entrecôte sauce poivre" /></div>
-      <div class="form-row">
-        <div class="form-group"><label>Catégorie</label><select><option>Entrées</option><option>Plats viande</option><option>Plats poisson</option><option>Plats végétariens</option><option>Pâtisserie</option><option>Sauces</option><option>Bases & fonds</option></select></div>
-        <div class="form-group"><label>Difficulté</label><select><option>Facile</option><option>Intermédiaire</option><option>Avancé</option></select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Temps de préparation</label><input type="text" placeholder="ex: 30 min" /></div>
-        <div class="form-group"><label>Nombre de couverts</label><input type="number" placeholder="4" /></div>
-      </div>
-      <div class="form-group"><label>Ingrédients</label><textarea rows="4" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;outline:none" placeholder="300g entrecôte boeuf Angus&#10;20g poivre vert&#10;200ml crème fraîche&#10;..."></textarea></div>
-      <div class="form-group"><label>Procédure (étapes)</label><textarea rows="5" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;outline:none" placeholder="1. Saisir la viande 2 min de chaque côté...&#10;2. Déglacer au cognac...&#10;3. Ajouter la crème et le poivre..."></textarea></div>
-      <div class="form-group"><label>Photo du plat fini</label><input type="file" accept="image/*" />
-        <!--
-          TODO: Intégrez ici un système d'upload d'image pour les photos de plats
-          (Firebase Storage, Cloudinary, Amazon S3, ou autre)
-          Remplacez l'input file par votre solution cloud si nécessaire
-        -->
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="document.getElementById('modal-recette').classList.remove('open')">Annuler</button>
-      <button class="btn btn-primary">Enregistrer la recette</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal : Détail recette -->
-<div class="modal-overlay" id="modal-recette-detail">
-  <div class="modal" style="width:600px">
-    <div class="modal-header">
-      <h3>Entrecôte sauce poivre</h3>
-      <button class="modal-close" onclick="document.getElementById('modal-recette-detail').classList.remove('open')">&#10005;</button>
-    </div>
-    <div class="modal-body">
-      <div class="recipe-detail">
-        <div>
-          <div style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:10px;letter-spacing:0.05em">Ingrédients (4 couverts)</div>
-          <div class="ingredient-list">
-            <div class="ingredient-row"><span>Entrecôte boeuf Angus</span><span class="qty">300g × 4</span></div>
-            <div class="ingredient-row"><span>Poivre vert entier</span><span class="qty">20g</span></div>
-            <div class="ingredient-row"><span>Crème fraîche épaisse</span><span class="qty">200ml</span></div>
-            <div class="ingredient-row"><span>Cognac</span><span class="qty">4 cl</span></div>
-            <div class="ingredient-row"><span>Beurre AOC</span><span class="qty">40g</span></div>
-            <div class="ingredient-row"><span>Échalotes</span><span class="qty">2 pcs</span></div>
-            <div class="ingredient-row"><span>Sel, poivre</span><span class="qty">QS</span></div>
-          </div>
-        </div>
-        <div>
-          <div style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:10px;letter-spacing:0.05em">Procédure</div>
-          <ol style="padding-left:16px;font-size:0.83rem;line-height:1.7;color:var(--text)">
-            <li>Sortir la viande 30 min avant cuisson à température ambiante.</li>
-            <li>Faire fondre le beurre dans une poêle très chaude.</li>
-            <li>Saisir les entrecôtes 2–3 min de chaque côté pour une cuisson saignante.</li>
-            <li>Réserver les steaks sur grille, couverts de papier aluminium.</li>
-            <li>Dans la même poêle, suer les échalotes ciselées.</li>
-            <li>Déglacer au cognac et flamber.</li>
-            <li>Ajouter le poivre vert et la crème fraîche. Réduire 5 min.</li>
-            <li>Rectifier l'assaisonnement. Dresser.</li>
-          </ol>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="document.getElementById('modal-recette-detail').classList.remove('open')">Fermer</button>
-      <button class="btn btn-primary">Modifier recette</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal : Ajouter plat au menu -->
-<div class="modal-overlay" id="modal-menu">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Ajouter un plat au menu</h3>
-      <button class="modal-close" onclick="document.getElementById('modal-menu').classList.remove('open')">&#10005;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group"><label>Nom du plat</label><input type="text" placeholder="Nom du plat" /></div>
-      <div class="form-row">
-        <div class="form-group"><label>Catégorie</label><select><option>Entrée</option><option>Plat</option><option>Dessert</option><option>Menu</option></select></div>
-        <div class="form-group"><label>Prix (€)</label><input type="number" placeholder="0.00" /></div>
-      </div>
-      <div class="form-group"><label>Description courte</label><textarea rows="2" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;outline:none" placeholder="Ingrédients principaux, mode de préparation..."></textarea></div>
-      <div class="form-row">
-        <div class="form-group"><label>Allergènes</label><input type="text" placeholder="ex: Gluten, Lactose, Poisson..." /></div>
-        <div class="form-group"><label>Photo du plat</label><input type="file" accept="image/*" />
-          <!--
-            TODO: Remplacez l'input file par votre système d'upload
-            (Firebase Storage, Cloudinary, Amazon S3, etc.)
-          -->
-        </div>
-      </div>
-      <div class="form-group"><label>Disponibilité</label><select><option>Disponible</option><option>Service midi uniquement</option><option>Service soir uniquement</option><option>Saisonnier</option></select></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="document.getElementById('modal-menu').classList.remove('open')">Annuler</button>
-      <button class="btn btn-primary">Ajouter au menu</button>
-    </div>
-  </div>
-</div>
-
 <script>
+  const CSRF_TOKEN = '{{ csrf_token }}';
+  const API_CUISINE  = '{% url "commandes:api_cuisine" %}';
+  const API_PREPARER = id => `{% url "commandes:api_preparer" 0 %}`.replace('/0/', `/${id}/`);
+  const API_SERVIR   = id => `{% url "commandes:api_servir" 0 %}`.replace('/0/', `/${id}/`);
+
+  /* ── Affichage sections ── */
   function showSection(id, el) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     if (el) el.classList.add('active');
-    const t = { plonge:'Tickets cuisine', menu:'Menu du restaurant', recettes:'Livre de recettes', cuisiniers:'Mon équipe', plannings:'Planning semaine' };
-    document.getElementById('page-title').textContent = t[id] || '';
+    const titles = { cuisine:'Tickets cuisine', cuisiniers:'Mon équipe', plannings:'Planning semaine' };
+    document.getElementById('page-title').textContent = titles[id] || id;
   }
 
-  function toggleCheck(el) {
-    el.classList.toggle('checked');
-    el.textContent = el.classList.contains('checked') ? '✓' : '';
-  }
-
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      this.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
+  /* ── POST JSON helper ── */
+  async function postAPI(url) {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN, 'Content-Type': 'application/json' }
     });
-  });
+    return r.json();
+  }
+
+  /* ── Rendu d'un ticket ── */
+  function renderTicket(cmd) {
+    const isUrgent  = cmd.urgent;
+    const isPrep    = cmd.statut === 'en_preparation';
+    let cls = 'order-ticket';
+    if (isUrgent && !isPrep) cls += ' urgent';
+    if (isPrep) cls += ' en-preparation';
+
+    let badgeHtml = '';
+    if (isUrgent)   badgeHtml = `<span class="badge badge-danger">URGENT — ${cmd.minutes} min</span>`;
+    else if (isPrep) badgeHtml = `<span class="badge badge-warning">En préparation — ${cmd.minutes} min</span>`;
+    else             badgeHtml = `<span class="badge badge-rose">En attente — ${cmd.minutes} min</span>`;
+
+    const plats = cmd.lignes.map(l =>
+      `<div class="ticket-dish">
+         <div class="dish-qty">${l.quantite}</div>
+         <span class="dish-name">${l.nom}</span>
+       </div>`
+    ).join('');
+
+    const note = cmd.note_cuisine
+      ? `<div class="ticket-note">&#128221; ${cmd.note_cuisine}</div>` : '';
+
+    let actionsHtml = '';
+    if (cmd.statut === 'en_attente') {
+      actionsHtml = `
+        <div class="ticket-actions">
+          <button class="btn btn-warning btn-sm" style="flex:1" onclick="preparer(${cmd.id})">
+            &#9654; Démarrer
+          </button>
+        </div>`;
+    } else if (cmd.statut === 'en_preparation') {
+      actionsHtml = `
+        <div class="ticket-actions">
+          <button class="btn btn-success btn-sm" style="flex:1" onclick="servir(${cmd.id})">
+            &#10003; Ticket prêt
+          </button>
+        </div>`;
+    }
+
+    return `
+      <div class="${cls}" id="ticket-${cmd.id}">
+        <div class="ticket-top">
+          <span class="ticket-num">${cmd.label_table}</span>
+          ${badgeHtml}
+        </div>
+        <div class="ticket-meta">Reçu à ${cmd.heure} · #${cmd.id} · ${cmd.type_commande === 'livraison' ? '&#128663; Livraison' : '&#127968; Sur place'}</div>
+        ${note}
+        <div class="ticket-items-list">${plats}</div>
+        ${actionsHtml}
+      </div>`;
+  }
+
+  /* ── Accepter un ticket ── */
+  async function preparer(id) {
+    const btn = document.querySelector(`#ticket-${id} .btn-warning`);
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    const data = await postAPI(API_PREPARER(id));
+    if (data.success) { chargerTickets(); }
+    else { alert('Erreur : impossible de changer le statut.'); if (btn) { btn.disabled=false; btn.textContent='▶ Démarrer'; } }
+  }
+
+  /* ── Marquer comme prêt/servi ── */
+  async function servir(id) {
+    const btn = document.querySelector(`#ticket-${id} .btn-success`);
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    const data = await postAPI(API_SERVIR(id));
+    if (data.success) {
+      const el = document.getElementById(`ticket-${id}`);
+      if (el) { el.style.transition='opacity 0.4s'; el.style.opacity='0'; setTimeout(()=>el.remove(),420); }
+    } else {
+      alert('Erreur : impossible de marquer comme servi.');
+      if (btn) { btn.disabled=false; btn.textContent='✓ Ticket prêt'; }
+    }
+  }
+
+  /* ── Chargement des tickets depuis l'API ── */
+  async function chargerTickets() {
+    try {
+      const resp = await fetch(API_CUISINE);
+      const data = await resp.json();
+      const commandes = data.commandes;
+
+      // KPI
+      const attentes = commandes.filter(c => c.statut === 'en_attente');
+      const preps    = commandes.filter(c => c.statut === 'en_preparation');
+      const urgents  = commandes.filter(c => c.urgent);
+      document.getElementById('kpi-attente').textContent = attentes.length;
+      document.getElementById('kpi-prep').textContent    = preps.length;
+      document.getElementById('kpi-urgent').textContent  = urgents.length;
+
+      const now = new Date();
+      document.getElementById('kpi-heure').textContent = now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+
+      // Badge sidebar
+      document.getElementById('badge-tickets').textContent = commandes.length;
+
+      // Compteur topbar
+      const liveEl = document.getElementById('live-count');
+      liveEl.innerHTML = `${commandes.length} ticket${commandes.length !== 1 ? 's' : ''} actif${commandes.length !== 1 ? 's' : ''}`;
+
+      // Grille tickets
+      const grid = document.getElementById('tickets-grid');
+      if (commandes.length === 0) {
+        grid.innerHTML = `<div class="tickets-empty" style="grid-column:span 3">
+          <div class="big-icon">&#127859;</div>
+          <strong>Aucun ticket en cuisine</strong>
+          <p style="font-size:0.83rem;margin-top:6px;">Les nouvelles commandes apparaîtront ici automatiquement.</p>
+        </div>`;
+      } else {
+        grid.innerHTML = commandes.map(renderTicket).join('');
+      }
+    } catch (e) {
+      document.getElementById('live-count').innerHTML = '&#9888; Connexion interrompue';
+      console.error('Erreur API cuisine:', e);
+    }
+  }
+
+  /* ── Démarrage : polling toutes les 5 secondes ── */
+  chargerTickets();
+  setInterval(chargerTickets, 5000);
 </script>
 </body>
 </html>

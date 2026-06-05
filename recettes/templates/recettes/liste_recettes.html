@@ -158,6 +158,9 @@
     <span class="logo-text">KMER FOOD</span>
   </a>
   <ul class="nav-links">
+    {% if request.user.role == 'chef_cuisinier' %}
+    <li><a href="{% url 'authentification:chef_cuisinier' %}" style="color: var(--jaune); font-weight: 800;">👨‍🍳 Espace Chef</a></li>
+    {% endif %}
     <li><a href="{% url 'recettes' %}">Recettes</a></li>
     <li><a href="{% url 'inventaire' %}">Inventaire</a></li>
     <li><a href="{% url 'dashboard' %}">Dashboard</a></li>

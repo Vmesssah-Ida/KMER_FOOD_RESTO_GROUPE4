@@ -10,112 +10,394 @@
     :root {
       --vert:#2D6A2D; --rouge:#C0392B; --jaune:#F0A500; --ivoire:#FAF3E0;
       --brun:#3E2009; --texte:#1A1A1A; --blanc:#FFFFFF;
-      --sidebar-w:260px; --nav-bg:rgba(30,12,2,0.95);
-      --card-shadow:0 2px 14px rgba(62,32,9,0.08);
+      --sidebar-w:260px; --card-shadow:0 2px 14px rgba(62,32,9,0.08);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Lato',sans-serif;color:var(--texte);background:var(--ivoire);display:flex;min-height:100vh;}
 
     .sidebar{width:var(--sidebar-w);background:var(--brun);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:10;padding:1.5rem 0;}
-    .sidebar-brand{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--ivoire);text-align:center;padding-bottom:2rem;border-bottom:1px solid rgba(250,243,224,0.1);margin-bottom:1.5rem;}
+    .sidebar-brand{font-family:'Playfair Display',serif;font-size:1.45rem;color:var(--ivoire);text-align:center;padding-bottom:1.5rem;border-bottom:1px solid rgba(250,243,224,0.1);margin-bottom:1rem;}
     .sidebar-brand span{color:var(--jaune);}
-    
-    .nav-menu{list-style:none;display:flex;flex-direction:column;gap:0.25rem;}
-    .nav-item a{display:flex;align-items:center;padding:0.85rem 1.5rem;color:var(--ivoire);text-decoration:none;font-weight:400;transition:all 0.2s;}
-    .nav-item.active a, .nav-item a:hover{background:var(--vert);color:var(--blanc);}
-    
-    .logout-box{margin-top:auto;padding:0 1rem;}
-    .btn-sidebar-logout{display:block;width:100%;background:var(--rouge);color:var(--blanc);text-align:center;padding:0.7rem;border-radius:4px;text-decoration:none;font-weight:700;}
+    .sidebar-user{text-align:center;padding:0 1rem 1.25rem;border-bottom:1px solid rgba(250,243,224,0.1);margin-bottom:0.75rem;}
+    .sidebar-user .avatar{width:50px;height:50px;border-radius:50%;background:var(--jaune);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;color:var(--brun);margin:0 auto 0.5rem;}
+    .sidebar-user .username{font-size:0.88rem;font-weight:700;color:var(--ivoire);}
+    .sidebar-user .role{font-size:0.68rem;color:rgba(250,243,224,0.5);text-transform:uppercase;letter-spacing:1px;}
+    .nav-menu{list-style:none;display:flex;flex-direction:column;gap:0.2rem;padding:0 0.75rem;}
+    .nav-item a{display:flex;align-items:center;gap:0.7rem;padding:0.8rem 1rem;color:rgba(250,243,224,0.75);text-decoration:none;font-weight:600;font-size:0.87rem;border-radius:7px;transition:all 0.2s;}
+    .nav-item.active a,.nav-item a:hover{background:var(--vert);color:var(--blanc);}
+    .nav-badge{margin-left:auto;background:var(--rouge);color:white;font-size:0.63rem;padding:2px 7px;border-radius:20px;font-weight:700;}
+    .logout-box{margin-top:auto;padding:1rem;}
+    .btn-sidebar-logout{display:block;width:100%;background:rgba(192,57,43,0.25);color:#ff9a8a;text-align:center;padding:0.7rem;border-radius:7px;text-decoration:none;font-weight:700;font-size:0.85rem;border:1px solid rgba(192,57,43,0.3);}
+    .btn-sidebar-logout:hover{background:rgba(192,57,43,0.45);}
 
     .main-content{margin-left:var(--sidebar-w);flex:1;padding:2rem 3rem;}
     .header-page{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;border-bottom:2px solid rgba(62,32,9,0.1);padding-bottom:1rem;}
-    
-    .card-form{background:var(--blanc);padding:2rem;border-radius:8px;box-shadow:var(--card-shadow);max-width:700px;}
-    .form-group{margin-bottom:1.25rem;}
-    .form-group label{display:block;margin-bottom:0.5rem;font-weight:700;color:var(--brun);}
-    .form-group select, .form-group input{width:100%;padding:0.7rem;border:1px solid #ccc;border-radius:4px;}
-    
-    .ligne-item{display:flex;gap:1rem;align-items:center;margin-bottom:0.8rem;}
-    .btn-danger{background:var(--rouge);color:var(--blanc);border:none;padding:0.7rem;border-radius:4px;cursor:pointer;}
-    .total-preview{font-size:1.3rem;font-weight:700;color:var(--vert);margin:1.5rem 0;text-align:right;}
-    .btn-submit{background:var(--vert);color:var(--blanc);border:none;padding:0.8rem 2rem;font-weight:700;border-radius:4px;cursor:pointer;}
+    .header-page h1{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--brun);}
+
+    .alert{padding:0.9rem 1.2rem;border-radius:7px;font-size:0.88rem;margin-bottom:0.5rem;border-left:4px solid;}
+    .alert-success{background:#e8f5e9;border-color:var(--vert);color:#1b5e20;}
+    .alert-error,.alert-danger{background:#fdecea;border-color:var(--rouge);color:#b71c1c;}
+    .alert-warning{background:#fff8e1;border-color:var(--jaune);color:#795548;}
+    .messages{margin-bottom:1.5rem;}
+
+    .card-form{background:var(--blanc);padding:2rem;border-radius:12px;box-shadow:var(--card-shadow);}
+    .form-section{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(62,32,9,0.07);}
+    .form-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+    .form-section-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--brun);margin-bottom:1rem;}
+    .form-group{margin-bottom:1rem;}
+    .form-group label{display:block;margin-bottom:0.4rem;font-weight:700;font-size:0.78rem;letter-spacing:0.5px;text-transform:uppercase;color:#777;}
+    .form-group select,.form-group input,.form-group textarea{width:100%;padding:0.72rem 1rem;border:1.5px solid #e2d8cc;border-radius:7px;font-family:'Lato',sans-serif;font-size:0.9rem;color:var(--texte);background:#faf7f3;transition:border-color 0.2s;}
+    .form-group select:focus,.form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--jaune);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+    .type-toggle{display:flex;gap:0.5rem;margin-bottom:1.25rem;}
+    .type-btn{flex:1;padding:0.75rem;border:2px solid #e2d8cc;border-radius:7px;background:var(--blanc);color:#888;font-weight:700;font-size:0.87rem;cursor:pointer;transition:all 0.2s;}
+    .type-btn.active{border-color:var(--vert);background:var(--vert);color:var(--blanc);}
+    .type-btn:hover:not(.active){border-color:var(--vert);color:var(--vert);}
+    #livraison-fields{display:none;}
+
+    .lignes-wrapper{display:flex;flex-direction:column;gap:0.6rem;margin-bottom:0.8rem;}
+    .ligne-item{display:grid;grid-template-columns:1fr 90px 38px;gap:0.65rem;align-items:center;background:#faf7f3;padding:0.7rem;border-radius:7px;border:1px solid rgba(62,32,9,0.07);}
+    .btn-remove-ligne{background:none;border:2px solid var(--rouge);color:var(--rouge);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+    .btn-remove-ligne:hover{background:var(--rouge);color:var(--blanc);}
+    .btn-add-ligne{padding:0.6rem 1rem;background:rgba(45,106,45,0.08);border:2px dashed var(--vert);color:var(--vert);border-radius:7px;cursor:pointer;font-weight:700;font-size:0.84rem;transition:all 0.2s;width:100%;margin-top:0.25rem;}
+    .btn-add-ligne:hover{background:var(--vert);color:var(--blanc);}
+
+    .total-box{background:linear-gradient(135deg,rgba(45,106,45,0.08),rgba(45,106,45,0.04));border:2px solid rgba(45,106,45,0.2);border-radius:10px;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;margin:1.25rem 0;}
+    .total-label{font-weight:700;color:var(--brun);font-size:0.9rem;}
+    .total-amount{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--vert);}
+    .btn-submit{width:100%;padding:1rem;background:var(--vert);color:var(--blanc);font-weight:700;font-size:1rem;border:none;border-radius:8px;cursor:pointer;font-family:'Lato',sans-serif;transition:background 0.25s;}
+    .btn-submit:hover{background:#245224;}
+
+    .section-title{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--brun);margin:2rem 0 1rem;display:flex;align-items:center;gap:0.7rem;}
+    .section-title::after{content:'';flex:1;height:1px;background:rgba(62,32,9,0.1);}
+    table{width:100%;border-collapse:collapse;background:var(--blanc);border-radius:10px;overflow:hidden;box-shadow:var(--card-shadow);}
+    thead th{background:#f5ede0;padding:0.8rem 1rem;text-align:left;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#888;}
+    tbody td{padding:0.85rem 1rem;font-size:0.85rem;border-bottom:1px solid rgba(62,32,9,0.05);}
+    tbody tr:last-child td{border-bottom:none;}
+    .badge{display:inline-block;padding:0.2rem 0.65rem;border-radius:20px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+    .badge-en_attente{background:#fff3cd;color:#856404;}
+    .badge-en_preparation{background:#cfe2ff;color:#0a3d8f;}
+    .badge-prete{background:#ffe082;color:#ff6f00;animation:pulse 1.5s infinite;}
+    .badge-servie{background:#d1e7dd;color:var(--vert);}
+    .badge-annulee{background:#f8d7da;color:var(--rouge);}
+
+    .btn-action{padding:0.35rem 0.75rem;font-size:0.75rem;font-weight:bold;border-radius:5px;cursor:pointer;border:none;background:var(--vert);color:white;transition:opacity 0.2s;}
+    .btn-action:hover{opacity:0.9;}
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(240,165,0,0.5); }
+      70% { box-shadow: 0 0 0 6px rgba(240,165,0,0); }
+      100% { box-shadow: 0 0 0 0 rgba(240,165,0,0); }
+    }
   </style>
 </head>
 <body>
 
-  <div class="sidebar">
-    <div class="sidebar-brand">KMER<span>FOOD</span> <br/><small style="font-size:0.75rem;opacity:0.6;">Espace Serveur</small></div>
-    <ul class="nav-menu">
-      <li class="nav-item active"><a href="#">Prise de commande </a></li>
-      <li class="nav-item"><a href="#">Tables en salle</a></li>
-    </ul>
-    <div class="logout-box">
-    <a href="{% url 'logout' %}" class="btn-logout">Deconnexion</a> 
+  {{ produits|json_script:"produits-data-json" }}
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">KMER<span>FOOD</span><br/><small style="font-size:0.62rem;opacity:0.45;letter-spacing:1px;">ESPACE SERVEUR</small></div>
+    <div class="sidebar-user">
+      <div class="avatar">
+        {% if request.user.first_name %}{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}{% else %}SV{% endif %}
+      </div>
+      <div class="username">{{ request.user.get_full_name|default:request.user.username }}</div>
+      <div class="role">Serveur</div>
     </div>
-  </div>
+    <ul class="nav-menu">
+      <li class="nav-item active">
+        <a href="{% url 'commandes:commande_creer' %}">&#127859; Nouvelle commande</a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'commandes:commande_liste' %}">
+          &#128203; Commandes en cours
+          <span class="nav-badge" id="sidebar-badge-count">{% if nb_actives %}{{ nb_actives }}{% else %}0{% endif %}</span>
+        </a>
+      </li>
+      </ul>
+    <div class="logout-box">
+      <a href="{% url 'logout' %}" class="btn-sidebar-logout">&#128682; Fin de service</a>
+    </div>
+  </aside>
 
   <div class="main-content">
     <div class="header-page">
-      <h1 id="page-title">Nouvelle Commande sur Place </h1>
-      <span id="page-date" style="opacity:0.6;">Service en cours...</span>
+      <h1>&#127859; Nouvelle commande</h1>
+      <span style="opacity:0.6;font-size:0.87rem;" id="page-date"></span>
     </div>
+
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
     <div class="card-form">
-      <form method="POST" action="">
+      <form method="POST" action="{% url 'commandes:commande_creer' %}" id="form-commande">
         {% csrf_token %}
-        <div class="form-group">
-          <label>Numéro de Table</label>
-          <input type="number" required placeholder="Ex: 5" min="1"/>
-        </div>
 
-        <div class="form-group">
-          <label>Sélection des Plats [cite: 146]</label>
-          <div id="lignes-container">
-            <div class="ligne-item">
-              <select name="produit[]" onchange="calculerTotal()">
-                <option value="ndole" data-prix="4500">Ndolè Royal — 4 500 FCFA</option>
-                <option value="poisson" data-prix="5000">Poisson Braisé — 5 000 FCFA</option>
-              </select>
-              <input type="number" name="quantite[]" value="1" min="1" style="width:80px;" oninput="calculerTotal()"/>
-              <button type="button" class="btn-danger" onclick="this.closest('.ligne-item').remove(); calculerTotal();">X</button>
+        <div class="form-section">
+          <div class="form-section-title">&#128204; Type de commande</div>
+          <div class="type-toggle">
+            <button type="button" class="type-btn active" onclick="setType('sur_place',this)">&#127968; Sur place</button>
+            <button type="button" class="type-btn" onclick="setType('a_emporter',this)">🛍️ À emporter</button>
+            <button type="button" class="type-btn" onclick="setType('livraison',this)">&#128663; Livraison</button>
+          </div>
+          <input type="hidden" name="type_commande" id="type_commande_input" value="sur_place"/>
+
+          <div id="surplace-fields">
+            <div class="form-group">
+              <label>Numéro de table</label>
+              <input type="text" name="numero_table" placeholder="Ex : 05, VIP-2, Terrasse"
+                     value="{{ post.numero_table|default:'' }}"/>
             </div>
           </div>
-          <button type="button" style="margin-top:0.5rem; background:#eee; padding:0.4rem 1rem; border:none; cursor:pointer;" onclick="ajouterLigne()">+ Ajouter un plat</button>
+
+          <div id="livraison-fields">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nom du client *</label>
+                <input type="text" name="client_nom" placeholder="Prénom Nom"
+                       value="{{ post.client_nom|default:'' }}"/>
+              </div>
+              <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" name="client_telephone" placeholder="+237 6XX XXX XXX"
+                       value="{{ post.client_telephone|default:'' }}"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Adresse de livraison *</label>
+              <input type="text" name="adresse_livraison" placeholder="Adresse complète, quartier, repère"
+                     value="{{ post.adresse_livraison|default:'' }}"/>
+            </div>
+          </div>
         </div>
 
-        <div class="total-preview" id="total-preview">Total : 4 500 FCFA [cite: 145, 147]</div>
-        <button type="submit" class="btn-submit">Envoyer en cuisine </button>
+        <div class="form-section">
+          <div class="form-section-title">&#127859; Sélection des plats</div>
+
+          {% if erreurs_stock %}
+          <div class="alert alert-error" style="margin-bottom:1rem;">
+            &#9888; Stock insuffisant :<br>
+            {% for err in erreurs_stock %}<small>• {{ err }}</small><br>{% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="lignes-wrapper" id="lignes-container">
+            <div class="ligne-item">
+              <select name="produit_id[]" onchange="calculerTotal()" required>
+                <option value="">— Choisir un plat —</option>
+                {% for produit in produits %}
+                <option value="{{ produit.id }}" data-prix="{{ produit.prix }}">
+                  {{ produit.nom }} — {{ produit.prix|floatformat:0 }} FCFA
+                </option>
+                {% endfor %}
+              </select>
+              <input type="number" name="quantite[]" value="1" min="1" max="99"
+                     oninput="calculerTotal()" style="text-align:center;font-weight:700;"/>
+              <button type="button" class="btn-remove-ligne" onclick="removeLigne(this)">&#215;</button>
+            </div>
+          </div>
+          <button type="button" class="btn-add-ligne" onclick="ajouterLigne()">&#43; Ajouter un plat</button>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">&#128221; Note cuisine</div>
+          <div class="form-group">
+            <textarea name="note_cuisine" rows="2"
+              placeholder="Allergies, cuisson, modifications spéciales...">{{ post.note_cuisine|default:'' }}</textarea>
+          </div>
+        </div>
+
+        <div class="total-box">
+          <span class="total-label">Total estimé</span>
+          <span class="total-amount" id="total-display">0 FCFA</span>
+        </div>
+        <button type="submit" class="btn-submit">&#128228; Envoyer en cuisine</button>
       </form>
     </div>
+
+    <h2 class="section-title">Mes commandes en cours aujourd'hui</h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Table / Client</th><th>Plats</th><th>Total</th><th>Statut</th><th>Heure</th><th>Action</th></tr>
+      </thead>
+      <tbody id="commandes-tbody">
+        <tr id="empty-row-msg"><td colspan="7" style="text-align: center; color: #888;">Chargement des données...</td></tr>
+      </tbody>
+    </table>
   </div>
 
+  <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-500.wav" preload="auto"></audio>
+
   <script>
+    /* Récupération sécurisée des données produits sérialisées */
+    let PRODUITS_DATA = [];
+    try {
+      const produitsRaw = JSON.parse(document.getElementById('produits-data-json').textContent);
+      PRODUITS_DATA = produitsRaw.map(p => ({
+        id: p.id, // Alignement sur la clé du dictionnaire .values()
+        nom: p.nom,
+        prix: p.prix
+      }));
+    } catch(e) {
+      console.error("Erreur lors du chargement des produits:", e);
+    }
+
+    let etatsCommandesLocaux = {};
+
+    function setType(type, btn) {
+      document.getElementById('type_commande_input').value = type;
+      document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const surplaceFields = document.getElementById('surplace-fields');
+      const livraisonFields = document.getElementById('livraison-fields');
+      
+      if(type === 'sur_place') {
+        surplaceFields.style.display = 'block';
+        livraisonFields.style.display = 'none';
+      } else if (type === 'a_emporter') {
+        surplaceFields.style.display = 'none';
+        livraisonFields.style.display = 'none';
+      } else if (type === 'livraison') {
+        surplaceFields.style.display = 'none';
+        livraisonFields.style.display = 'block';
+      }
+    }
+
+    /* CORRECTION : Génération robuste des options pour le bouton dynamique "Ajuter un plat" */
+    function buildOptions() {
+      let o = '<option value="">— Choisir un plat —</option>';
+      PRODUITS_DATA.forEach(p => {
+        o += `<option value="${p.id}" data-prix="${p.prix}">${p.nom} — ${Math.round(p.prix).toLocaleString('fr-FR')} FCFA</option>`;
+      });
+      return o;
+    }
+
     function ajouterLigne() {
       const container = document.getElementById('lignes-container');
       const div = document.createElement('div');
       div.className = 'ligne-item';
       div.innerHTML = `
-        <select name="produit[]" onchange="calculerTotal()">
-          <option value="ndole" data-prix="4500">Ndolè Royal — 4 500 FCFA</option>
-          <option value="poisson" data-prix="5000">Poisson Braisé — 5 000 FCFA</option>
-        </select>
-        <input type="number" name="quantite[]" value="1" min="1" style="width:80px;" oninput="calculerTotal()"/>
-        <button type="button" class="btn-danger" onclick="this.closest('.ligne-item').remove(); calculerTotal();">X</button>
+        <select name="produit_id[]" onchange="calculerTotal()" required>${buildOptions()}</select>
+        <input type="number" name="quantite[]" value="1" min="1" max="99"
+               oninput="calculerTotal()" style="text-align:center;font-weight:700;"/>
+        <button type="button" class="btn-remove-ligne" onclick="removeLigne(this)">&#215;</button>
       `;
       container.appendChild(div);
+    }
+
+    function removeLigne(btn) {
+      const container = document.getElementById('lignes-container');
+      if (container.querySelectorAll('.ligne-item').length <= 1) {
+        alert('Minimum un plat requis.');
+        return;
+      }
+      btn.closest('.ligne-item').remove();
       calculerTotal();
     }
 
     function calculerTotal() {
       let total = 0;
-      document.querySelectorAll('.ligne-item').forEach(ligne => {
-        const select = ligne.querySelector('select');
-        const price = parseInt(select.options[select.selectedIndex].dataset.prix);
-        const qty = parseInt(ligne.querySelector('input').value) || 0;
-        total += price * qty;
+      document.querySelectorAll('.ligne-item').forEach(l => {
+        const sel = l.querySelector('select');
+        const opt = sel.options[sel.selectedIndex];
+        const prix = parseFloat(opt && opt.dataset.prix ? opt.dataset.prix : 0);
+        const qte  = parseInt(l.querySelector('input').value) || 0;
+        total += prix * qte;
       });
-      document.getElementById('total-preview').textContent = 'Total : ' + total.toLocaleString('fr-FR') + ' FCFA';
+      document.getElementById('total-display').textContent = Math.round(total).toLocaleString('fr-FR') + ' FCFA';
     }
+
+    function updateDate() {
+      const now = new Date();
+      document.getElementById('page-date').textContent =
+        now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}) + ' — ' +
+        now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    }
+
+    function fetchCommandesServeur() {
+      fetch("{% url 'commandes:api_serveur' %}")
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('sidebar-badge-count').textContent = data.nb_actives;
+          const tbody = document.getElementById('commandes-tbody');
+          
+          if(!data.commandes || data.commandes.length === 0) {
+            tbody.innerHTML = '<tr id="empty-row-msg"><td colspan="7" style="text-align: center; color: #888;">Aucune commande en cours.</td></tr>';
+            etatsCommandesLocaux = {};
+            return;
+          }
+          
+          const msgVide = document.getElementById('empty-row-msg');
+          if(msgVide) msgVide.remove();
+
+          data.commandes.forEach(cmd => {
+            const ancienStatut = etatsCommandesLocaux[cmd.id];
+            
+            if (cmd.statut === 'prete' && ancienStatut && ancienStatut !== 'prete') {
+              document.getElementById('notif-sound').play().catch(e => console.log("Alerte bloquée"));
+              alert(`🔔 La commande #${cmd.id} est PRÊTE !`);
+            }
+            
+            etatsCommandesLocaux[cmd.id] = cmd.statut;
+            let row = document.getElementById(`row-cmd-${cmd.id}`);
+            let btnActionHtml = cmd.statut === 'prete' ? `<button class="btn-action" onclick="marquerServie(${cmd.id})">Marquer Servie</button>` : '—';
+            
+            if(row) {
+              document.getElementById(`badge-cmd-${cmd.id}`).className = `badge badge-${cmd.statut}`;
+              document.getElementById(`badge-cmd-${cmd.id}`).textContent = cmd.statut_display;
+              row.cells[6].innerHTML = btnActionHtml;
+            } else {
+              const tr = document.createElement('tr');
+              tr.id = `row-cmd-${cmd.id}`;
+              tr.innerHTML = `
+                <td><strong>#${cmd.id}</strong></td>
+                <td>${cmd.destination || "—"}</td>
+                <td>${cmd.nb_plats} plat${cmd.nb_plats > 1 ? 's' : ''}</td>
+                <td><strong style="color:var(--vert)">${Math.round(cmd.total)} FCFA</strong></td>
+                <td><span class="badge badge-${cmd.statut}" id="badge-cmd-${cmd.id}">${cmd.statut_display}</span></td>
+                <td>${cmd.heure}</td>
+                <td>${btnActionHtml}</td>
+              `;
+              tbody.insertBefore(tr, tbody.firstChild);
+            }
+          });
+        })
+        .catch(err => console.error("Erreur de synchronisation :", err));
+    }
+
+    function marquerServie(commandeId) {
+      if(!confirm(`Confirmer que la commande #${commandeId} a été servie au client ?`)) return;
+      
+      fetch(`/commandes/api/servir/${commandeId}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) {
+          fetchCommandesServeur();
+        } else {
+          alert("Erreur : " + (data.error || "Inconnue"));
+        }
+      });
+    }
+
+    // Initialisation
+    updateDate();
+    setInterval(updateDate, 30000);
+    calculerTotal();
+    fetchCommandesServeur();
+    setInterval(fetchCommandesServeur, 5000);
   </script>
 </body>
 </html>

@@ -468,15 +468,8 @@
   <ul class="nav-links">
     <li><a href="/">Accueil</a></li>
     <li><a href="/menu/" class="active">Menu</a></li>
-    <li><a href="/reservation/">Réservation</a></li>
-    <li><a href="/commandes/">Mes Commandes</a></li>
-    <li>
-      {% if user.is_authenticated %}
-        <a href="/logout/" class="btn-connexion" style="margin-left:1rem;">Déconnexion</a>
-      {% else %}
-        <a href="/login/" class="btn-connexion" style="margin-left:1rem;">Connexion</a>
-      {% endif %}
-    </li>
+    
+
   </ul>
 </nav>
 
@@ -1369,6 +1362,99 @@
   /* Délai d'animation entrée des cartes (stagger) */
   cards.forEach((card, i) => {
     card.style.animationDelay = (i * 0.04) + 's';
+  });
+</script>
+<!-- ===== MODAL CONNEXION ===== -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="closeModal">✕</button>
+    <div class="modal-logo"><div class="logo-icon">🍽️</div></div>
+    <h2>Connexion</h2>
+    <p class="modal-sub">Accédez à votre espace KMER FOOD</p>
+
+    <!-- ✅ Affichage des erreurs Django -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert-error">⚠️ {{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- ✅ Formulaire POST vers la vue login_view -->
+    <form method="POST" action="{% url 'login' %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="email">Adresse e-mail</label>
+        <input type="email" name="email" id="email"
+               placeholder="vous@exemple.cm"
+               autocomplete="email" required/>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" name="password" id="password"
+               placeholder="••••••••"
+               autocomplete="current-password" required/>
+      </div>
+
+      <div class="form-row">
+        <label><input type="checkbox" name="remember"/> Se souvenir de moi</label>
+        <a href="#">Mot de passe oublié ?</a>
+      </div>
+
+      <!-- ✅ Bouton submit — plus de window.location.href -->
+      <button type="submit" class="btn-submit">Se connecter</button>
+    </form>
+
+    <p class="modal-footer">
+      Pas encore de compte ? <a href="#">Créer un compte</a>
+    </p>
+  </div>
+</div>
+<script>
+  // ── Modale ──
+  const openBtns  = document.querySelectorAll('#openModal');
+  const closeBtn  = document.getElementById('closeModal');
+  const backdrop  = document.getElementById('modalBackdrop');
+
+  // ✅ Ouvre la modale depuis n'importe quel bouton #openModal
+  openBtns.forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeModal() {
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // ✅ Ouvre automatiquement la modale si Django renvoie des erreurs
+// ✅ Ouvre automatiquement la modale si Django renvoie des erreurs
+const hasErrors = "{{ messages|length }}" > 0;
+if (hasErrors) {
+  window.addEventListener('DOMContentLoaded', () => {
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+}
+  // ── Active nav au scroll ──
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id');
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
   });
 </script>
 

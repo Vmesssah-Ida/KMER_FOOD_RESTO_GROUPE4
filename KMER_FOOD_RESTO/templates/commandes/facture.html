@@ -1,42 +1,298 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="container mt-4">
-  <h2>Facture — Commande #{{ commande.pk }}</h2>
-  <p><strong>Date :</strong> {{ commande.date_creation|date:"d/m/Y H:i" }}</p>
-  <p><strong>Type :</strong> {{ commande.get_type_commande_display }}</p>
-  <p><strong>Statut :</strong> {{ commande.get_statut_display }}</p>
-  <p><strong>Serveur :</strong> {{ commande.serveur.get_full_name|default:commande.serveur.username }}</p>
+{% load static %}
 
-  <table class="table table-bordered mt-3">
+{% block title %}Facture #{{ commande.pk }} — KMER FOOD{% endblock %}
+
+{% block content %}
+<div class="page-header no-print">
+  <div>
+    <h1 class="page-title">📄 Facture — Commande #{{ commande.pk }}</h1>
+    <p class="page-sub">Générée le {{ commande.date_creation|date:"d/m/Y à H:i" }}</p>
+  </div>
+  <div style="display:flex;gap:10px">
+    <a href="{% url 'commandes:commande_liste' %}" class="btn btn-ghost no-print">← Liste</a>
+    <button onclick="window.print()" class="btn btn-primary no-print">🖨️ Imprimer</button>
+  </div>
+</div>
+
+{# ── Messages ────────────────────────────────────────────────────────────── #}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible no-print">
+      {{ message }}
+      <button type="button" class="alert-close" onclick="this.parentElement.remove()">✕</button>
+    </div>
+  {% endfor %}
+{% endif %}
+
+{# ══════════════════════════════════════════════════════════════════════════ #}
+{#  FACTURE IMPRIMABLE                                                        #}
+{# ══════════════════════════════════════════════════════════════════════════ #}
+<div class="facture-wrapper">
+
+  {# En-tête restaurant #}
+  <div class="facture-header">
+    <div class="resto-info">
+      <div class="resto-logo">🍽️</div>
+      <div>
+        <h2 class="resto-nom">KMER FOOD RESTO</h2>
+        <p class="resto-adresse">Yaoundé, Cameroun &bull; +237 6XX XXX XXX</p>
+        <p class="resto-adresse">kmerfood@restaurant.cm</p>
+      </div>
+    </div>
+    <div class="facture-title-block">
+      <div class="facture-badge">FACTURE</div>
+      <table class="facture-meta-table">
+        <tr><td>N° Facture</td><td><strong>#{{ commande.pk|stringformat:"06d" }}</strong></td></tr>
+        <tr><td>Date</td><td>{{ commande.date_creation|date:"d/m/Y" }}</td></tr>
+        <tr><td>Heure</td><td>{{ commande.date_creation|date:"H:i" }}</td></tr>
+        <tr><td>Serveur</td><td>{{ commande.serveur.get_full_name|default:commande.serveur.username }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <hr class="facture-hr" />
+
+  {# Informations commande #}
+  <div class="facture-info-row">
+    <div class="info-block">
+      <div class="info-label">TYPE DE COMMANDE</div>
+      <div class="info-value">
+        {% if commande.type_commande == 'sur_place' %}
+          🪑 Sur place{% if commande.numero_table %} — Table {{ commande.numero_table }}{% endif %}
+        {% else %}
+          🛵 Livraison
+        {% endif %}
+      </div>
+    </div>
+    <div class="info-block">
+      <div class="info-label">STATUT</div>
+      <div class="info-value">
+        {% if commande.statut == 'en_attente' %}
+          <span class="statut-badge statut-warning">⏳ En attente</span>
+        {% elif commande.statut == 'en_preparation' %}
+          <span class="statut-badge statut-info">🔥 En préparation</span>
+        {% elif commande.statut == 'servie' %}
+          <span class="statut-badge statut-success">✓ Servie</span>
+        {% elif commande.statut == 'annulee' %}
+          <span class="statut-badge statut-danger">✕ Annulée</span>
+        {% endif %}
+      </div>
+    </div>
+    {% if commande.type_commande == 'livraison' %}
+    <div class="info-block">
+      <div class="info-label">CLIENT</div>
+      <div class="info-value">
+        {{ commande.client_nom }}<br>
+        {% if commande.client_telephone %}<small>{{ commande.client_telephone }}</small>{% endif %}
+      </div>
+    </div>
+    <div class="info-block">
+      <div class="info-label">ADRESSE LIVRAISON</div>
+      <div class="info-value">{{ commande.adresse_livraison }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if commande.note_cuisine %}
+  <div class="note-block">
+    <span class="note-label">📝 Note cuisine :</span> {{ commande.note_cuisine }}
+  </div>
+  {% endif %}
+
+  {# Tableau des lignes #}
+  <table class="lignes-table">
     <thead>
       <tr>
-        <th>Produit</th>
-        <th>Qté</th>
-        <th>Prix unitaire</th>
-        <th>Sous-total</th>
+        <th class="th-produit">Produit</th>
+        <th class="th-qte">Qté</th>
+        <th class="th-pu">Prix unitaire</th>
+        <th class="th-total">Sous-total</th>
       </tr>
     </thead>
     <tbody>
       {% for ligne in lignes %}
       <tr>
         <td>{{ ligne.produit.nom }}</td>
-        <td>{{ ligne.quantite }}</td>
-        <td>{{ ligne.prix_unitaire }} FCFA</td>
-        <td>{{ ligne.sous_total }} FCFA</td>
+        <td class="cell-center">{{ ligne.quantite }}</td>
+        <td class="cell-right">{{ ligne.prix_unitaire }} FCFA</td>
+        <td class="cell-right cell-bold">{{ ligne.sous_total }} FCFA</td>
       </tr>
       {% endfor %}
     </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="3"><strong>TOTAL</strong></td>
-        <td><strong>{{ commande.montant_total }} FCFA</strong></td>
-      </tr>
-    </tfoot>
   </table>
 
-  {% if commande.peut_etre_annulee %}
-  <a href="{% url 'commande_annuler' commande.pk %}" class="btn btn-danger">Annuler la commande</a>
-  {% endif %}
-  <a href="{% url 'commande_creer' %}" class="btn btn-primary">Nouvelle commande</a>
+  {# Totaux #}
+  <div class="totaux-block">
+    {% with ttc=commande.montant_total %}
+    {% with ht_val=commande.montant_total|floatformat:0 %}
+    <div class="total-row">
+      <span>Sous-total HT</span>
+      <span>{% widthratio commande.montant_total 1.1925 1 %} FCFA</span>
+    </div>
+    <div class="total-row">
+      <span>TVA (19,25%)</span>
+      <span>—</span>
+    </div>
+    {% endwith %}
+    <div class="total-row total-row-final">
+      <span>TOTAL TTC</span>
+      <span>{{ commande.montant_total }} FCFA</span>
+    </div>
+    {% endwith %}
+  </div>
+
+  {# Pied de facture #}
+  <div class="facture-footer">
+    <p>Merci pour votre confiance. &bull; KMER FOOD RESTO — Yaoundé</p>
+    <p class="footer-sub">
+      Facture générée le {{ commande.date_creation|date:"d/m/Y à H:i" }}
+      &bull; Commande #{{ commande.pk }}
+    </p>
+  </div>
+
 </div>
+{# /facture-wrapper #}
+
+{# ── Actions (hors impression) ────────────────────────────────────────────── #}
+<div class="facture-actions no-print">
+
+  {% if commande.statut == 'en_attente' %}
+  <form method="post"
+        action="{% url 'commandes:commande_en_preparation' commande.pk %}"
+        style="display:inline">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-info">🔥 Passer en préparation</button>
+  </form>
+  {% endif %}
+
+  {% if commande.statut == 'en_preparation' %}
+  <form method="post"
+        action="{% url 'commandes:commande_marquer_servie' commande.pk %}"
+        style="display:inline">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">✓ Marquer servie</button>
+  </form>
+  {% endif %}
+
+  {% if commande.peut_etre_annulee %}
+  <form method="post"
+        action="{% url 'commandes:commande_annuler' commande.pk %}"
+        style="display:inline"
+        onsubmit="return confirm('Confirmer l\'annulation de la commande #{{ commande.pk }} ?')">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">✕ Annuler la commande</button>
+  </form>
+  {% endif %}
+
+  <a href="{% url 'commandes:commande_creer' %}" class="btn btn-primary">
+    + Nouvelle commande
+  </a>
+
+</div>
+
+<style>
+/* ── Page ──────────────────────────────────────────────────────────────────── */
+.page-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; }
+.page-title  { font-size:1.2rem; font-weight:800; margin-bottom:2px; }
+.page-sub    { font-size:0.78rem; color:#6b7280; }
+
+.alert { padding:11px 16px; border-radius:9px; margin-bottom:12px; font-size:0.84rem;
+         font-weight:500; display:flex; align-items:center; justify-content:space-between; }
+.alert-close { background:none; border:none; cursor:pointer; font-size:1rem; color:inherit; }
+.alert-success { background:#dcfce7; color:#15803d; border-left:4px solid #16a34a; }
+.alert-error   { background:#fee2e2; color:#dc2626; border-left:4px solid #dc2626; }
+
+/* ── Facture ───────────────────────────────────────────────────────────────── */
+.facture-wrapper {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.09);
+  padding: 36px 40px;
+  max-width: 760px;
+  margin: 0 auto 24px;
+}
+
+.facture-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; }
+.resto-info     { display:flex; gap:14px; align-items:center; }
+.resto-logo     { font-size:2.8rem; line-height:1; }
+.resto-nom      { font-size:1.2rem; font-weight:800; margin-bottom:4px; color:#0f4024; }
+.resto-adresse  { font-size:0.76rem; color:#6b7280; line-height:1.6; }
+
+.facture-badge {
+  font-size:1.3rem; font-weight:800; letter-spacing:0.1em; color:#0f4024;
+  border-bottom:3px solid #16a34a; padding-bottom:6px; margin-bottom:12px;
+  text-align:right;
+}
+.facture-meta-table { border-collapse:collapse; font-size:0.8rem; }
+.facture-meta-table td { padding:3px 8px 3px 0; vertical-align:top; }
+.facture-meta-table td:first-child { color:#6b7280; font-weight:600; padding-right:16px; white-space:nowrap; }
+
+.facture-hr { border:none; border-top:2px solid #f1f5f9; margin:20px 0; }
+
+.facture-info-row { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:18px; }
+.info-block { flex:1; min-width:140px; }
+.info-label { font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;
+              color:#9ca3af; margin-bottom:4px; }
+.info-value { font-size:0.84rem; font-weight:600; color:#111827; line-height:1.5; }
+.info-value small { font-weight:400; color:#6b7280; }
+
+.statut-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.76rem; font-weight:700; }
+.statut-warning { background:#fef3c7; color:#92400e; }
+.statut-info    { background:#dbeafe; color:#1d4ed8; }
+.statut-success { background:#dcfce7; color:#15803d; }
+.statut-danger  { background:#fee2e2; color:#dc2626; }
+
+.note-block { background:#fef3c7; border-radius:8px; padding:10px 14px; font-size:0.82rem;
+              color:#78350f; margin-bottom:18px; }
+.note-label { font-weight:700; }
+
+/* Tableau lignes */
+.lignes-table { width:100%; border-collapse:collapse; margin-bottom:0; }
+.lignes-table thead tr { background:#f8fafb; }
+.lignes-table th {
+  padding:10px 12px; font-size:0.71rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.06em; color:#6b7280; text-align:left; border-bottom:2px solid #e5e7eb;
+}
+.lignes-table td { padding:11px 12px; font-size:0.84rem; border-bottom:1px solid #f1f5f9; }
+.lignes-table tr:last-child td { border-bottom:none; }
+.lignes-table tr:hover td { background:#f9fafb; }
+.th-qte, .th-pu, .th-total { text-align:right; }
+.cell-center { text-align:center; }
+.cell-right  { text-align:right; }
+.cell-bold   { font-weight:700; color:#0f4024; }
+
+/* Totaux */
+.totaux-block { margin-top:16px; border-top:2px solid #e5e7eb; padding-top:14px; margin-left:auto; width:280px; }
+.total-row { display:flex; justify-content:space-between; font-size:0.84rem; padding:4px 0; color:#374151; }
+.total-row-final { font-size:1.1rem; font-weight:800; color:#0f4024; border-top:2px solid #0f4024;
+                   margin-top:8px; padding-top:10px; }
+
+/* Pied */
+.facture-footer { margin-top:32px; padding-top:16px; border-top:1px dashed #e5e7eb;
+                  text-align:center; font-size:0.78rem; color:#6b7280; }
+.footer-sub { margin-top:4px; font-size:0.72rem; color:#9ca3af; }
+
+/* Actions */
+.facture-actions { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; margin-top:8px; }
+.btn { padding:8px 18px; border-radius:8px; font-size:0.82rem; font-weight:600;
+       border:none; cursor:pointer; text-decoration:none; display:inline-flex;
+       align-items:center; gap:5px; transition:all 0.17s; }
+.btn-primary { background:#166534; color:white; }
+.btn-primary:hover { background:#16a34a; }
+.btn-ghost   { background:#f8fafc; color:#374151; border:1px solid #e2e8f0; }
+.btn-success { background:#dcfce7; color:#15803d; }
+.btn-danger  { background:#fee2e2; color:#dc2626; }
+.btn-info    { background:#dbeafe; color:#1d4ed8; }
+
+/* ── Impression ─────────────────────────────────────────────────────────── */
+@media print {
+  .no-print  { display: none !important; }
+  body       { background: white; }
+  .facture-wrapper {
+    box-shadow: none; border-radius: 0;
+    padding: 20px; max-width: 100%;
+  }
+}
+</style>
 {% endblock %}

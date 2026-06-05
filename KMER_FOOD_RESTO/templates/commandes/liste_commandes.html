@@ -1,30 +1,253 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="container mt-4">
-  <h2>Commandes en cours</h2>
-  <a href="{% url 'commande_creer' %}" class="btn btn-success mb-3">+ Nouvelle commande</a>
+{% load static %}
 
-  {% for commande in commandes %}
-  <div class="card mb-3">
-    <div class="card-header">
-      Commande #{{ commande.pk }} — {{ commande.get_statut_display }} — {{ commande.date_creation|date:"d/m/Y H:i" }}
-    </div>
-    <div class="card-body">
-      <ul>
-        {% for ligne in commande.lignes.all %}
-        <li>{{ ligne.quantite }}× {{ ligne.produit.nom }} — {{ ligne.sous_total }} FCFA</li>
-        {% endfor %}
-      </ul>
-      <strong>Total : {{ commande.montant_total }} FCFA</strong><br><br>
-      <a href="{% url 'commande_facture' commande.pk %}" class="btn btn-info btn-sm">Voir facture</a>
-      <a href="{% url 'commande_marquer_servie' commande.pk %}" class="btn btn-success btn-sm">Marquer servie</a>
-      {% if commande.peut_etre_annulee %}
-      <a href="{% url 'commande_annuler' commande.pk %}" class="btn btn-danger btn-sm">Annuler</a>
-      {% endif %}
-    </div>
+{% block title %}Commandes en cours — KMER FOOD{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">🎟️ Commandes en cours</h1>
+    <p class="page-sub">{{ now|date:"l d F Y" }} &mdash; Mises à jour en temps réel</p>
   </div>
-  {% empty %}
-  <p class="text-muted">Aucune commande en cours.</p>
-  {% endfor %}
+  <a href="{% url 'commandes:commande_creer' %}" class="btn btn-primary">
+    + Nouvelle commande
+  </a>
 </div>
+
+{# ── Messages Django ─────────────────────────────────────────────────────── #}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible">
+      {{ message }}
+      <button type="button" class="alert-close" onclick="this.parentElement.remove()">✕</button>
+    </div>
+  {% endfor %}
+{% endif %}
+
+{# ── Compteurs rapides ───────────────────────────────────────────────────── #}
+<div class="kpi-row">
+  <div class="kpi-mini kpi-orange">
+    <span class="kpi-mini-value">{{ commandes|length }}</span>
+    <span class="kpi-mini-label">Commandes actives</span>
+  </div>
+  <div class="kpi-mini kpi-blue">
+    <span class="kpi-mini-value">
+      {{ commandes|dictsortreversed:"statut"|length }}
+    </span>
+    <span class="kpi-mini-label">En attente / En prép.</span>
+  </div>
+</div>
+
+{# ── Grille des commandes ────────────────────────────────────────────────── #}
+{% if commandes %}
+  <div class="commandes-grid">
+
+    {% for commande in commandes %}
+    <div class="cmd-card {% if commande.statut == 'en_preparation' %}cmd-en-prep{% else %}cmd-en-attente{% endif %}">
+
+      {# En-tête de la carte #}
+      <div class="cmd-card-header">
+        <div class="cmd-id-block">
+          <span class="cmd-num">#{{ commande.pk }}</span>
+          {% if commande.numero_table %}
+            <span class="cmd-table">🍽️ Table {{ commande.numero_table }}</span>
+          {% endif %}
+          {% if commande.type_commande == 'livraison' %}
+            <span class="badge badge-purple">🛵 Livraison</span>
+          {% else %}
+            <span class="badge badge-teal">🪑 Sur place</span>
+          {% endif %}
+        </div>
+        <div class="cmd-meta">
+          {% if commande.statut == 'en_attente' %}
+            <span class="badge badge-warning">⏳ En attente</span>
+          {% elif commande.statut == 'en_preparation' %}
+            <span class="badge badge-info">🔥 En préparation</span>
+          {% endif %}
+          <span class="cmd-time">{{ commande.date_creation|date:"H:i" }}</span>
+        </div>
+      </div>
+
+      {# Corps : lignes de la commande #}
+      <div class="cmd-card-body">
+        <ul class="cmd-lignes">
+          {% for ligne in commande.lignes.all %}
+          <li class="cmd-ligne">
+            <span class="ligne-qty">{{ ligne.quantite }}×</span>
+            <span class="ligne-nom">{{ ligne.produit.nom }}</span>
+            <span class="ligne-prix">{{ ligne.sous_total }} FCFA</span>
+          </li>
+          {% endfor %}
+        </ul>
+
+        {% if commande.note_cuisine %}
+        <div class="cmd-note">
+          <span class="note-label">📝 Note cuisine :</span>
+          {{ commande.note_cuisine }}
+        </div>
+        {% endif %}
+
+        <div class="cmd-total">
+          Total : <strong>{{ commande.montant_total }} FCFA</strong>
+        </div>
+      </div>
+
+      {# Pied : actions #}
+      <div class="cmd-card-footer">
+        <a href="{% url 'commandes:commande_facture' commande.pk %}"
+           class="btn btn-ghost btn-sm">📄 Facture</a>
+
+        {% if commande.statut == 'en_attente' %}
+          {# Passer en préparation — POST requis #}
+          <form method="post"
+                action="{% url 'commandes:commande_en_preparation' commande.pk %}"
+                style="display:inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-info btn-sm">🔥 En préparation</button>
+          </form>
+        {% endif %}
+
+        {% if commande.statut == 'en_preparation' %}
+          {# Marquer servie — POST requis #}
+          <form method="post"
+                action="{% url 'commandes:commande_marquer_servie' commande.pk %}"
+                style="display:inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-sm">✓ Servie</button>
+          </form>
+        {% endif %}
+
+        {# Annuler — uniquement si en_attente (méthode appelée avec parenthèses) #}
+        {% if commande.peut_etre_annulee %}
+          <form method="post"
+                action="{% url 'commandes:commande_annuler' commande.pk %}"
+                style="display:inline"
+                onsubmit="return confirm('Annuler la commande #{{ commande.pk }} ?')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">✕ Annuler</button>
+          </form>
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+{% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🍽️</div>
+    <p class="empty-title">Aucune commande en cours</p>
+    <p class="empty-sub">Créez la première commande du service.</p>
+    <a href="{% url 'commandes:commande_creer' %}" class="btn btn-primary">
+      + Nouvelle commande
+    </a>
+  </div>
+{% endif %}
+
+<style>
+/* ── Layout de la page ────────────────────────────────────────────────────── */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 22px;
+}
+.page-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 2px; }
+.page-sub   { font-size: 0.78rem; color: var(--muted, #6b7280); }
+
+/* ── Alertes ─────────────────────────────────────────────────────────────── */
+.alert { padding: 11px 16px; border-radius: 9px; margin-bottom: 12px;
+         font-size: 0.84rem; font-weight: 500; display: flex;
+         align-items: center; justify-content: space-between; }
+.alert-close { background: none; border: none; cursor: pointer;
+               font-size: 1rem; color: inherit; }
+.alert-success { background: #dcfce7; color: #15803d; border-left: 4px solid #16a34a; }
+.alert-error    { background: #fee2e2; color: #dc2626; border-left: 4px solid #dc2626; }
+.alert-warning  { background: #fef3c7; color: #92400e; border-left: 4px solid #d97706; }
+.alert-info     { background: #dbeafe; color: #1d4ed8; border-left: 4px solid #3b82f6; }
+
+/* ── KPI mini ─────────────────────────────────────────────────────────────── */
+.kpi-row { display: flex; gap: 14px; margin-bottom: 20px; }
+.kpi-mini { background: white; border-radius: 10px; padding: 14px 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06); border-top: 4px solid; min-width: 140px; }
+.kpi-orange { border-color: #f59e0b; }
+.kpi-blue   { border-color: #3b82f6; }
+.kpi-mini-value { display: block; font-size: 1.8rem; font-weight: 800; line-height: 1; }
+.kpi-mini-label { font-size: 0.72rem; color: #6b7280; text-transform: uppercase;
+                  letter-spacing: 0.06em; font-weight: 600; }
+
+/* ── Grille commandes ─────────────────────────────────────────────────────── */
+.commandes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.cmd-card {
+  background: white; border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  border-left: 5px solid #e5e7eb;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.cmd-en-attente  { border-left-color: #f59e0b; }
+.cmd-en-prep     { border-left-color: #3b82f6; }
+
+.cmd-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px; border-bottom: 1px solid #f1f5f9;
+}
+.cmd-id-block { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cmd-num  { font-size: 1rem; font-weight: 800; }
+.cmd-table { font-size: 0.8rem; font-weight: 700; color: #6b7280; }
+.cmd-meta { display: flex; align-items: center; gap: 8px; }
+.cmd-time { font-size: 0.75rem; color: #9ca3af; font-weight: 600; }
+
+.cmd-card-body { padding: 14px 16px; flex: 1; }
+.cmd-lignes { list-style: none; padding: 0; margin: 0 0 10px; display: flex; flex-direction: column; gap: 5px; }
+.cmd-ligne { display: flex; align-items: center; gap: 8px; font-size: 0.84rem; }
+.ligne-qty  { background: #f1f5f9; padding: 2px 7px; border-radius: 5px;
+              font-weight: 700; font-size: 0.76rem; flex-shrink: 0; }
+.ligne-nom  { flex: 1; }
+.ligne-prix { font-weight: 600; font-size: 0.8rem; color: #374151; white-space: nowrap; }
+
+.cmd-note {
+  background: #fef3c7; border-radius: 7px; padding: 8px 11px;
+  font-size: 0.79rem; color: #78350f; margin-bottom: 10px;
+}
+.note-label { font-weight: 700; }
+
+.cmd-total { font-size: 0.9rem; font-weight: 600; color: #111827; padding-top: 8px;
+             border-top: 1px dashed #e5e7eb; }
+
+.cmd-card-footer {
+  padding: 12px 16px; border-top: 1px solid #f1f5f9;
+  display: flex; gap: 7px; flex-wrap: wrap;
+}
+
+/* ── Badges ─────────────────────────────────────────────────────────────── */
+.badge { display: inline-block; padding: 3px 9px; border-radius: 20px;
+         font-size: 0.71rem; font-weight: 600; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-info    { background: #dbeafe; color: #1d4ed8; }
+.badge-teal    { background: #ccfbf1; color: #0f766e; }
+.badge-purple  { background: #ede9fe; color: #6d28d9; }
+
+/* ── Boutons ─────────────────────────────────────────────────────────────── */
+.btn { padding: 7px 15px; border-radius: 7px; font-size: 0.81rem; font-weight: 600;
+       border: none; cursor: pointer; text-decoration: none; display: inline-flex;
+       align-items: center; gap: 5px; transition: all 0.17s; }
+.btn-primary { background: #166534; color: white; }
+.btn-primary:hover { background: #16a34a; }
+.btn-ghost   { background: #f8fafc; color: #374151; border: 1px solid #e2e8f0; }
+.btn-success { background: #dcfce7; color: #15803d; }
+.btn-success:hover { background: #bbf7d0; }
+.btn-danger  { background: #fee2e2; color: #dc2626; }
+.btn-info    { background: #dbeafe; color: #1d4ed8; }
+.btn-sm { padding: 5px 11px; font-size: 0.75rem; }
+
+/* ── État vide ───────────────────────────────────────────────────────────── */
+.empty-state { text-align: center; padding: 60px 20px; background: white;
+               border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.empty-icon  { font-size: 3.5rem; margin-bottom: 14px; }
+.empty-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+.empty-sub   { font-size: 0.84rem; color: #6b7280; margin-bottom: 18px; }
+</style>
 {% endblock %}
