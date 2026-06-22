@@ -3,15 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chef Cuisinier — KMER FOOD</title>
+  <title>Cuisinier — KMER FOOD</title>
   <style>
     :root {
-      --primary: #9f1239; --primary-light: #e11d48; --primary-dark: #6b0823;
-      --accent: #fecdd3; --bg: #fff1f2; --sidebar-w: 255px;
-      --white: #ffffff; --text: #1f0a0d; --muted: #6b7280;
-      --border: #fecdd3; --success: #16a34a; --danger: #dc2626;
-      --warning: #d97706; --info: #0284c7; --purple: #7c3aed;
-      --card-shadow: 0 2px 12px rgba(159,18,57,0.07);
+      --primary: #b45309; /* warm amber for cooks */
+      --primary-light: #f59e0b;
+      --primary-dark: #78350f;
+      --accent: #fef3c7;
+      --bg: #fffbeb;
+      --sidebar-w: 255px;
+      --white: #ffffff;
+      --text: #451a03;
+      --muted: #78716c;
+      --border: #fde68a;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --info: #0284c7;
+      --card-shadow: 0 2px 12px rgba(180,83,9,0.06);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
@@ -19,11 +28,9 @@
     /* SIDEBAR */
     .sidebar{width:var(--sidebar-w);background:var(--primary-dark);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;padding:0;z-index:10;}
     .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.08);}
-    .sidebar-logo img{width:38px;height:38px;border-radius:8px;object-fit:cover;}
     .sidebar-logo span{font-size:1.05rem;font-weight:800;color:#fff;letter-spacing:-0.5px;}
     .sidebar-logo small{display:block;font-size:0.65rem;color:rgba(255,255,255,0.45);letter-spacing:1px;}
     .role-badge{display:flex;align-items:center;gap:10px;padding:14px 18px;background:rgba(255,255,255,0.06);margin:12px;border-radius:9px;}
-    .role-badge img{width:36px;height:36px;border-radius:50%;background:var(--accent);object-fit:cover;}
     .role-badge span{font-size:0.82rem;font-weight:700;color:#fff;}
     nav{flex:1;overflow-y:auto;padding:8px 10px;}
     .nav-section{font-size:0.62rem;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.35);padding:14px 10px 6px;text-transform:uppercase;}
@@ -32,7 +39,7 @@
     .nav-badge{margin-left:auto;background:var(--primary-light);color:#fff;font-size:0.62rem;padding:2px 7px;border-radius:20px;font-weight:700;}
     .sidebar-footer{padding:14px 14px 20px;border-top:1px solid rgba(255,255,255,0.08);}
     .logout-btn{display:block;text-align:center;padding:8px;border-radius:7px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.65);font-size:0.82rem;font-weight:600;text-decoration:none;cursor:pointer;border:none;width:100%;}
-    .logout-btn:hover{background:rgba(255,255,255,0.14);color:#fff;}
+    .logout-btn:hover{background:var(--rouge);color:#fff;}
 
     /* MAIN */
     .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
@@ -41,9 +48,6 @@
     .topbar p{font-size:0.75rem;color:var(--muted);margin-top:2px;}
     .topbar-right{display:flex;align-items:center;gap:10px;}
     .content{padding:22px 26px;flex:1;}
-
-    /* SECTIONS */
-    .section{display:none;} .section.active{display:block;}
 
     /* KPI */
     .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
@@ -69,7 +73,6 @@
     .badge-rose{background:var(--accent);color:var(--primary);}
     .badge-warning{background:#fef3c7;color:var(--warning);}
     .badge-success{background:#dcfce7;color:var(--success);}
-    .badge-info{background:#dbeafe;color:var(--info);}
     .ticket-items-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
     .ticket-dish{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;background:var(--bg);}
     .dish-qty{background:var(--primary);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;}
@@ -87,51 +90,34 @@
     .btn-ghost{background:var(--bg);color:var(--text);border:1px solid var(--border);} .btn-ghost:hover{background:var(--accent);}
     .btn:disabled{opacity:0.55;cursor:not-allowed;}
 
-    /* Loader / vide */
-    .tickets-empty{text-align:center;padding:50px 20px;color:var(--muted);background:var(--white);border-radius:11px;box-shadow:var(--card-shadow);}
-    .tickets-empty .big-icon{font-size:3rem;margin-bottom:10px;}
+    .tickets-empty{text-align:center;padding:50px 20px;color:var(--muted);background:var(--white);border-radius:11px;box-shadow:var(--card-shadow);grid-column:span 3;}
     .tickets-loading{text-align:center;padding:30px;color:var(--muted);}
 
-    /* Spinner */
     @keyframes spin{to{transform:rotate(360deg);}}
-    .spinner{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(159,18,57,0.2);border-top-color:var(--primary);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
-
-    /* Indicateur live */
+    .spinner{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(180,83,9,0.2);border-top-color:var(--primary);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
     .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 1.5s ease infinite;margin-right:5px;}
     @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
-
-    /* Autres sections (équipe, planning) */
-    .team-card{background:var(--white);border-radius:11px;padding:16px;box-shadow:var(--card-shadow);display:flex;align-items:center;gap:14px;margin-bottom:10px;}
-    .team-avatar{width:46px;height:46px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--primary);font-size:1.1rem;flex-shrink:0;}
-    .team-info strong{display:block;font-size:0.87rem;font-weight:700;}
-    .team-info span{font-size:0.75rem;color:var(--muted);}
   </style>
 </head>
 <body>
 
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <div style="width:38px;height:38px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">&#127859;</div>
-    <div><span>KMER FOOD</span><small>INTERFACE CHEF</small></div>
+    <div style="width:38px;height:38px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">👨‍🍳</div>
+    <div><span>KMER FOOD</span><small>ESPACE CUISINIER</small></div>
   </div>
   <div class="role-badge">
-    <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">&#128081;</div>
-    <div><span>Chef Cuisinier</span><br/><small style="font-size:0.65rem;color:rgba(255,255,255,0.45);">{{ request.user.get_full_name|default:request.user.username }}</small></div>
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🍳</div>
+    <div><span>Cuisinier</span><br/><small style="font-size:0.65rem;color:rgba(255,255,255,0.45);">{{ request.user.get_full_name|default:request.user.username }}</small></div>
   </div>
   <nav>
     <div class="nav-section">Cuisine</div>
-    <a class="nav-item active" onclick="showSection('cuisine',this)">
-      &#127859; Tickets cuisine <span class="nav-badge" id="badge-tickets">0</span>
+    <a class="nav-item active">
+      🍳 Tickets cuisine <span class="nav-badge" id="badge-tickets">0</span>
     </a>
     <a class="nav-item" href="{% url 'liste_recettes' %}">
-      &#128221; Livre de recettes
+      📖 Consulter Recettes (Lecture)
     </a>
-    <a class="nav-item" href="{% url 'liste_produits' %}">
-      &#127374; Consulter le menu
-    </a>
-    <div class="nav-section">Équipe</div>
-    <a class="nav-item" onclick="showSection('cuisiniers',this)">&#128081; Mon équipe</a>
-    <a class="nav-item" onclick="showSection('plannings',this)">&#128197; Planning semaine</a>
   </nav>
   <div class="sidebar-footer">
     <a href="{% url 'logout' %}" class="logout-btn">Déconnexion</a>
@@ -141,8 +127,8 @@
 <main class="main">
   <header class="topbar">
     <div>
-      <h1 id="page-title">Tickets cuisine</h1>
-      <p><span class="live-dot"></span>Mise à jour automatique toutes les 5 secondes</p>
+      <h1>Tickets de Préparation</h1>
+      <p><span class="live-dot"></span>Mise à jour en temps réel (toutes les 5s)</p>
     </div>
     <div class="topbar-right">
       <span id="live-count" style="font-size:0.82rem;background:var(--bg);padding:6px 14px;border-radius:8px;font-weight:700;color:var(--primary)">
@@ -152,37 +138,16 @@
   </header>
 
   <div class="content">
-
-    <!-- ═══ CUISINE (AJAX) ═══ -->
-    <div id="cuisine" class="section active">
-      <div class="kpi-grid">
-        <div class="kpi-card red"><span class="kpi-label">En attente</span><span class="kpi-value" id="kpi-attente">—</span><span class="kpi-sub">À traiter</span></div>
-        <div class="kpi-card orange"><span class="kpi-label">En préparation</span><span class="kpi-value" id="kpi-prep">—</span><span class="kpi-sub">En cours</span></div>
-        <div class="kpi-card blue"><span class="kpi-label">Urgents (+20 min)</span><span class="kpi-value" id="kpi-urgent">—</span><span class="kpi-sub" style="color:var(--danger)">À prioriser</span></div>
-        <div class="kpi-card green"><span class="kpi-label">Heure actuelle</span><span class="kpi-value" id="kpi-heure" style="font-size:1.2rem;">—</span><span class="kpi-sub">Service en cours</span></div>
-      </div>
-
-      <div id="tickets-grid">
-        <div class="tickets-loading"><span class="spinner"></span> Chargement des tickets…</div>
-      </div>
+    <div class="kpi-grid">
+      <div class="kpi-card red"><span class="kpi-label">À préparer</span><span class="kpi-value" id="kpi-attente">—</span><span class="kpi-sub">En attente</span></div>
+      <div class="kpi-card orange"><span class="kpi-label">Sur le feu</span><span class="kpi-value" id="kpi-prep">—</span><span class="kpi-sub">En préparation</span></div>
+      <div class="kpi-card blue"><span class="kpi-label">Urgents</span><span class="kpi-value" id="kpi-urgent">—</span><span class="kpi-sub" style="color:var(--danger)">Priorité haute</span></div>
+      <div class="kpi-card green"><span class="kpi-label">Heure</span><span class="kpi-value" id="kpi-heure" style="font-size:1.2rem;">—</span><span class="kpi-sub">Heure locale</span></div>
     </div>
 
-    <!-- ═══ ÉQUIPE ═══ -->
-    <div id="cuisiniers" class="section">
-      <h3 style="margin-bottom:16px;font-size:1rem;color:var(--text);">Mon équipe en service</h3>
-      <div class="team-card"><div class="team-avatar">JB</div><div class="team-info"><strong>Jean-Baptiste</strong><span>Cuisinier chaud · En service</span></div></div>
-      <div class="team-card"><div class="team-avatar">MC</div><div class="team-info"><strong>Marie Colette</strong><span>Pâtissière · En service</span></div></div>
-      <div class="team-card"><div class="team-avatar">AP</div><div class="team-info"><strong>Arnaud Penda</strong><span>Plongeur · En pause</span></div></div>
+    <div id="tickets-grid">
+      <div class="tickets-loading"><span class="spinner"></span> Récupération des commandes en attente…</div>
     </div>
-
-    <!-- ═══ PLANNING ═══ -->
-    <div id="plannings" class="section">
-      <div style="background:var(--white);border-radius:11px;padding:20px;box-shadow:var(--card-shadow);">
-        <h3 style="margin-bottom:14px;font-size:1rem;">Planning de la semaine</h3>
-        <p style="color:var(--muted);font-size:0.85rem;">Fonctionnalité à connecter au module RH.</p>
-      </div>
-    </div>
-
   </div>
 </main>
 
@@ -192,17 +157,6 @@
   const API_PREPARER = id => `{% url "commandes:api_preparer" 0 %}`.replace('/0/', `/${id}/`);
   const API_SERVIR   = id => `{% url "commandes:api_servir" 0 %}`.replace('/0/', `/${id}/`);
 
-  /* ── Affichage sections ── */
-  function showSection(id, el) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if (el) el.classList.add('active');
-    const titles = { cuisine:'Tickets cuisine', cuisiniers:'Mon équipe', plannings:'Planning semaine' };
-    document.getElementById('page-title').textContent = titles[id] || id;
-  }
-
-  /* ── POST JSON helper ── */
   async function postAPI(url) {
     const r = await fetch(url, {
       method: 'POST',
@@ -211,7 +165,6 @@
     return r.json();
   }
 
-  /* ── Rendu d'un ticket ── */
   function renderTicket(cmd) {
     const isUrgent  = cmd.urgent;
     const isPrep    = cmd.statut === 'en_preparation';
@@ -221,7 +174,7 @@
 
     let badgeHtml = '';
     if (isUrgent)   badgeHtml = `<span class="badge badge-danger">URGENT — ${cmd.minutes} min</span>`;
-    else if (isPrep) badgeHtml = `<span class="badge badge-warning">En préparation — ${cmd.minutes} min</span>`;
+    else if (isPrep) badgeHtml = `<span class="badge badge-warning">En cours — ${cmd.minutes} min</span>`;
     else             badgeHtml = `<span class="badge badge-rose">En attente — ${cmd.minutes} min</span>`;
 
     const plats = cmd.lignes.map(l =>
@@ -232,21 +185,21 @@
     ).join('');
 
     const note = cmd.note_cuisine
-      ? `<div class="ticket-note">&#128221; ${cmd.note_cuisine}</div>` : '';
+      ? `<div class="ticket-note">📝 Note: ${cmd.note_cuisine}</div>` : '';
 
     let actionsHtml = '';
     if (cmd.statut === 'en_attente') {
       actionsHtml = `
         <div class="ticket-actions">
-          <button class="btn btn-warning btn-sm" style="flex:1" onclick="preparer(${cmd.id})">
-            &#9654; Démarrer
+          <button class="btn btn-warning btn-sm" style="width:100%; justify-content:center;" onclick="preparer(${cmd.id})">
+            ▶ Commencer la préparation
           </button>
         </div>`;
     } else if (cmd.statut === 'en_preparation') {
       actionsHtml = `
         <div class="ticket-actions">
-          <button class="btn btn-success btn-sm" style="flex:1" onclick="servir(${cmd.id})">
-            &#10003; Ticket prêt
+          <button class="btn btn-success btn-sm" style="width:100%; justify-content:center;" onclick="servir(${cmd.id})">
+            ✓ Marquer comme prêt
           </button>
         </div>`;
     }
@@ -257,23 +210,21 @@
           <span class="ticket-num">${cmd.label_table}</span>
           ${badgeHtml}
         </div>
-        <div class="ticket-meta">Reçu à ${cmd.heure} · #${cmd.id} · ${cmd.type_commande === 'livraison' ? '&#128663; Livraison' : '&#127968; Sur place'}</div>
+        <div class="ticket-meta">Reçu à ${cmd.heure} · #${cmd.id} · ${cmd.type_commande === 'livraison' ? '🚗 Livraison' : '🍽️ Sur place'}</div>
         ${note}
         <div class="ticket-items-list">${plats}</div>
         ${actionsHtml}
       </div>`;
   }
 
-  /* ── Accepter un ticket ── */
   async function preparer(id) {
     const btn = document.querySelector(`#ticket-${id} .btn-warning`);
     if (btn) { btn.disabled = true; btn.textContent = '…'; }
     const data = await postAPI(API_PREPARER(id));
     if (data.success) { chargerTickets(); }
-    else { alert('Erreur : impossible de changer le statut.'); if (btn) { btn.disabled=false; btn.textContent='▶ Démarrer'; } }
+    else { alert('Erreur lors du démarrage.'); if (btn) { btn.disabled=false; btn.textContent='▶ Commencer la préparation'; } }
   }
 
-  /* ── Marquer comme prêt (prete) ── */
   async function servir(id) {
     const btn = document.querySelector(`#ticket-${id} .btn-success`);
     if (btn) { btn.disabled = true; btn.textContent = '…'; }
@@ -282,12 +233,11 @@
       const el = document.getElementById(`ticket-${id}`);
       if (el) { el.style.transition='opacity 0.4s'; el.style.opacity='0'; setTimeout(()=>el.remove(),420); }
     } else {
-      alert('Erreur : impossible de marquer comme prêt.');
-      if (btn) { btn.disabled=false; btn.textContent='✓ Ticket prêt'; }
+      alert('Erreur lors du marquage comme prêt.');
+      if (btn) { btn.disabled=false; btn.textContent='✓ Marquer comme prêt'; }
     }
   }
 
-  /* ── Chargement des tickets depuis l'API ── */
   async function chargerTickets() {
     try {
       const resp = await fetch(API_CUISINE);
@@ -303,7 +253,6 @@
 
       const now = new Date();
       document.getElementById('kpi-heure').textContent = now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-
       document.getElementById('badge-tickets').textContent = commandes.length;
 
       const liveEl = document.getElementById('live-count');
@@ -311,21 +260,20 @@
 
       const grid = document.getElementById('tickets-grid');
       if (commandes.length === 0) {
-        grid.innerHTML = `<div class="tickets-empty" style="grid-column:span 3">
-          <div class="big-icon">&#127859;</div>
-          <strong>Aucun ticket en cuisine</strong>
-          <p style="font-size:0.83rem;margin-top:6px;">Les nouvelles commandes apparaîtront ici automatiquement.</p>
+        grid.innerHTML = `<div class="tickets-empty">
+          <div style="font-size:3rem; margin-bottom:10px;">🍲</div>
+          <strong>Aucune commande à préparer</strong>
+          <p style="font-size:0.83rem;margin-top:6px;color:var(--muted)">Reposez-vous, la cuisine est calme !</p>
         </div>`;
       } else {
         grid.innerHTML = commandes.map(renderTicket).join('');
       }
     } catch (e) {
-      document.getElementById('live-count').innerHTML = '&#9888; Connexion interrompue';
-      console.error('Erreur API cuisine:', e);
+      document.getElementById('live-count').innerHTML = '⚠️ Erreur réseau';
+      console.error(e);
     }
   }
 
-  /* ── Démarrage : polling toutes les 5 secondes ── */
   chargerTickets();
   setInterval(chargerTickets, 5000);
 </script>

@@ -27,3 +27,4 @@ class EmployeAdmin(UserAdmin):
             'fields': ('email', 'role', 'telephone', 'adresse', 'date_naissance')
         }),
     )
+

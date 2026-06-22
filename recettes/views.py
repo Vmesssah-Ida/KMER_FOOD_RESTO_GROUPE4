@@ -5,10 +5,22 @@ from .models import Recette, Ingredient, RecetteIngredient
 from .forms import RecetteForm, IngredientForm, RecetteIngredientForm
 
 
+def chef_cuisinier_required(view_func):
+    """Décorateur pour restreindre l'accès en écriture au Chef cuisinier ou Administrateur."""
+    @login_required
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.role in ['chef_cuisinier', 'administrateur'] or request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+        messages.error(request, "Accès refusé. Cette action est réservée au Chef cuisinier.")
+        return redirect('liste_recettes')
+    return _wrapped_view
+
+
 # ─── RECETTES ───
 
 @login_required
 def liste_recettes(request):
+    # Les Cuisiniers et autres ont un accès en lecture seule
     recettes = Recette.objects.all()
     return render(request, 'recettes/liste_recettes.html', {'recettes': recettes})
 
@@ -23,7 +35,7 @@ def detail_recette(request, pk):
     })
 
 
-@login_required
+@chef_cuisinier_required
 def creer_recette(request):
     if request.method == 'POST':
         form = RecetteForm(request.POST)
@@ -36,7 +48,7 @@ def creer_recette(request):
     return render(request, 'recettes/form_recette.html', {'form': form, 'titre': 'Créer une recette'})
 
 
-@login_required
+@chef_cuisinier_required
 def modifier_recette(request, pk):
     recette = get_object_or_404(Recette, pk=pk)
     if request.method == 'POST':
@@ -50,9 +62,21 @@ def modifier_recette(request, pk):
     return render(request, 'recettes/form_recette.html', {'form': form, 'titre': 'Modifier la recette'})
 
 
-@login_required
+@chef_cuisinier_required
 def supprimer_recette(request, pk):
     recette = get_object_or_404(Recette, pk=pk)
+    
+    # Bloquer la suppression si associée à un produit actif (disponible=True)
+    if hasattr(recette, 'produits'):
+        produits_actifs = recette.produits.filter(disponible=True)
+        if produits_actifs.exists():
+            noms_plats = ", ".join([p.nom for p in produits_actifs])
+            messages.error(
+                request, 
+                f"Impossible de supprimer cette recette car elle est liée à des plats actifs en vente : {noms_plats}."
+            )
+            return redirect('detail_recette', pk=recette.pk)
+            
     if request.method == 'POST':
         recette.delete()
         messages.success(request, 'Recette supprimée avec succès !')
@@ -63,12 +87,17 @@ def supprimer_recette(request, pk):
 # ─── INGREDIENTS ───
 
 @login_required
-def liste_ingredients(request):
+def list_ingredients_access(request):
+    """Lecture des ingrédients."""
     ingredients = Ingredient.objects.all()
     return render(request, 'recettes/liste_ingredients.html', {'ingredients': ingredients})
 
 
-@login_required
+# Rediriger l'ancienne vue liste_ingredients
+liste_ingredients = login_required(list_ingredients_access)
+
+
+@chef_cuisinier_required
 def creer_ingredient(request):
     if request.method == 'POST':
         form = IngredientForm(request.POST)
@@ -80,7 +109,8 @@ def creer_ingredient(request):
         form = IngredientForm()
     return render(request, 'recettes/form_ingredient.html', {'form': form, 'titre': 'Ajouter un ingrédient'})
 
-@login_required
+
+@chef_cuisinier_required
 def ajouter_ingredient_recette(request, pk):
     recette = get_object_or_404(Recette, pk=pk)
     if request.method == 'POST':
@@ -98,7 +128,8 @@ def ajouter_ingredient_recette(request, pk):
         'recette': recette
     })
 
-@login_required
+
+@chef_cuisinier_required
 def modifier_ingredient(request, pk):
     ingredient = get_object_or_404(Ingredient, pk=pk)
     if request.method == 'POST':

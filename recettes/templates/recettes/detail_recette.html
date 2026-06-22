@@ -108,6 +108,12 @@
       <span class="info-value">{{ recette.description }}</span>
     </div>
     {% endif %}
+    {% if recette.instructions %}
+    <div class="info-row" style="align-items: flex-start;">
+      <span class="info-label">📜 Préparation :</span>
+      <span class="info-value" style="white-space: pre-line;">{{ recette.instructions }}</span>
+    </div>
+    {% endif %}
   </div>
 
   <div class="info-card">

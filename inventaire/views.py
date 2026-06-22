@@ -3,6 +3,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Article, MouvementStock, Fournisseur
 
+def responsable_stock_required(view_func):
+    """Accès réservé au Gestionnaire de stock ou à l'Administrateur."""
+    @login_required
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.role in ['responsable_stock', 'administrateur'] or request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+        messages.error(request, "Accès refusé. Cette action est réservée au Gestionnaire de stock.")
+        return redirect('liste_articles')
+    return _wrapped_view
+
+
 
 # ─── ARTICLES ───
 
@@ -26,7 +37,7 @@ def detail_article(request, pk):
     })
 
 
-@login_required
+@responsable_stock_required
 def creer_article(request):
     if request.method == 'POST':
         nom = request.POST.get('nom')
@@ -47,7 +58,7 @@ def creer_article(request):
     return render(request, 'inventaire/form_article.html', {'titre': 'Ajouter un article'})
 
 
-@login_required
+@responsable_stock_required
 def modifier_article(request, pk):
     article = get_object_or_404(Article, pk=pk)
     if request.method == 'POST':
@@ -66,7 +77,7 @@ def modifier_article(request, pk):
     })
 
 
-@login_required
+@responsable_stock_required
 def supprimer_article(request, pk):
     article = get_object_or_404(Article, pk=pk)
     if request.method == 'POST':
@@ -78,7 +89,7 @@ def supprimer_article(request, pk):
 
 # ─── MOUVEMENTS DE STOCK ───
 
-@login_required
+@responsable_stock_required
 def ajouter_mouvement(request, pk):
     article = get_object_or_404(Article, pk=pk)
     if request.method == 'POST':

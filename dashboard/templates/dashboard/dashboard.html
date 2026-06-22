@@ -84,6 +84,13 @@
 
 <div class="container">
 
+  <!-- PDF Export Button -->
+  <div style="display:flex; justify-content: flex-end; margin-bottom: 1.5rem;">
+    <a href="{% url 'export_rapport_pdf' %}" style="background:var(--vert); color:var(--blanc); padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: bold; box-shadow: var(--card-shadow); transition: background 0.3s, transform 0.2s; display: flex; align-items: center; gap: 0.5rem;" onmouseover="this.style.background='#224F22'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='var(--vert)'; this.style.transform='none';">
+      <span>📄</span> Télécharger le Rapport Financier PDF
+    </a>
+  </div>
+
   <!-- STATS -->
   <div class="stats-grid">
     <div class="stat-card">
@@ -114,6 +121,20 @@
         <div class="label">Alertes stock</div>
       </div>
     </div>
+    <div class="stat-card">
+      <div class="stat-icon green">💵</div>
+      <div class="stat-info">
+        <div class="value">{{ ca_mensuel }} FCFA</div>
+        <div class="label">CA Mensuel</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red">💸</div>
+      <div class="stat-info">
+        <div class="value">{{ depenses_approvisionnement }} FCFA</div>
+        <div class="label">Dépenses stock</div>
+      </div>
+    </div>
   </div>
 
   <!-- LIENS RAPIDES -->
@@ -130,6 +151,19 @@
   <div class="sections-grid">
 
     <!-- TOP PRODUITS -->
+    <div class="section-card">
+      <div class="section-header"><h2>🏆 Top Produits Vendus</h2></div>
+      <div class="section-body">
+        {% for prod in top_produits %}
+        <div class="item-row">
+          <span class="item-name">{{ prod.nom }}</span>
+          <span class="badge" style="background:#d4edda; color:#155724;">{{ prod.total_quantite }} vendus</span>
+        </div>
+        {% empty %}
+        <p style="color:#888;text-align:center;padding:1rem;">Aucune vente ce mois-ci.</p>
+        {% endfor %}
+      </div>
+    </div>
    
     <!-- ALERTES STOCK -->
     <div class="section-card">

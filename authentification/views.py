@@ -1,15 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum
 from authentification.models import Employe
+import datetime
 
 
 def accueil(request):
     return render(request, 'acceuil.html')
 
-def erreur(request):
+def erreur(request, exception=None):
     return render(request, '404.html')
 
 def login_view(request):
@@ -45,18 +46,25 @@ def login_view(request):
 
 
 def logout_view(request):
+    request.session.flush()
     logout(request)
     return redirect('accueil')
 
 
 def _redirect_by_role(user):
+    # L'administrateur système ou superutilisateur est redirigé vers la gestion des comptes
+    if user.is_superuser or user.role == 'administrateur':
+        return redirect('utilisateurs_gestion')
+
     role = getattr(user, 'role', None)
     print(f"[DEBUG] _redirect_by_role appelé avec role: {role}")
 
     redirections = {
-        'directeur':          'dashboard',
+        'administrateur':     'utilisateurs_gestion',
+        'directeur':          'dashboard_directeur',
         'caissier':           'caissier',
         'chef_cuisinier':     'chef_cuisinier',
+        'cuisinier':          'cuisinier',
         'livreur':            'livreur',
         'serveur':            'serveur',
         'responsable_stock':  'responsable_stock',
@@ -284,3 +292,159 @@ def reservation_annuler(request, res_id):
     if request.method == 'POST':
         messages.success(request, f"Réservation #{res_id} annulée.")
     return redirect('panier')
+
+
+def inscription_client(request):
+    if request.user.is_authenticated:
+        return _redirect_by_role(request.user)
+
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        password = request.POST.get('password', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        telephone = request.POST.get('telephone', '').strip()
+
+        if not email or not password or not first_name or not last_name:
+            messages.error(request, "Veuillez remplir tous les champs obligatoires.")
+            return render(request, 'inscription.html')
+
+        if Employe.objects.filter(email__iexact=email).exists():
+            messages.error(request, "Cet e-mail est déjà utilisé.")
+            return render(request, 'inscription.html')
+
+        username = f"client.{first_name.lower().replace(' ', '_')}.{last_name.lower().replace(' ', '_')}"
+        base_username = username
+        counter = 1
+        while Employe.objects.filter(username=username).exists():
+            username = f"{base_username}_{counter}"
+            counter += 1
+
+        user = Employe.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            role='client',
+            telephone=telephone
+        )
+        login(request, user)
+        messages.success(request, f"Bienvenue chez KMER FOOD, {user.first_name} ! Votre compte a été créé avec succès.")
+        return redirect('client')
+
+    return render(request, 'inscription.html')
+
+
+@login_required
+def utilisateurs_gestion(request):
+    if not (request.user.is_superuser or request.user.role == 'administrateur'):
+        return redirect('accueil')
+
+    action = request.GET.get('action')
+    user_id = request.GET.get('id')
+
+    if request.method == 'POST':
+        if action == 'creer':
+            email = request.POST.get('email', '').strip().lower()
+            username = request.POST.get('username', '').strip()
+            password = request.POST.get('password', '').strip()
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            role = request.POST.get('role', 'serveur')
+            telephone = request.POST.get('telephone', '').strip()
+            adresse = request.POST.get('adresse', '').strip()
+
+            if not email or not username or not password or not first_name or not last_name:
+                messages.error(request, "Veuillez remplir tous les champs requis.")
+            elif Employe.objects.filter(email__iexact=email).exists():
+                messages.error(request, "Cet e-mail est déjà associé à un compte.")
+            elif Employe.objects.filter(username=username).exists():
+                messages.error(request, "Ce nom d'utilisateur est déjà pris.")
+            else:
+                user = Employe.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                    role=role,
+                    telephone=telephone,
+                    adresse=adresse
+                )
+                if role != 'client':
+                    from rh.models import Personnel
+                    Personnel.objects.create(
+                        utilisateur=user,
+                        poste=role,
+                        salaire_base=1000,
+                        date_embauche=datetime.date.today(),
+                        telephone=telephone,
+                        adresse=adresse
+                    )
+                messages.success(request, f"Utilisateur {username} créé avec succès.")
+                return redirect('utilisateurs_gestion')
+
+        elif action == 'modifier' and user_id:
+            user = get_object_or_404(Employe, pk=user_id)
+            user.email = request.POST.get('email', '').strip().lower()
+            user.first_name = request.POST.get('first_name', '').strip()
+            user.last_name = request.POST.get('last_name', '').strip()
+            user.role = request.POST.get('role', user.role)
+            user.telephone = request.POST.get('telephone', '').strip()
+            user.adresse = request.POST.get('adresse', '').strip()
+            user.is_active = request.POST.get('is_active') == 'on'
+
+            new_password = request.POST.get('password', '').strip()
+            if new_password:
+                user.set_password(new_password)
+
+            user.save()
+            messages.success(request, f"Compte {user.username} mis à jour.")
+            return redirect('utilisateurs_gestion')
+
+    if action == 'supprimer' and user_id:
+        user = get_object_or_404(Employe, pk=user_id)
+        if user.id != request.user.id:
+            user.delete()
+            messages.success(request, f"Compte {user.username} définitivement supprimé.")
+        else:
+            messages.error(request, "Vous ne pouvez pas supprimer votre propre compte.")
+        return redirect('utilisateurs_gestion')
+
+    if action == 'deactiver' and user_id:
+        user = get_object_or_404(Employe, pk=user_id)
+        user.is_active = False
+        user.save()
+        messages.success(request, f"Compte {user.username} désactivé.")
+        return redirect('utilisateurs_gestion')
+
+    if action == 'activer' and user_id:
+        user = get_object_or_404(Employe, pk=user_id)
+        user.is_active = True
+        user.save()
+        messages.success(request, f"Compte {user.username} activé.")
+        return redirect('utilisateurs_gestion')
+
+    utilisateurs = Employe.objects.all().order_by('-date_joined')
+    roles_list = Employe.ROLES
+    return render(request, 'admin_utilisateurs.html', {
+        'utilisateurs': utilisateurs,
+        'roles_list': roles_list
+    })
+
+
+@login_required
+def cuisinier(request):
+    if request.user.role not in ['chef_cuisinier', 'cuisinier'] and not request.user.is_superuser:
+        return redirect('accueil')
+        
+    from commandes.models import Commande
+    from recettes.models import Recette
+    commandes_actives = Commande.objects.filter(statut__in=['en_attente', 'en_preparation']).order_by('date_creation')
+    recettes_liste = Recette.objects.all()
+
+    return render(request, 'cuisinier.html', {
+        'commandes_actives': commandes_actives,
+        'recettes_liste': recettes_liste
+    })

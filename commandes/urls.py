@@ -8,7 +8,7 @@ app_name = 'commandes'
 
 urlpatterns = [
     # ── Vues principales (personnel interne) ─────────────────────────────────
-    path('liste/',                      views.commande_liste,          name='commandes'),
+    path('liste/',                      views.commande_liste,          name='commande_liste'),
     path('creer/',                      views.commande_creer,          name='commande_creer'),
     path('<int:cmd_id>/facture/',       views.commande_facture,        name='commande_facture'),
     path('<int:cmd_id>/preparation/',   views.commande_en_preparation, name='commande_en_preparation'),

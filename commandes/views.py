@@ -22,7 +22,7 @@ from .models import Commande, LigneCommande
 from produits.models import Produit
 
 try:
-    from inventaire.models import Stock
+    from inventaire.models import Article
     STOCK_DISPONIBLE = True
 except ImportError:
     STOCK_DISPONIBLE = False
@@ -89,22 +89,26 @@ def commande_creer(request):
             return render(request, 'commandes/commande_creer.html', {'produits': produits, 'post': request.POST})
 
         if STOCK_DISPONIBLE:
+            from inventaire.models import Article
             erreurs_stock = []
+            ingredients_requis = {}
             for ligne in lignes_valides:
                 produit = ligne['produit']
                 if hasattr(produit, 'recette') and produit.recette:
                     for ri in produit.recette.recetteingredient_set.all():
-                        ingredient = ri.ingredient
+                        nom_ing = ri.ingredient.nom
                         qte_necessaire = ri.quantite * ligne['quantite']
-                        try:
-                            stock = Stock.objects.get(ingredient=ingredient)
-                            if stock.quantite < qte_necessaire:
-                                erreurs_stock.append(
-                                    f"Stock insuffisant : {ingredient.nom} "
-                                    f"(disponible : {stock.quantite}, requis : {qte_necessaire})"
-                                )
-                        except Stock.DoesNotExist:
-                            erreurs_stock.append(f"Stock introuvable pour : {ingredient.nom}")
+                        ingredients_requis[nom_ing] = ingredients_requis.get(nom_ing, 0.0) + qte_necessaire
+            for nom_ing, qte_necessaire in ingredients_requis.items():
+                try:
+                    article = Article.objects.get(nom__iexact=nom_ing)
+                    if article.quantite_disponible < qte_necessaire:
+                        erreurs_stock.append(
+                            f"Stock insuffisant : {nom_ing} "
+                            f"(disponible : {article.quantite_disponible}, requis : {qte_necessaire})"
+                        )
+                except Article.DoesNotExist:
+                    erreurs_stock.append(f"Stock introuvable pour : {nom_ing}")
             if erreurs_stock:
                 for err in erreurs_stock:
                     messages.error(request, err)
@@ -133,8 +137,8 @@ def commande_creer(request):
 
         commande.calculer_montant()
 
-        if STOCK_DISPONIBLE:
-            _decrementer_stock(commande)
+        # Les stocks ne sont décrémentés que lors du passage en préparation (validation)
+        pass
 
         messages.success(request, f"Commande #{commande.pk} créée — {commande.montant_total} FCFA.")
 
@@ -170,8 +174,31 @@ def commande_en_preparation(request, cmd_id):
     if request.method != 'POST':
         return redirect('commandes:commande_liste')
     commande = get_object_or_404(Commande, pk=cmd_id)
+    
+    # 1. Vérifier les stocks d'ingrédients avant validation
+    if STOCK_DISPONIBLE:
+        is_ok, erreurs = _verifier_stock_disponible(commande)
+        if not is_ok:
+            for err in erreurs:
+                messages.error(request, err)
+            return redirect('commandes:commande_liste')
+            
+    # 2. Passage du statut de en_attente à en_preparation
     if commande.passer_en_preparation():
-        messages.success(request, f"Commande #{commande.pk} passée en préparation.")
+        # 3. Décrémenter les stocks et enregistrer le mouvement
+        if STOCK_DISPONIBLE:
+            _decrementer_stock(commande)
+            
+        # 4. Générer automatiquement la facture lors de la validation
+        from commandes.models import Facture
+        Facture.objects.get_or_create(
+            commande=commande,
+            defaults={
+                'montant': commande.montant_total,
+                'est_valide': True
+            }
+        )
+        messages.success(request, f"Commande #{commande.pk} passée en préparation et facture générée.")
     else:
         messages.error(request, f"Impossible (statut actuel : {commande.get_statut_display()}).")
     return redirect('commandes:commande_liste')
@@ -201,8 +228,6 @@ def commande_annuler(request, cmd_id):
         return redirect('commandes:commande_liste')
     commande = get_object_or_404(Commande, pk=cmd_id)
     if commande.annuler():
-        if STOCK_DISPONIBLE:
-            _incrementer_stock(commande)
         messages.success(request, f"Commande #{commande.pk} annulée.")
     else:
         messages.error(request, f"Impossible d'annuler (statut : {commande.get_statut_display()}).")
@@ -541,7 +566,35 @@ def api_mes_commandes(request):
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers privés (logique de stock)
 # ─────────────────────────────────────────────────────────────────────────────
+def _verifier_stock_disponible(commande):
+    from inventaire.models import Article
+    erreurs = []
+    ingredients_requis = {}
+    for ligne in commande.lignes.select_related('produit').all():
+        produit = ligne.produit
+        if not (hasattr(produit, 'recette') and produit.recette):
+            continue
+        for ri in produit.recette.recetteingredient_set.select_related('ingredient').all():
+            nom_ing = ri.ingredient.nom
+            qte_necessaire = ri.quantite * ligne.quantite
+            ingredients_requis[nom_ing] = ingredients_requis.get(nom_ing, 0.0) + qte_necessaire
+
+    for nom_ing, qte_necessaire in ingredients_requis.items():
+        try:
+            article = Article.objects.get(nom__iexact=nom_ing)
+            if article.quantite_disponible < qte_necessaire:
+                erreurs.append(
+                    f"Stock insuffisant : {nom_ing} "
+                    f"(disponible : {article.quantite_disponible} {article.unite}, requis : {qte_necessaire} {article.unite})"
+                )
+        except Article.DoesNotExist:
+            erreurs.append(f"Article '{nom_ing}' introuvable dans l'inventaire.")
+
+    return len(erreurs) == 0, erreurs
+
+
 def _decrementer_stock(commande):
+    from inventaire.models import Article, MouvementStock
     for ligne in commande.lignes.select_related('produit').all():
         produit = ligne.produit
         if not (hasattr(produit, 'recette') and produit.recette):
@@ -549,23 +602,18 @@ def _decrementer_stock(commande):
         for ri in produit.recette.recetteingredient_set.select_related('ingredient').all():
             qte_a_retirer = ri.quantite * ligne.quantite
             try:
-                stock = Stock.objects.get(ingredient=ri.ingredient)
-                stock.quantite = max(0, stock.quantite - qte_a_retirer)
-                stock.save(update_fields=['quantite'])
-            except Stock.DoesNotExist:
-                pass
-
-
-def _incrementer_stock(commande):
-    for ligne in commande.lignes.select_related('produit').all():
-        produit = ligne.produit
-        if not (hasattr(produit, 'recette') and produit.recette):
-            continue
-        for ri in produit.recette.recetteingredient_set.select_related('ingredient').all():
-            qte_a_rendre = ri.quantite * ligne.quantite
-            try:
-                stock = Stock.objects.get(ingredient=ri.ingredient)
-                stock.quantite += qte_a_rendre
-                stock.save(update_fields=['quantite'])
-            except Stock.DoesNotExist:
+                article = Article.objects.get(nom__iexact=ri.ingredient.nom)
+                article.quantite_disponible = max(0.0, article.quantite_disponible - qte_a_retirer)
+                article.save(update_fields=['quantite_disponible'])
+                article.verifier_seuil()
+                
+                # Créer le mouvement de stock lié à la commande
+                MouvementStock.objects.create(
+                    article=article,
+                    type='sortie',
+                    quantite=qte_a_retirer,
+                    motif=f"Validation commande #{commande.pk}",
+                    commande=commande
+                )
+            except Article.DoesNotExist:
                 pass

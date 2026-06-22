@@ -38,6 +38,13 @@ class MouvementStock(models.Model):
     quantite = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
     motif = models.CharField(max_length=200, blank=True)
+    commande = models.ForeignKey(
+        'commandes.Commande',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='mouvements'
+    )
 
     def __str__(self):
         return f"{self.type} - {self.article.nom} - {self.quantite}"

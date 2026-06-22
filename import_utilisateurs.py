@@ -95,4 +95,4 @@ for role_code, role_label in Employe.ROLES:
         print(f"  {role_label:25s} : {count}")
 
 print("\nMot de passe par défaut : kmer2026")
-print("⚠️  Demande à chaque utilisateur de changer son mot de passe à la première connexion.\n")
+print("Demande à chaque utilisateur de changer son mot de passe à la première connexion.\n")

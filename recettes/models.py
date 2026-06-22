@@ -19,6 +19,7 @@ class Ingredient(models.Model):
 class Recette(models.Model):
     nom = models.CharField(max_length=200)
     description = models.TextField(blank=True)
+    instructions = models.TextField(blank=True, default='')
     temps_cuisson = models.IntegerField(help_text="Temps en minutes") 
     chef_responsable = models.ForeignKey(
     settings.AUTH_USER_MODEL,

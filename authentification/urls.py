@@ -27,10 +27,12 @@ path('commandes/<int:cmd_id>/servie/',     views.commande_marquer_servie,  name=
 path('commandes/<int:cmd_id>/annuler/',    views.commande_annuler,         name='commande_annuler'),
 path('commandes/<int:cmd_id>/facture/',    views.commande_facture,         name='commande_facture'),
 path('reservations/creer/',               views.reservation_creer,        name='reservation_creer'),
-path('reservations/<int:res_id>/annuler/',views.reservation_annuler,      name='reservation_annuler'),
-path('404/', views.erreur,      name='page_not_found'),
-
+    path('reservations/<int:res_id>/annuler/',views.reservation_annuler,      name='reservation_annuler'),
+    path('inscription/', views.inscription_client, name='inscription_client'),
+    path('admin/utilisateurs/', views.utilisateurs_gestion, name='utilisateurs_gestion'),
+    path('dashboard/cuisinier/', views.cuisinier, name='cuisinier'),
+    path('404/', views.erreur,      name='page_not_found'),
 ]
 
-handler404 = 'views.erreur'
-#re_path(r'^.*$', views.erreur, name='catch_all'),
+handler404 = 'authentification.views.erreur'
+#re_path(r'^.*$', views.erreur, name='catch_all')

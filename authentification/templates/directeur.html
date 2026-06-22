@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Directeur — Gestion Restaurant</title>
+  <style>
+    :root {
+      --primary: #1a237e;
+      --primary-light: #3949ab;
+      --primary-dark: #0d1657;
+      --accent: #ffd54f;
+      --bg: #f0f2f8;
+      --sidebar-w: 260px;
+      --white: #ffffff;
+      --text: #1c1f2e;
+      --muted: #6b7280;
+      --border: #e2e5f0;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --card-shadow: 0 2px 16px rgba(26,35,126,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--primary-dark);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .logo-img {
+      width: 42px; height: 42px; border-radius: 10px; object-fit: cover; background: rgba(255,255,255,0.1);
+      /* TODO: Remplacez src="" par le chemin vers le logo du restaurant */
+    }
+    .sidebar-logo span { color: var(--white); font-size: 1rem; font-weight: 700; line-height: 1.2; }
+    .sidebar-logo small { color: rgba(255,255,255,0.5); font-size: 0.72rem; display: block; }
+    .sidebar-role {
+      margin: 20px 16px 8px; padding: 10px 14px; background: rgba(255,213,79,0.15);
+      border-radius: 10px; display: flex; align-items: center; gap: 10px;
+    }
+    .role-avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1);
+      object-fit: cover;
+      /* TODO: Remplacez src="" par la photo de profil du directeur */
+    }
+    .role-info span { color: var(--accent); font-size: 0.78rem; font-weight: 700; display: block; }
+    .role-info small { color: rgba(255,255,255,0.5); font-size: 0.7rem; }
+    nav { flex: 1; padding: 8px 12px; overflow-y: auto; }
+    .nav-section { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); padding: 14px 10px 6px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px;
+      color: rgba(255,255,255,0.65); font-size: 0.88rem; cursor: pointer; transition: all 0.18s;
+      text-decoration: none; margin-bottom: 2px;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+    .nav-item.active { background: var(--primary-light); color: var(--white); font-weight: 600; }
+    .nav-item .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 0.65rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; }
+    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .logout-btn { width: 100%; padding: 10px; background: rgba(239,68,68,0.15); color: #fca5a5; border: none; border-radius: 9px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
+    .logout-btn:hover { background: rgba(239,68,68,0.28); }
+
+    /* ── Main ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar-left h1 { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .topbar-left p { font-size: 0.78rem; color: var(--muted); }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-date { font-size: 0.82rem; color: var(--muted); background: var(--bg); padding: 6px 14px; border-radius: 8px; }
+    .notif-btn { position: relative; background: none; border: none; cursor: pointer; font-size: 1.3rem; }
+    .notif-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid white; }
+
+    /* ── Content ── */
+    .content { padding: 28px 32px; flex: 1; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── KPI Cards ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 28px; }
+    .kpi-card {
+      background: var(--white); border-radius: 14px; padding: 22px 24px;
+      box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden;
+    }
+    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .kpi-card.blue::before { background: linear-gradient(90deg, #3949ab, #5c6bc0); }
+    .kpi-card.green::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .kpi-card.orange::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .kpi-card.red::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
+    .kpi-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .kpi-sub { font-size: 0.78rem; color: var(--success); font-weight: 600; }
+    .kpi-sub.down { color: var(--danger); }
+    .kpi-icon { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 2.4rem; opacity: 0.1; }
+
+    /* ── Grid 2 cols ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 28px; }
+
+    /* ── Card ── */
+    .card { background: var(--white); border-radius: 14px; box-shadow: var(--card-shadow); overflow: hidden; }
+    .card-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 0.95rem; font-weight: 700; }
+    .card-body { padding: 20px 24px; }
+    .card-actions { display: flex; gap: 8px; }
+    .btn { padding: 8px 18px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.18s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-light); }
+    .btn-ghost { background: var(--bg); color: var(--text); }
+    .btn-ghost:hover { background: var(--border); }
+    .btn-sm { padding: 5px 12px; font-size: 0.76rem; }
+    .btn-success { background: #dcfce7; color: #16a34a; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+
+    /* ── Chart placeholder ── */
+    .chart-area {
+      height: 200px; background: linear-gradient(180deg, rgba(57,73,171,0.06) 0%, transparent 100%);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .chart-bars { display: flex; align-items: flex-end; gap: 10px; height: 160px; padding: 10px; width: 100%; }
+    .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar { width: 100%; border-radius: 6px 6px 0 0; transition: opacity 0.2s; }
+    .bar:hover { opacity: 0.8; }
+    .bar-label { font-size: 0.62rem; color: var(--muted); white-space: nowrap; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 0.73rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 14px; background: var(--bg); text-align: left; }
+    td { padding: 12px 14px; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(57,73,171,0.03); }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+    .badge-success { background: #dcfce7; color: #15803d; }
+    .badge-warning { background: #fef3c7; color: #b45309; }
+    .badge-danger { background: #fee2e2; color: #dc2626; }
+    .badge-info { background: #dbeafe; color: #1d4ed8; }
+    .badge-muted { background: #f1f5f9; color: #475569; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 10px; margin-bottom: 20px; }
+    .tab { padding: 8px 18px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--muted); transition: all 0.18s; }
+    .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
+
+    /* ── Progress bar ── */
+    .progress { background: var(--border); border-radius: 99px; height: 6px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 99px; }
+
+    /* ── Employee card ── */
+    .emp-card {
+      display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 10px;
+      border: 1px solid var(--border); margin-bottom: 10px; transition: box-shadow 0.2s;
+    }
+    .emp-card:hover { box-shadow: 0 2px 12px rgba(26,35,126,0.1); }
+    .emp-photo { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--bg); flex-shrink: 0;
+      /* TODO: Remplacez src="" par la photo de l'employé */ }
+    .emp-info { flex: 1; }
+    .emp-info strong { font-size: 0.88rem; display: block; }
+    .emp-info span { font-size: 0.75rem; color: var(--muted); }
+    .emp-salary { text-align: right; font-size: 0.9rem; font-weight: 700; color: var(--primary); }
+
+    /* ── Discount row ── */
+    .discount-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .discount-row:last-child { border-bottom: none; }
+    .discount-code { font-size: 0.82rem; font-weight: 700; font-family: monospace; background: var(--bg); padding: 4px 10px; border-radius: 6px; }
+    .discount-pct { font-size: 1.1rem; font-weight: 800; color: var(--primary-light); }
+
+    /* ── Modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 16px; width: 480px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: 1rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--muted); }
+    .modal-body { padding: 24px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { font-size: 0.78rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 0.88rem; outline: none; transition: border 0.18s; background: var(--white);
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary-light); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════ SIDEBAR ════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <!--
+      TODO: Remplacez src="" par le logo de votre restaurant
+      Exemple: src="assets/logo.png"
+    -->
+    <img class="logo-img" src="" alt="Logo Restaurant" />
+    <div>
+      <span>Le Gourmet</span>
+      <small>Restaurant gastronomique</small>
+    </div>
+  </div>
+  <div class="sidebar-role">
+    <!--
+      TODO: Remplacez src="" par la photo du directeur
+      Exemple: src="assets/directeur.jpg"
+    -->
+    <img class="role-avatar" src="" alt="Directeur" />
+    <div class="role-info">
+      <span>Directeur</span>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-section">Principal</div>
+    <a class="nav-item active" onclick="showSection('dashboard')">
+      <span class="icon">&#9783;</span> Tableau de bord
+    </a>
+    <a class="nav-item" onclick="showSection('rh')">
+      <span class="icon">&#128101;</span> Ressources humaines <span class="nav-badge">3</span>
+    </a>
+    <a class="nav-item" onclick="showSection('paie')">
+      <span class="icon">&#128176;</span> Paie & Salaires
+    </a>
+    <a class="nav-item" onclick="showSection('reductions')">
+      <span class="icon">&#127991;</span> Réductions & Promos
+    </a>
+    <div class="nav-section">Analyse</div>
+    <a class="nav-item" onclick="showSection('rapports')">
+      <span class="icon">&#128202;</span> Rapports financiers
+    </a>
+    <a class="nav-item" onclick="showSection('settings')">
+      <span class="icon">&#9881;</span> Paramètres
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn">&#8617; Déconnexion</button>
+  </div>
+</aside>
+
+<!-- ════════════ MAIN ════════════ -->
+<main class="main">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1 id="page-title">Tableau de bord</h1>
+      <p>Mercredi, 14 mai 2026</p>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date">&#128336; 09:42</span>
+      <button class="notif-btn">&#128276;<span class="notif-dot"></span></button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div id="dashboard" class="section active">
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card blue">
+          <span class="kpi-label">Chiffre d'affaires (jour)</span>
+          <span class="kpi-value">4 820 €</span>
+          <span class="kpi-sub">&#8593; +12.4% vs hier</span>
+          <span class="kpi-icon">&#128200;</span>
+        </div>
+        <div class="kpi-card green">
+          <span class="kpi-label">Couverts servis</span>
+          <span class="kpi-value">137</span>
+          <span class="kpi-sub">&#8593; +8 vs hier</span>
+          <span class="kpi-icon">&#127869;</span>
+        </div>
+        <div class="kpi-card orange">
+          <span class="kpi-label">Ticket moyen</span>
+          <span class="kpi-value">35,18 €</span>
+          <span class="kpi-sub">&#8593; +3.1%</span>
+          <span class="kpi-icon">&#128181;</span>
+        </div>
+        <div class="kpi-card red">
+          <span class="kpi-label">Masse salariale (mois)</span>
+          <span class="kpi-value">18 450 €</span>
+          <span class="kpi-sub down">&#8595; Budget -2.3%</span>
+          <span class="kpi-icon">&#128184;</span>
+        </div>
+      </div>
+
+      <!-- Chart + Top Dishes -->
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <h3>Revenus hebdomadaires</h3>
+            <span class="badge badge-success">Cette semaine</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-area">
+              <div class="chart-bars">
+                <div class="bar-group"><div class="bar" style="height:60%;background:linear-gradient(180deg,#3949ab,#5c6bc0)"></div><span class="bar-label">Lun</span></div>
+                <div class="bar-group"><div class="bar" style="height:80%;background:linear-gradient(180deg,#3949ab,#5c6bc0)"></div><span class="bar-label">Mar</span></div>
+                <div class="bar-group"><div class="bar" style="height:55%;background:linear-gradient(180deg,#3949ab,#5c6bc0)"></div><span class="bar-label">Mer</span></div>
+                <div class="bar-group"><div class="bar" style="height:90%;background:linear-gradient(180deg,#ffd54f,#ffb300)"></div><span class="bar-label">Jeu</span></div>
+                <div class="bar-group"><div class="bar" style="height:100%;background:linear-gradient(180deg,#3949ab,#5c6bc0)"></div><span class="bar-label">Ven</span></div>
+                <div class="bar-group"><div class="bar" style="height:85%;background:linear-gradient(180deg,#3949ab,#5c6bc0)"></div><span class="bar-label">Sam</span></div>
+                <div class="bar-group"><div class="bar" style="height:45%;background:linear-gradient(180deg,#e0e0e0,#bdbdbd)"></div><span class="bar-label">Dim</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Top plats</h3></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px"><span>Entrecôte sauce poivre</span><strong>43 cmd</strong></div>
+                <div class="progress"><div class="progress-bar" style="width:86%;background:var(--primary-light)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px"><span>Saumon mi-cuit</span><strong>37 cmd</strong></div>
+                <div class="progress"><div class="progress-bar" style="width:74%;background:#22c55e"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px"><span>Carpaccio de boeuf</span><strong>28 cmd</strong></div>
+                <div class="progress"><div class="progress-bar" style="width:56%;background:#f59e0b"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:0.83rem;margin-bottom:4px"><span>Fondant chocolat</span><strong>21 cmd</strong></div>
+                <div class="progress"><div class="progress-bar" style="width:42%;background:#ef4444"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activité récente -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Activité récente</h3>
+          <button class="btn btn-ghost btn-sm">Voir tout</button>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>Événement</th><th>Employé</th><th>Heure</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td>Commande #2047 validée</td><td>Service salle</td><td>09:38</td><td><span class="badge badge-success">OK</span></td></tr>
+              <tr><td>Demande de congé soumise</td><td>Marie Leclerc</td><td>09:15</td><td><span class="badge badge-warning">En attente</span></td></tr>
+              <tr><td>Livraison retardée (zone N)</td><td>Ali Diallo</td><td>08:52</td><td><span class="badge badge-danger">Alerte</span></td></tr>
+              <tr><td>Réassort cuisses de poulet</td><td>Stock</td><td>08:30</td><td><span class="badge badge-info">En cours</span></td></tr>
+              <tr><td>Paie mars envoyée</td><td>Comptabilité</td><td>08:00</td><td><span class="badge badge-success">OK</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ RESSOURCES HUMAINES ═══ -->
+    <div id="rh" class="section">
+      <div class="card-header" style="background:none;border:none;padding:0 0 20px">
+        <h3 style="font-size:1.1rem">Équipe du restaurant</h3>
+        <button class="btn btn-primary" onclick="document.getElementById('modal-emp').classList.add('open')">+ Nouvel employé</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active">Tous (24)</button>
+        <button class="tab">Service (8)</button>
+        <button class="tab">Cuisine (7)</button>
+        <button class="tab">Livraison (4)</button>
+        <button class="tab">Administration (5)</button>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>Employé</th><th>Poste</th><th>Département</th><th>Depuis</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <!--
+                      TODO: Remplacez src="" par la photo de l'employé
+                      Exemple: src="assets/employes/marie.jpg"
+                    -->
+                    <img src="" style="width:34px;height:34px;border-radius:50%;background:#e0e0e0" alt="Marie Leclerc" />
+                    <div>
+                      <div style="font-weight:600;font-size:0.87rem">Marie Leclerc</div>
+                      <div style="font-size:0.73rem;color:var(--muted)">marie.l@restaurant.fr</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Serveuse</td><td>Service</td><td>Jan 2024</td>
+                <td><span class="badge badge-success">Actif</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px">
+                  <!-- TODO: src="" → photo employé -->
+                  <img src="" style="width:34px;height:34px;border-radius:50%;background:#e0e0e0" alt="Ahmed Bensaid" />
+                  <div><div style="font-weight:600;font-size:0.87rem">Ahmed Bensaid</div><div style="font-size:0.73rem;color:var(--muted)">ahmed.b@restaurant.fr</div></div>
+                </div></td>
+                <td>Chef cuisinier</td><td>Cuisine</td><td>Juin 2022</td>
+                <td><span class="badge badge-success">Actif</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px">
+                  <!-- TODO: src="" → photo employé -->
+                  <img src="" style="width:34px;height:34px;border-radius:50%;background:#e0e0e0" alt="Ali Diallo" />
+                  <div><div style="font-weight:600;font-size:0.87rem">Ali Diallo</div><div style="font-size:0.73rem;color:var(--muted)">ali.d@restaurant.fr</div></div>
+                </div></td>
+                <td>Livreur</td><td>Livraison</td><td>Mar 2025</td>
+                <td><span class="badge badge-warning">Congé</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px">
+                  <!-- TODO: src="" → photo employé -->
+                  <img src="" style="width:34px;height:34px;border-radius:50%;background:#e0e0e0" alt="Sophie Moreau" />
+                  <div><div style="font-weight:600;font-size:0.87rem">Sophie Moreau</div><div style="font-size:0.73rem;color:var(--muted)">sophie.m@restaurant.fr</div></div>
+                </div></td>
+                <td>Caissière</td><td>Administration</td><td>Sep 2023</td>
+                <td><span class="badge badge-success">Actif</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px">
+                  <!-- TODO: src="" → photo employé -->
+                  <img src="" style="width:34px;height:34px;border-radius:50%;background:#e0e0e0" alt="Karim Nassif" />
+                  <div><div style="font-weight:600;font-size:0.87rem">Karim Nassif</div><div style="font-size:0.73rem;color:var(--muted)">karim.n@restaurant.fr</div></div>
+                </div></td>
+                <td>Responsable stock</td><td>Logistique</td><td>Nov 2021</td>
+                <td><span class="badge badge-success">Actif</span></td>
+                <td><button class="btn btn-ghost btn-sm">Éditer</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAIE ═══ -->
+    <div id="paie" class="section">
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi-card blue"><span class="kpi-label">Masse salariale mensuelle</span><span class="kpi-value">18 450 €</span><span class="kpi-sub">24 employés</span></div>
+        <div class="kpi-card green"><span class="kpi-label">Paies traitées</span><span class="kpi-value">22/24</span><span class="kpi-sub">&#8593; 2 en attente</span></div>
+        <div class="kpi-card orange"><span class="kpi-label">Charges patronales</span><span class="kpi-value">7 380 €</span><span class="kpi-sub">40% de la masse</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Bulletin de paie — Mai 2026</h3><button class="btn btn-primary btn-sm">+ Générer bulletins</button></div>
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>Employé</th><th>Poste</th><th>Heures travaillées</th><th>Salaire brut</th><th>Net à payer</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Marie Leclerc</strong></td><td>Serveuse</td><td>158h</td><td>2 100 €</td><td>1 638 €</td><td><span class="badge badge-success">Versée</span></td></tr>
+              <tr><td><strong>Ahmed Bensaid</strong></td><td>Chef cuisinier</td><td>172h</td><td>3 200 €</td><td>2 496 €</td><td><span class="badge badge-success">Versée</span></td></tr>
+              <tr><td><strong>Ali Diallo</strong></td><td>Livreur</td><td>144h</td><td>1 800 €</td><td>1 404 €</td><td><span class="badge badge-warning">En attente</span></td></tr>
+              <tr><td><strong>Sophie Moreau</strong></td><td>Caissière</td><td>160h</td><td>2 000 €</td><td>1 560 €</td><td><span class="badge badge-success">Versée</span></td></tr>
+              <tr><td><strong>Karim Nassif</strong></td><td>Resp. stock</td><td>165h</td><td>2 400 €</td><td>1 872 €</td><td><span class="badge badge-warning">En attente</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ RÉDUCTIONS ═══ -->
+    <div id="reductions" class="section">
+      <div class="card-header" style="background:none;border:none;padding:0 0 20px">
+        <h3 style="font-size:1.1rem">Codes promotionnels actifs</h3>
+        <button class="btn btn-primary" onclick="document.getElementById('modal-promo').classList.add('open')">+ Nouvelle promo</button>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Réductions en cours</h3></div>
+          <div class="card-body">
+            <div class="discount-row">
+              <div><span class="discount-code">BIENVENUE20</span><div style="font-size:0.76rem;color:var(--muted);margin-top:4px">Nouvel utilisateur · Expire 31/05</div></div>
+              <span class="discount-pct">–20%</span>
+              <span class="badge badge-success">Actif</span>
+            </div>
+            <div class="discount-row">
+              <div><span class="discount-code">MIDI10</span><div style="font-size:0.76rem;color:var(--muted);margin-top:4px">Menu midi · Lun–Ven</div></div>
+              <span class="discount-pct">–10%</span>
+              <span class="badge badge-success">Actif</span>
+            </div>
+            <div class="discount-row">
+              <div><span class="discount-code">FETE2026</span><div style="font-size:0.76rem;color:var(--muted);margin-top:4px">Fêtes nationales · Expiré</div></div>
+              <span class="discount-pct">–15%</span>
+              <span class="badge badge-muted">Expiré</span>
+            </div>
+            <div class="discount-row">
+              <div><span class="discount-code">GROUPEPLUS</span><div style="font-size:0.76rem;color:var(--muted);margin-top:4px">Groupe 10+ · Permanent</div></div>
+              <span class="discount-pct">–12%</span>
+              <span class="badge badge-success">Actif</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Performances des promos</h3></div>
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Code</th><th>Utilisations</th><th>CA généré</th></tr></thead>
+              <tbody>
+                <tr><td>BIENVENUE20</td><td>42</td><td>1 260 €</td></tr>
+                <tr><td>MIDI10</td><td>118</td><td>3 540 €</td></tr>
+                <tr><td>GROUPEPLUS</td><td>27</td><td>2 160 €</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ RAPPORTS ═══ -->
+    <div id="rapports" class="section">
+      <div class="kpi-grid">
+        <div class="kpi-card blue"><span class="kpi-label">CA mensuel</span><span class="kpi-value">142 380 €</span><span class="kpi-sub">&#8593; +8.2%</span></div>
+        <div class="kpi-card green"><span class="kpi-label">Bénéfice net</span><span class="kpi-value">31 240 €</span><span class="kpi-sub">Marge 22%</span></div>
+        <div class="kpi-card orange"><span class="kpi-label">Coût matières</span><span class="kpi-value">47 600 €</span><span class="kpi-sub">33% du CA</span></div>
+        <div class="kpi-card red"><span class="kpi-label">Coût personnel</span><span class="kpi-value">18 450 €</span><span class="kpi-sub">13% du CA</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Rapport mensuel détaillé</h3><button class="btn btn-primary btn-sm">&#8659; Exporter PDF</button></div>
+        <div class="card-body" style="padding:0">
+          <table>
+            <thead><tr><th>Catégorie</th><th>Janv.</th><th>Fév.</th><th>Mar.</th><th>Avr.</th><th>Mai</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Chiffre d'affaires</strong></td><td>131 200 €</td><td>128 450 €</td><td>135 800 €</td><td>139 200 €</td><td>142 380 €</td></tr>
+              <tr><td>Coût matières premières</td><td>43 300 €</td><td>42 400 €</td><td>44 800 €</td><td>45 900 €</td><td>47 600 €</td></tr>
+              <tr><td>Masse salariale</td><td>17 800 €</td><td>17 800 €</td><td>18 000 €</td><td>18 200 €</td><td>18 450 €</td></tr>
+              <tr><td>Charges & loyer</td><td>22 000 €</td><td>22 000 €</td><td>22 000 €</td><td>22 000 €</td><td>22 000 €</td></tr>
+              <tr><td style="color:var(--success)"><strong>Bénéfice net</strong></td><td>28 100 €</td><td>26 250 €</td><td>29 000 €</td><td>31 100 €</td><td>31 240 €</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PARAMÈTRES ═══ -->
+    <div id="settings" class="section">
+      <div class="card">
+        <div class="card-header"><h3>Informations du restaurant</h3></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label>Nom du restaurant</label><input type="text" value="Le Gourmet" /></div>
+            <div class="form-group"><label>Téléphone</label><input type="text" value="+33 1 42 00 00 00" /></div>
+          </div>
+          <div class="form-group"><label>Adresse</label><input type="text" value="12 rue de la Paix, 75001 Paris" /></div>
+          <div class="form-row">
+            <div class="form-group"><label>Horaires d'ouverture</label><input type="text" value="12h–14h30 / 19h–23h" /></div>
+            <div class="form-group"><label>Capacité (couverts)</label><input type="number" value="80" /></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:8px">
+            <button class="btn btn-primary">Sauvegarder</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- ═══ MODAL : Nouvel employé ═══ -->
+<div class="modal-overlay" id="modal-emp">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Ajouter un employé</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-emp').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Prénom</label><input type="text" placeholder="Prénom" /></div>
+        <div class="form-group"><label>Nom</label><input type="text" placeholder="Nom de famille" /></div>
+      </div>
+      <div class="form-group"><label>Email</label><input type="email" placeholder="email@restaurant.fr" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Poste</label><select><option>Serveur(se)</option><option>Chef cuisinier</option><option>Cuisinier</option><option>Caissier(ère)</option><option>Livreur</option><option>Responsable stock</option></select></div>
+        <div class="form-group"><label>Salaire brut (€)</label><input type="number" placeholder="2000" /></div>
+      </div>
+      <div class="form-group"><label>Date d'embauche</label><input type="date" /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-emp').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Ajouter l'employé</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL : Nouvelle promo ═══ -->
+<div class="modal-overlay" id="modal-promo">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Créer un code promotionnel</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-promo').classList.remove('open')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Code promo</label><input type="text" placeholder="ex: NOEL25" style="text-transform:uppercase" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Réduction (%)</label><input type="number" placeholder="10" min="1" max="100" /></div>
+        <div class="form-group"><label>Date d'expiration</label><input type="date" /></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea rows="2" placeholder="Description de l'offre..."></textarea></div>
+      <div class="form-group"><label>Utilisation maximale</label><input type="number" placeholder="Sans limite" /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-promo').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Créer la promo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const sections = ['dashboard','rh','paie','reductions','rapports','settings'];
+  const titles = { dashboard:'Tableau de bord', rh:'Ressources humaines', paie:'Paie & Salaires', reductions:'Réductions & Promotions', rapports:'Rapports financiers', settings:'Paramètres' };
+
+  function showSection(id) {
+    sections.forEach(s => {
+      const el = document.getElementById(s);
+      if (el) el.classList.toggle('active', s === id);
+    });
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('page-title').textContent = titles[id] || '';
+  }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      this.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
