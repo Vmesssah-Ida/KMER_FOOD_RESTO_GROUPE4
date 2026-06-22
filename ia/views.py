@@ -55,9 +55,31 @@ def _get_restaurant_context():
     try:
         from produits.models import Produit
         from commandes.models import Commande
+        from inventaire.models import Article
+        from django.db.models import Sum
+        
         produits = Produit.objects.all()[:15]
-        produits_info = "\n".join([f"- {p.nom}: prix={p.prix}" for p in produits])
+        produits_info = "\n".join([f"- {p.nom}: prix={p.prix} FCFA, disponible={'Oui' if p.disponible else 'Non'}" for p in produits])
+        
         nb_commandes = Commande.objects.count()
-        return f"PRODUITS:\n{produits_info}\n\nNB COMMANDES TOTAL: {nb_commandes}"
+        commandes_actives = Commande.objects.filter(statut__in=['en_attente', 'en_preparation', 'prete']).count()
+        
+        ca_mensuel = Commande.objects.filter(statut='servie').aggregate(total=Sum('montant_total'))['total'] or 0.0
+        
+        alertes = Article.objects.filter(alerte=True)
+        alertes_info = "\n".join([f"- {a.nom}: stock={a.quantite_disponible} {a.unite}" for a in alertes]) or "Aucune alerte"
+        
+        return f"""
+PRODUITS:
+{produits_info}
+
+COMMANDES:
+- Nombre total: {nb_commandes}
+- En cours: {commandes_actives}
+- Chiffre d'affaires total (commandes servies): {ca_mensuel} FCFA
+
+ALERTES STOCK:
+{alertes_info}
+"""
     except Exception:
         return "Données non disponibles"

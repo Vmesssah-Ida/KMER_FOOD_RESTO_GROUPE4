@@ -17,10 +17,11 @@ class IngredientForm(forms.ModelForm):
 class RecetteForm(forms.ModelForm):
     class Meta:
         model = Recette
-        fields = ['nom', 'description', 'temps_cuisson', 'chef_responsable']
+        fields = ['nom', 'description', 'instructions', 'temps_cuisson', 'chef_responsable']
         widgets = {
             'nom': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'instructions': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Étapes de préparation...'}),
             'temps_cuisson': forms.NumberInput(attrs={'class': 'form-control'}),
             'chef_responsable': forms.Select(attrs={'class': 'form-control'}),
         }

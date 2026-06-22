@@ -467,7 +467,7 @@
     </form>
 
     <p class="modal-footer">
-      Pas encore de compte ? <a href="#">Créer un compte</a>
+      Pas encore de compte ? <a href="{% url 'inscription_client' %}">Créer un compte</a>
     </p>
   </div>
 </div>
@@ -519,5 +519,6 @@ if (hasErrors) {
     });
   });
 </script>
+{% include 'ia/chat_widget.html' %}
 </body>
 </html>

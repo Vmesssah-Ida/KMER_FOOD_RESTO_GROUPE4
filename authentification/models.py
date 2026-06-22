@@ -7,13 +7,15 @@ from django.contrib.auth.models import AbstractUser
 class Employe(AbstractUser):
 
     ROLES = [
+        ('administrateur',    'Administrateur'),
         ('directeur',         'Directeur'),
-        ('caissier',          'Caissier'),
-        ('chef_cuisinier',    'Chef Cuisinier'),
-        ('livreur',           'Livreur'),
+        ('chef_cuisinier',    'Chef cuisinier'),
+        ('cuisinier',         'Cuisinier'),
         ('serveur',           'Serveur'),
-        ('responsable_stock', 'Responsable Stock'),
+        ('responsable_stock', 'Gestionnaire de stock'),
         ('client',            'Client'),
+        ('caissier',          'Caissier'),
+        ('livreur',           'Livreur'),
     ]
 
     role = models.CharField(

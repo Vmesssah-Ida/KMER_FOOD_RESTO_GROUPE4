@@ -213,3 +213,32 @@ class LigneCommande(models.Model):
     class Meta:
         verbose_name        = "Ligne de commande"
         verbose_name_plural = "Lignes de commande"
+
+
+class Facture(models.Model):
+    commande = models.OneToOneField(
+        Commande,
+        on_delete=models.CASCADE,
+        related_name='facture',
+        verbose_name='Commande'
+    )
+    date_emission = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date d\'émission'
+    )
+    montant = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        verbose_name='Montant (FCFA)'
+    )
+    est_valide = models.BooleanField(
+        default=True,
+        verbose_name='Est valide'
+    )
+
+    def __str__(self):
+        return f"Facture #{self.pk} — Commande #{self.commande.pk} ({self.montant} FCFA)"
+
+    class Meta:
+        verbose_name = "Facture"
+        verbose_name_plural = "Factures"

@@ -1,0 +1,497 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Utilisateurs — Administrateur</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --vert: #2D6A2D;
+      --vert-clair: #4CAF50;
+      --rouge: #C0392B;
+      --jaune: #F0A500;
+      --brun: #3E2009;
+      --brun-sombre: #1E0C02;
+      --texte: #1A1A1A;
+      --blanc: #FFFFFF;
+      --bg: #FAF3E0;
+      --border: #E2DCD0;
+      --card-shadow: 0 4px 20px rgba(62,32,9,0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Lato', sans-serif;
+      color: var(--texte);
+      background: var(--bg);
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Side panel */
+    .sidebar {
+      width: 260px;
+      background: var(--brun-sombre);
+      color: var(--blanc);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      z-index: 10;
+    }
+    .sidebar-logo {
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--jaune);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.8rem 1rem;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .nav-item.active, .nav-item:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--blanc);
+    }
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .logout-btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      text-align: center;
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.65);
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover {
+      background: var(--rouge);
+      color: var(--blanc);
+    }
+
+    /* Main Area */
+    .main-content {
+      margin-left: 260px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--blanc);
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--brun);
+    }
+    header p {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Tables & Cards */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 992px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--blanc);
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--bg);
+      padding-bottom: 0.8rem;
+    }
+    .card-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: var(--brun);
+    }
+    
+    /* Users Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th, td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-weight: 700;
+      color: var(--brun);
+      background: var(--bg);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    tr:hover {
+      background: rgba(250,243,224,0.3);
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+    .badge-admin { background: #E8F8F5; color: #117A65; }
+    .badge-director { background: #EBF5FB; color: #2E86C1; }
+    .badge-chef { background: #FADBD8; color: #B03A2E; }
+    .badge-cook { background: #FDEDEC; color: #C0392B; }
+    .badge-server { background: #FEF9E7; color: #D4AC0D; }
+    .badge-stock { background: #FCF3CF; color: #B7950B; }
+    .badge-client { background: #EAECEE; color: #5D6D7E; }
+    .badge-active { background: #D4EDDA; color: #155724; }
+    .badge-inactive { background: #F8D7DA; color: #721C24; }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--brun);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--vert);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--vert); color: var(--blanc); }
+    .btn-primary:hover { background: #1e4b1e; }
+    .btn-danger { background: var(--rouge); color: var(--blanc); }
+    .btn-danger:hover { background: #962c20; }
+    .btn-warning { background: var(--jaune); color: var(--brun-sombre); }
+    .btn-ghost { background: var(--bg); color: var(--brun); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--border); }
+    .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.78rem; border-radius: 4px; }
+    
+    .actions-cell {
+      display: flex;
+      gap: 5px;
+    }
+    .alert {
+      background: #D4EDDA;
+      color: #155724;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid var(--vert-clair);
+      font-size: 0.9rem;
+      list-style: none;
+    }
+    .alert-error {
+      background: #F8D7DA;
+      color: #721C24;
+      border-left-color: var(--rouge);
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span>🛡️ KMER ADMIN</span>
+  </div>
+  <div class="sidebar-nav">
+    <a href="#" class="nav-item active">👥 Comptes Utilisateurs</a>
+    <a href="/dashboard/" class="nav-item">📊 Voir Tableau de Bord</a>
+    <a href="/rh/" class="nav-item">👥 Ressources Humaines</a>
+  </div>
+  <div class="sidebar-footer">
+    <a href="{% url 'logout' %}" class="logout-btn">Déconnexion</a>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header>
+    <div>
+      <h1>Gestion des Utilisateurs</h1>
+      <p>Administrateur connecté : {{ request.user.username }}</p>
+    </div>
+    <div>
+      <span class="badge badge-admin">Super Administrateur</span>
+    </div>
+  </header>
+
+  <div class="container">
+    {% if messages %}
+      <ul class="alert">
+        {% for message in messages %}
+          <li class="{% if message.tags == 'error' %}alert-error{% endif %}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <div class="dashboard-grid">
+      <!-- Liste des comptes -->
+      <div class="card">
+        <div class="card-header">
+          <h2>👥 Liste des comptes</h2>
+          <span style="font-size: 0.8rem; color:#888;">{{ utilisateurs.count }} comptes au total</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Nom Complet</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for u in utilisateurs %}
+              <tr>
+                <td style="font-weight: 700;">{{ u.username }}</td>
+                <td>{{ u.get_full_name }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                  {% if u.is_superuser %}
+                    <span class="badge badge-admin">Administrateur</span>
+                  {% elif u.role == 'directeur' %}
+                    <span class="badge badge-director">Directeur</span>
+                  {% elif u.role == 'chef_cuisinier' %}
+                    <span class="badge badge-chef">Chef Cuisinier</span>
+                  {% elif u.role == 'cuisinier' %}
+                    <span class="badge badge-cook">Cuisinier</span>
+                  {% elif u.role == 'serveur' %}
+                    <span class="badge badge-server">Serveur</span>
+                  {% elif u.role == 'responsable_stock' %}
+                    <span class="badge badge-stock">Stockiste</span>
+                  {% else %}
+                    <span class="badge badge-client">Client</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if u.is_active %}
+                    <span class="badge badge-active">Actif</span>
+                  {% else %}
+                    <span class="badge badge-inactive">Inactif</span>
+                  {% endif %}
+                </td>
+                <td class="actions-cell">
+                  <button class="btn btn-ghost btn-sm" onclick="editerUtilisateur('{{ u.id }}', '{{ u.username }}', '{{ u.email }}', '{{ u.first_name }}', '{{ u.last_name }}', '{{ u.role }}', '{{ u.telephone }}', '{{ u.adresse }}', '{{ u.is_active }}')">Modifier</button>
+                  
+                  {% if u.is_active %}
+                    <a href="?action=deactiver&id={{ u.id }}" class="btn btn-warning btn-sm" style="font-size:0.72rem;">Désactiver</a>
+                  {% else %}
+                    <a href="?action=activer&id={{ u.id }}" class="btn btn-primary btn-sm" style="font-size:0.72rem; padding: 0.35rem 0.6rem;">Activer</a>
+                  {% endif %}
+                  
+                  {% if u.id != request.user.id %}
+                    <a href="?action=supprimer&id={{ u.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Voulez-vous supprimer définitivement ce compte ?')" style="font-size:0.72rem;">Supprimer</a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Formulaire d'ajout / édition -->
+      <div>
+        <div class="card" id="form-card">
+          <div class="card-header">
+            <h2 id="form-title">➕ Créer un utilisateur</h2>
+          </div>
+          <form method="post" id="user-form" action="?action=creer">
+            {% csrf_token %}
+            
+            <div class="form-group" id="grp-username">
+              <label for="username">Nom d'utilisateur</label>
+              <input type="text" id="username" name="username" required placeholder="Ex: jean.mballa">
+            </div>
+
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="first_name">Prénom</label>
+                <input type="text" id="first_name" name="first_name" required placeholder="Jean">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="last_name">Nom</label>
+                <input type="text" id="last_name" name="last_name" required placeholder="Mballa">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">E-mail</label>
+              <input type="email" id="email" name="email" required placeholder="Ex: email@kmer.cm">
+            </div>
+
+            <div class="form-group">
+              <label for="role">Rôle / Profil</label>
+              <select id="role" name="role">
+                {% for code, label in roles_list %}
+                  <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="telephone">Téléphone</label>
+              <input type="text" id="telephone" name="telephone" placeholder="Ex: 699000000">
+            </div>
+
+            <div class="form-group">
+              <label for="adresse">Adresse physique</label>
+              <input type="text" id="adresse" name="adresse" placeholder="Ex: Bastos, Yaoundé">
+            </div>
+
+            <div class="form-group">
+              <label for="password" id="lbl-password">Mot de passe</label>
+              <input type="password" id="password" name="password" required placeholder="Default: kmer2026">
+            </div>
+
+            <div class="form-group" id="grp-active" style="display:none; align-items:center; gap: 10px;">
+              <input type="checkbox" id="is_active" name="is_active" style="width:auto; margin-top:2px;">
+              <label for="is_active" style="margin-bottom:0; cursor:pointer;">Compte Actif / Autorisé</label>
+            </div>
+
+            <div style="display:flex; gap: 10px; margin-top: 1.5rem;">
+              <button type="submit" class="btn btn-primary" id="btn-submit" style="flex:1; justify-content:center;">Créer le compte</button>
+              <button type="button" class="btn btn-ghost" id="btn-cancel" onclick="resetForm()" style="display:none;">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  function editerUtilisateur(id, username, email, firstName, lastName, role, tel, adr, isActive) {
+    document.getElementById('form-title').innerHTML = `📝 Modifier ${username}`;
+    document.getElementById('user-form').action = `?action=modifier&id=${id}`;
+    
+    // Hide username field in editing since it shouldn't be easily modified
+    document.getElementById('grp-username').style.display = 'none';
+    document.getElementById('username').required = false;
+
+    document.getElementById('first_name').value = firstName;
+    document.getElementById('last_name').value = lastName;
+    document.getElementById('email').value = email;
+    document.getElementById('role').value = role;
+    document.getElementById('telephone').value = tel;
+    document.getElementById('adresse').value = adr;
+    
+    // Password is not required when modifying
+    document.getElementById('lbl-password').innerHTML = "Changer le mot de passe (laisser vide pour inchangé)";
+    document.getElementById('password').required = false;
+    document.getElementById('password').placeholder = "Entrez un nouveau mot de passe si besoin";
+    
+    // Show active checkbox
+    document.getElementById('grp-active').style.display = 'flex';
+    document.getElementById('is_active').checked = isActive === 'True' || isActive === 'true';
+    
+    document.getElementById('btn-submit').innerHTML = "Sauvegarder les modifications";
+    document.getElementById('btn-cancel').style.display = 'inline-block';
+  }
+
+  function resetForm() {
+    document.getElementById('form-title').innerHTML = "➕ Créer un utilisateur";
+    document.getElementById('user-form').action = "?action=creer";
+    document.getElementById('user-form').reset();
+    
+    document.getElementById('grp-username').style.display = 'block';
+    document.getElementById('username').required = true;
+    
+    document.getElementById('lbl-password').innerHTML = "Mot de passe";
+    document.getElementById('password').required = true;
+    document.getElementById('password').placeholder = "Default: kmer2026";
+    
+    document.getElementById('grp-active').style.display = 'none';
+    
+    document.getElementById('btn-submit').innerHTML = "Créer le compte";
+    document.getElementById('btn-cancel').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>

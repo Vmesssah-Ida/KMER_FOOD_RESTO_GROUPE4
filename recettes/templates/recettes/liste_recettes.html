@@ -186,7 +186,9 @@
   {% endif %}-->
 
   <div class="actions-bar">
+    {% if request.user.role == 'chef_cuisinier' or request.user.is_superuser or request.user.role == 'administrateur' %}
     <a href="{% url 'creer_recette' %}" class="btn btn-primary">+ Nouvelle Recette</a>
+    {% endif %}
     <a href="{% url 'liste_ingredients' %}" class="btn btn-info">🥕 Gérer les Ingrédients</a>
   </div>
 
@@ -207,8 +209,10 @@
       </div>
       <div class="card-footer">
         <a href="{% url 'detail_recette' recette.pk %}" class="btn btn-info">Voir</a>
+        {% if request.user.role == 'chef_cuisinier' or request.user.is_superuser or request.user.role == 'administrateur' %}
         <a href="{% url 'modifier_recette' recette.pk %}" class="btn btn-warning">Modifier</a>
         <a href="{% url 'supprimer_recette' recette.pk %}" class="btn btn-danger">Supprimer</a>
+        {% endif %}
       </div>
     </div>
     {% endfor %}

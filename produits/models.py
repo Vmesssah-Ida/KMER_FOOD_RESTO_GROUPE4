@@ -1,3 +1,6 @@
+# 📄 produits/models.py
+# Module 3 — Gestion des produits
+
 from django.db import models
 
 
@@ -8,7 +11,7 @@ class Categorie(models.Model):
     ordre = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
 
-    def str(self):
+    def __str__(self):
         return self.nom
 
     class Meta:
@@ -25,19 +28,27 @@ class Produit(models.Model):
         Categorie,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='produits')
+        related_name='produits'
+    )
     disponible = models.BooleanField(default=True)
-    image_url = models.URLField(blank=True)
+    photo = models.ImageField(upload_to='produits/', blank=True, null=True)
+    recette = models.ForeignKey(
+        'recettes.Recette',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='produits'
+    )
     temps_preparation = models.IntegerField(
         default=30,
         help_text="Temps en minutes"
     )
     date_creation = models.DateTimeField(auto_now_add=True)
 
-    def str(self):
+    def __str__(self):
         return self.nom
 
     class Meta:
         verbose_name = "Produit"
         verbose_name_plural = "Produits"
-        ordering = [ 'categorie','nom']
+        ordering = ['categorie', 'nom']

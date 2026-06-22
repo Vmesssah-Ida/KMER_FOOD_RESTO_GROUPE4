@@ -3,170 +3,550 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <title>Dashboard – KMER FOOD</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Espace Directeur – KMER FOOD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
   <style>
-    :root{--vert:#2D6A2D;--vert-clair:#4CAF50;--rouge:#C0392B;--jaune:#F0A500;--ivoire:#FAF3E0;--brun:#3E2009;--texte:#1A1A1A;--blanc:#FFFFFF;--nav-bg:rgba(30,12,2,0.88);--card-shadow:0 4px 20px rgba(62,32,9,0.08);}
+    :root {
+      --accent:  #1A3A5C;
+      --accent2: #2563a8;
+      --vert:    #2D6A2D;
+      --rouge:   #C0392B;
+      --jaune:   #F0A500;
+      --brun:    #3E2009;
+      --ivoire:  #FAF3E0;
+      --blanc:   #FFFFFF;
+      --sidebar-w: 240px;
+      --bg:      #F4F6FB;
+    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Lato',sans-serif;color:var(--texte);background:var(--ivoire);}
-    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:68px;border-bottom:2px solid var(--jaune);}
-    .nav-logo{display:flex;align-items:center;gap:0.6rem;text-decoration:none;}
-    .logo-icon{width:42px;height:42px;background:var(--jaune);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
-    .logo-text{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--jaune);}
-    .nav-links{display:flex;align-items:center;gap:0.2rem;list-style:none;}
-    .nav-links a{padding:0.45rem 1.1rem;color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.88rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.25s;}
-    .nav-links a:hover{color:var(--jaune);}
-    .page-hero{margin-top:68px;height:220px;background:linear-gradient(135deg,var(--brun) 0%,var(--vert) 100%);display:flex;align-items:center;justify-content:center;text-align:center;position:relative;}
-    .page-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--vert),var(--rouge),var(--jaune));}
-    .page-hero h1{font-family:'Playfair Display',serif;font-size:2.8rem;color:var(--blanc);}
-    .page-hero h1 em{font-style:italic;color:var(--jaune);}
-    .page-hero p{color:rgba(255,255,255,0.75);margin-top:0.5rem;}
-    .container{max-width:1200px;margin:0 auto;padding:2.5rem 1.5rem;}
+    body{font-family:'Lato',sans-serif;background:var(--bg);display:flex;min-height:100vh;}
 
-    /* STATS */
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;margin-bottom:2.5rem;}
-    .stat-card{background:var(--blanc);border-radius:12px;box-shadow:var(--card-shadow);padding:1.8rem;display:flex;align-items:center;gap:1.2rem;transition:transform 0.3s;}
-    .stat-card:hover{transform:translateY(-4px);}
-    .stat-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;}
-    .stat-icon.green{background:#d4edda;}
-    .stat-icon.yellow{background:#fff3cd;}
-    .stat-icon.red{background:#f8d7da;}
-    .stat-icon.blue{background:#d1ecf1;}
-    .stat-info .value{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--brun);}
-    .stat-info .label{font-size:0.82rem;color:#888;text-transform:uppercase;letter-spacing:1px;}
+    /* ── SIDEBAR ── */
+    .sidebar{
+      width:var(--sidebar-w);flex-shrink:0;
+      background:var(--accent);
+      display:flex;flex-direction:column;
+      position:fixed;top:0;left:0;bottom:0;z-index:50;
+    }
+    .sidebar-logo{
+      padding:1.4rem 1.2rem;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+      display:flex;align-items:center;gap:.7rem;
+    }
+    .sidebar-logo .icon{font-size:1.6rem;}
+    .sidebar-logo .texts .app{font-family:'Playfair Display',serif;font-size:1rem;color:var(--jaune);letter-spacing:1px;}
+    .sidebar-logo .texts .role{font-size:.65rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;}
+    .nav-section{padding:.8rem 0;border-bottom:1px solid rgba(255,255,255,.08);}
+    .nav-label{font-size:.6rem;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;padding:.4rem 1.2rem .2rem;}
+    .nav-item{
+      display:flex;align-items:center;gap:.7rem;
+      padding:.65rem 1.2rem;cursor:pointer;
+      color:rgba(255,255,255,.7);font-size:.85rem;font-weight:700;
+      border-left:3px solid transparent;
+      transition:background .2s,color .2s,border-color .2s;
+    }
+    .nav-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+    .nav-item.active{background:rgba(255,255,255,.12);color:var(--jaune);border-left-color:var(--jaune);}
+    .nav-item .icon{font-size:1rem;width:20px;text-align:center;}
+    .sidebar-footer{margin-top:auto;padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.1);}
+    .user-chip{display:flex;align-items:center;gap:.6rem;}
+    .user-avatar{width:34px;height:34px;border-radius:50%;background:var(--jaune);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:var(--brun);}
+    .user-name{font-size:.8rem;color:#fff;font-weight:700;}
+    .user-since{font-size:.65rem;color:rgba(255,255,255,.45);}
+    .btn-logout{margin-top:.8rem;width:100%;padding:.5rem;background:rgba(192,57,43,.25);color:#ff8a7a;border:1px solid rgba(192,57,43,.4);border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;transition:background .2s;}
+    .btn-logout:hover{background:rgba(192,57,43,.45);}
 
-    /* SECTIONS */
-    .sections-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;}
-    @media(max-width:768px){.sections-grid{grid-template-columns:1fr;}}
-    .section-card{background:var(--blanc);border-radius:12px;box-shadow:var(--card-shadow);overflow:hidden;}
-    .section-header{padding:1.2rem 1.5rem;background:linear-gradient(135deg,var(--brun),var(--vert));color:var(--blanc);}
-    .section-header h2{font-family:'Playfair Display',serif;font-size:1.1rem;}
-    .section-body{padding:1.2rem 1.5rem;}
-    .item-row{display:flex;justify-content:space-between;align-items:center;padding:0.7rem 0;border-bottom:1px solid rgba(62,32,9,0.06);}
-    .item-row:last-child{border-bottom:none;}
-    .item-name{font-weight:700;color:var(--brun);}
-    .item-value{font-size:0.85rem;color:#888;}
-    .badge{display:inline-block;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:700;}
-    .badge-alerte{background:#f8d7da;color:#721c24;}
+    /* ── MAIN ── */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;}
+    .topbar{
+      background:var(--blanc);
+      padding:.9rem 2rem;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid #e8eaf0;
+      position:sticky;top:0;z-index:40;
+    }
+    .topbar-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--brun);}
+    .topbar-right{display:flex;align-items:center;gap:1rem;}
+    .badge-role{background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.25rem .7rem;border-radius:20px;}
+    .date-chip{font-size:.78rem;color:#999;}
+    .content{padding:2rem;flex:1;}
 
-    /* LIENS RAPIDES */
-    .quick-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
-    .quick-link{background:var(--blanc);border-radius:10px;box-shadow:var(--card-shadow);padding:1.2rem;text-align:center;text-decoration:none;color:var(--texte);transition:transform 0.25s,box-shadow 0.25s;}
-    .quick-link:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(62,32,9,0.14);}
-    .quick-link .icon{font-size:2rem;margin-bottom:0.5rem;}
-    .quick-link .name{font-size:0.82rem;font-weight:700;color:var(--brun);text-transform:uppercase;letter-spacing:1px;}
+    /* ── TAB PANEL ── */
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
 
-    footer{text-align:center;padding:2rem;background:var(--brun);color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:4rem;}
-    .footer-ribbon{height:5px;display:flex;}
-    .footer-ribbon span{flex:1;}
-    .footer-ribbon span:nth-child(1){background:var(--vert);}
-    .footer-ribbon span:nth-child(2){background:var(--rouge);}
-    .footer-ribbon span:nth-child(3){background:var(--jaune);}
+    /* ── KPI CARDS ── */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;margin-bottom:2rem;}
+    .kpi{background:var(--blanc);border-radius:16px;padding:1.3rem 1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);border-top:4px solid var(--accent);}
+    .kpi.vert{border-top-color:var(--vert);}
+    .kpi.rouge{border-top-color:var(--rouge);}
+    .kpi.jaune{border-top-color:var(--jaune);}
+    .kpi-label{font-size:.72rem;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;}
+    .kpi-val{font-size:1.8rem;font-weight:700;color:var(--brun);}
+    .kpi-sub{font-size:.72rem;color:#aaa;margin-top:.3rem;}
+
+    /* ── TABLES ── */
+    .section-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--brun);margin-bottom:1rem;display:flex;align-items:center;gap:.7rem;}
+    .section-title::after{content:'';flex:1;height:1px;background:rgba(62,32,9,.1);}
+    .card{background:var(--blanc);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;margin-bottom:2rem;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{background:#f8f9fc;padding:.75rem 1rem;text-align:left;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#888;border-bottom:1px solid #eee;}
+    tbody td{padding:.8rem 1rem;font-size:.85rem;color:#444;border-bottom:1px solid #f5f5f5;}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover{background:#fafbff;}
+    .pill{display:inline-block;font-size:.65rem;font-weight:700;padding:.2rem .6rem;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+    .pill-vert{background:#e8f5e9;color:#2D6A2D;}
+    .pill-rouge{background:#fdecea;color:#C0392B;}
+    .pill-jaune{background:#fff8e1;color:#c47900;}
+    .pill-bleu{background:#e3f2fd;color:#1A3A5C;}
+
+    /* ── FORMULAIRE ── */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.5rem;}
+    .form-group{display:flex;flex-direction:column;gap:.4rem;}
+    .form-group.full{grid-column:1/-1;}
+    label{font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#777;}
+    input,select{padding:.65rem .9rem;border:1.5px solid #e0e0e0;border-radius:8px;font-family:'Lato',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;}
+    input:focus,select:focus{border-color:var(--accent);}
+    .btn{padding:.6rem 1.4rem;border:none;border-radius:8px;font-family:'Lato',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:background .2s,transform .15s;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-primary:hover{background:var(--accent2);}
+    .btn-danger{background:var(--rouge);color:#fff;}
+    .btn-danger:hover{background:#a93226;}
+    .form-actions{padding:.8rem 1.5rem 1.5rem;display:flex;gap:.8rem;}
+
+    /* ── CHART PLACEHOLDER ── */
+    .chart-placeholder{background:linear-gradient(135deg,#f0f4ff,#e8f0ff);border-radius:12px;height:200px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.85rem;margin:1rem 1.5rem 1.5rem;}
+
+    /* ── ALERTE ── */
+    .alert-box{background:#fff8e1;border-left:4px solid var(--jaune);border-radius:8px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.83rem;color:#555;display:flex;gap:.6rem;align-items:flex-start;}
   </style>
 </head>
 <body>
 
-<nav>
-  <a href="/" class="nav-logo"><div class="logo-icon">🍽️</div><span class="logo-text">KMER FOOD</span></a>
-  <ul class="nav-links">
-    <li><a href="{% url 'recettes' %}">Recettes</a></li>
-    <li><a href="{% url 'produits' %}">Produits</a></li>
-    <li><a href="{% url 'inventaire' %}">Inventaire</a></li>
-    <li><a href="{% url 'commande' %}">Commandes</a></li>
-    <li><a href="{% url 'dashboard' %}" style="color:var(--jaune);">Dashboard</a></li>
-  </ul>
-</nav>
-
-<div class="page-hero">
-  <div>
-    <h1>📊 Tableau de <em>Bord</em></h1>
-    <p>Vue d'ensemble de KMER FOOD</p>
-  </div>
-</div>
-
-<div class="container">
-
-  <!-- STATS -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon green">📦</div>
-      <div class="stat-info">
-        <div class="value">{{ total_commandes }}</div>
-        <div class="label">Total commandes</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon yellow">⏳</div>
-      <div class="stat-info">
-        <div class="value">{{ commandes_en_attente }}</div>
-        <div class="label">En attente</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon blue">🍽️</div>
-      <div class="stat-info">
-        <div class="value">{{ total_produits }}</div>
-        <div class="label">Produits</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon red">⚠️</div>
-      <div class="stat-info">
-        <div class="value" style="color:var(--rouge);">{{ alertes_stock }}</div>
-        <div class="label">Alertes stock</div>
-      </div>
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="icon">👔</div>
+    <div class="texts">
+      <div class="app">KMER FOOD</div>
+      <div class="role">Directeur Général</div>
     </div>
   </div>
 
-  <!-- LIENS RAPIDES -->
-  <h2 style="font-family:'Playfair Display',serif;color:var(--brun);margin-bottom:1rem;">🔗 Accès rapide</h2>
-  <div class="quick-links">
-    <a href="/recettes/" class="quick-link"><div class="icon">🍲</div><div class="name">Recettes</div></a>
-    <a href="/produits/" class="quick-link"><div class="icon">🍽️</div><div class="name">Produits</div></a>
-    <a href="/inventaire/" class="quick-link"><div class="icon">📦</div><div class="name">Inventaire</div></a>
-    <a href="/commandes/" class="quick-link"><div class="icon">🛒</div><div class="name">Commandes</div></a>
-    <a href="/rh/" class="quick-link"><div class="icon">👥</div><div class="name">RH</div></a>
+  <div class="nav-section">
+    <div class="nav-label">Tableau de bord</div>
+    <div class="nav-item active" onclick="showTab('dashboard',this)">
+      <span class="icon">📊</span> Vue d'ensemble
+    </div>
+    <div class="nav-item" onclick="showTab('commandes',this)">
+      <span class="icon">🧾</span> Commandes
+    </div>
+    <div class="nav-item" onclick="showTab('revenus',this)">
+      <span class="icon">💰</span> Revenus &amp; Dépenses
+    </div>
   </div>
 
-  <!-- SECTIONS -->
-  <div class="sections-grid">
+  <div class="nav-section">
+    <div class="nav-label">Ressources Humaines</div>
+    <div class="nav-item" onclick="showTab('employes',this)">
+      <span class="icon">👥</span> Employés
+    </div>
+    <div class="nav-item" onclick="showTab('postes',this)">
+      <span class="icon">🏷️</span> Postes &amp; Affectations
+    </div>
+    <div class="nav-item" onclick="showTab('salaires',this)">
+      <span class="icon">💳</span> Paie
+    </div>
+    <div class="nav-item" onclick="showTab('supervision',this)">
+      <span class="icon">🔭</span> Supervision
+    </div>
+  </div>
 
-    <!-- TOP PRODUITS -->
-    <div class="section-card">
-      <div class="section-header"><h2>🏆 Top Produits</h2></div>
-      <div class="section-body">
-        {% for produit in top_produits %}
-        <div class="item-row">
-          <span class="item-name">{{ produit.nom }}</span>
-          <span class="item-value">{{ produit.nb_commandes }} commande(s)</span>
+  <div class="nav-section">
+    <div class="nav-label">Gestion</div>
+    <div class="nav-item" onclick="showTab('marketing',this)">
+      <span class="icon">📣</span> Marketing
+    </div>
+    <div class="nav-item" onclick="showTab('vehicules',this)">
+      <span class="icon">🚗</span> Véhicules
+
+    </div>
+
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar">FA</div>
+      
+      <div>
+        <!-- Django : {{ employe.Prenom }} {{ employe.Nom }} -->
+        <div class="user-name">{{ employe.Prenom }} {{ employe.Nom }}</div>
+        <div class="user-since">Depuis {{ employe.Date_Embauche }}</div>
+      </div>
+    </div>
+    <form method="POST" action="/logout/">
+      {% csrf_token %}
+      <button class="btn-logout"> <a href="{% url 'logout' %}" class="btn-logout">Déconnexion</a> </button>
+    </form>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">Espace Direction</div>
+    <div class="topbar-right">
+      <span class="date-chip" id="dateNow"></span>
+      <span class="badge-role">Directeur Général</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ ONGLET : DASHBOARD ══ -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <div class="kpi-grid">
+        <div class="kpi vert">
+          <div class="kpi-label">Chiffre d'affaires (mois)</div>
+          <!-- Django : {{ ca_mensuel|floatformat:0 }} FCFA -->
+          <div class="kpi-val">{{ ca_mensuel|default:"—" }}</div>
+          <div class="kpi-sub">FCFA ce mois</div>
         </div>
-        {% empty %}
-        <p style="color:#888;text-align:center;padding:1rem;">Aucune donnée disponible</p>
-        {% endfor %}
-      </div>
-    </div>
-
-    <!-- ALERTES STOCK -->
-    <div class="section-card">
-      <div class="section-header" style="background:linear-gradient(135deg,#721c24,var(--rouge));"><h2>⚠️ Alertes Stock</h2></div>
-      <div class="section-body">
-        {% for article in articles_alerte %}
-        <div class="item-row">
-          <span class="item-name">{{ article.nom }}</span>
-          <span class="badge badge-alerte">{{ article.quantite_disponible }} {{ article.unite }}</span>
+        <div class="kpi rouge">
+          <div class="kpi-label">Commandes du jour</div>
+          <div class="kpi-val">{{ nb_commandes_jour|default:"—" }}</div>
+          <div class="kpi-sub">dont {{ nb_livraisons|default:"—" }} livraisons</div>
         </div>
-        {% empty %}
-        <p style="color:#888;text-align:center;padding:1rem;">✅ Tous les stocks sont OK !</p>
-        {% endfor %}
+        <div class="kpi jaune">
+          <div class="kpi-label">Masse salariale</div>
+          <div class="kpi-val">{{ masse_salariale|default:"—" }}</div>
+          <div class="kpi-sub">FCFA / mois</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Employés actifs</div>
+          <div class="kpi-val">{{ nb_employes|default:"—" }}</div>
+          <div class="kpi-sub">en poste</div>
+        </div>
+      </div>
+
+      <h3 class="section-title">Top produits vendus</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>#</th><th>Produit</th><th>Qté vendue</th><th>CA généré</th></tr></thead>
+          <tbody>
+            {% for p in top_produits %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ p.nom }}</td>
+              <td>{{ p.total_qte }}</td>
+              <td>{{ p.total_ca }} FCFA</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:#aaa;">Aucune donnée</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="section-title">Dernières commandes</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>N°</th><th>Client</th><th>Date</th><th>Type</th><th>Montant</th><th>Paiement</th></tr></thead>
+          <tbody>
+            {% for c in dernieres_commandes %}
+            <tr>
+              <td>#{{ c.id_Commande }}</td>
+              <td>{{ c.client.Prenom }} {{ c.client.Nom }}</td>
+              <td>{{ c.Date|date:"d/m/Y H:i" }}</td>
+              <td><span class="pill pill-bleu">{{ c.Type }}</span></td>
+              <td>{{ c.Montant_Total }} FCFA</td>
+              <td>{{ c.Mode_de_Paiement }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;color:#aaa;">Aucune commande</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
 
-  </div>
+    <!-- ══ ONGLET : COMMANDES ══ -->
+    <div class="tab-panel" id="tab-commandes">
+      <div class="kpi-grid">
+        <div class="kpi vert"><div class="kpi-label">Sur place</div><div class="kpi-val">{{ ca_sur_place|default:"—" }}</div><div class="kpi-sub">FCFA</div></div>
+        <div class="kpi jaune"><div class="kpi-label">À livrer</div><div class="kpi-val">{{ ca_livraison|default:"—" }}</div><div class="kpi-sub">FCFA</div></div>
+        <div class="kpi rouge"><div class="kpi-label">À emporter</div><div class="kpi-val">{{ ca_emporter|default:"—" }}</div><div class="kpi-sub">FCFA</div></div>
+      </div>
+      <h3 class="section-title">Toutes les commandes</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>N°</th><th>Client</th><th>Date</th><th>Type</th><th>Montant</th><th>Mode paiement</th></tr></thead>
+          <tbody>
+            {% for c in toutes_commandes %}
+            <tr>
+              <td>#{{ c.id_Commande }}</td>
+              <td>{{ c.client.Prenom }} {{ c.client.Nom }}</td>
+              <td>{{ c.Date|date:"d/m/Y H:i" }}</td>
+              <td><span class="pill pill-bleu">{{ c.Type }}</span></td>
+              <td><strong>{{ c.Montant_Total }}</strong> FCFA</td>
+              <td>{{ c.Mode_de_Paiement }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;color:#aaa;">Aucune commande</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-</div>
+    <!-- ══ ONGLET : REVENUS ══ -->
+    <div class="tab-panel" id="tab-revenus">
+      <h3 class="section-title">Factures</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>N°</th><th>Date</th><th>Montant</th><th>Type</th></tr></thead>
+          <tbody>
+            {% for f in factures %}
+            <tr>
+              <td>#{{ f.id_Facture }}</td>
+              <td>{{ f.Date|date:"d/m/Y" }}</td>
+              <td>{{ f.Montant }} FCFA</td>
+              <td>
+                {% if f.Type == "Facture Client" %}<span class="pill pill-vert">{{ f.Type }}</span>
+                {% elif f.Type == "Achat" %}<span class="pill pill-rouge">{{ f.Type }}</span>
+                {% else %}<span class="pill pill-jaune">{{ f.Type }}</span>{% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:#aaa;">Aucune facture</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-<div class="footer-ribbon"><span></span><span></span><span></span></div>
-<footer><strong>KMER FOOD</strong> · Saveurs authentiques du Cameroun</footer>
+    <!-- ══ ONGLET : EMPLOYÉS ══ -->
+    <div class="tab-panel" id="tab-employes">
+      <h3 class="section-title">Liste des employés</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>ID</th><th>Nom</th><th>Prénom</th><th>Téléphone</th><th>Salaire</th><th>Embauche</th><th>Poste actuel</th></tr></thead>
+          <tbody>
+            {% for e in employes %}
+            <tr>
+              <td>{{ e.id_Employe }}</td>
+              <td>{{ e.Nom }}</td>
+              <td>{{ e.Prenom }}</td>
+              <td>{{ e.Tel }}</td>
+              <td>{{ e.Salaire }} FCFA</td>
+              <td>{{ e.Date_Embauche|date:"d/m/Y" }}</td>
+              <td><span class="pill pill-bleu">{{ e.poste_actuel|default:"—" }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center;color:#aaa;">Aucun employé</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
 
+      <h3 class="section-title">Ajouter un employé</h3>
+      <div class="card">
+        <!--
+          Vue : rh/views.py → ajouter_employe(request)
+          POST → crée Employe + Affectation dans la BDD
+        -->
+        <form method="POST" action="/rh/employes/ajouter/">
+          {% csrf_token %}
+          <div class="form-grid">
+            <div class="form-group"><label>Nom</label><input type="text" name="nom" required/></div>
+            <div class="form-group"><label>Prénom</label><input type="text" name="prenom" required/></div>
+            <div class="form-group"><label>Téléphone</label><input type="tel" name="tel" required/></div>
+            <div class="form-group"><label>Salaire (FCFA)</label><input type="number" name="salaire" required/></div>
+            <div class="form-group"><label>Date d'embauche</label><input type="date" name="date_embauche" required/></div>
+            <div class="form-group">
+              <label>Poste</label>
+              <select name="poste">
+                {% for p in postes %}
+                <option value="{{ p.id_Poste }}">{{ p.Libelle_Poste }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Enregistrer</button></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ ONGLET : POSTES & AFFECTATIONS ══ -->
+    <div class="tab-panel" id="tab-postes">
+      <h3 class="section-title">Affectations actuelles</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>Employé</th><th>Poste</th><th>Depuis</th><th>Fin</th></tr></thead>
+          <tbody>
+            {% for a in affectations %}
+            <tr>
+              <td>{{ a.employe.Prenom }} {{ a.employe.Nom }}</td>
+              <td><span class="pill pill-bleu">{{ a.poste.Libelle_Poste }}</span></td>
+              <td>{{ a.Date_debut|date:"d/m/Y" }}</td>
+              <td>{{ a.Date_fin|date:"d/m/Y"|default:"En cours" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:#aaa;">Aucune affectation</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ONGLET : SALAIRES ══ -->
+    <div class="tab-panel" id="tab-salaires">
+      <div class="kpi-grid">
+        <div class="kpi vert">
+          <div class="kpi-label">Masse salariale totale</div>
+          <div class="kpi-val">{{ masse_salariale|default:"—" }}</div>
+          <div class="kpi-sub">FCFA / mois</div>
+        </div>
+      </div>
+      <h3 class="section-title">Détail des salaires</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>Employé</th><th>Poste</th><th>Salaire</th><th>Date embauche</th></tr></thead>
+          <tbody>
+            {% for e in employes %}
+            <tr>
+              <td>{{ e.Prenom }} {{ e.Nom }}</td>
+              <td>{{ e.poste_actuel|default:"—" }}</td>
+              <td><strong>{{ e.Salaire }}</strong> FCFA</td>
+              <td>{{ e.Date_Embauche|date:"d/m/Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:#aaa;">Aucun employé</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <h3 class="section-title">Historique paiements salaires</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>Date</th><th>Montant</th><th>Type</th></tr></thead>
+          <tbody>
+            {% for f in factures_salaires %}
+            <tr>
+              <td>{{ f.Date|date:"d/m/Y" }}</td>
+              <td>{{ f.Montant }} FCFA</td>
+              <td><span class="pill pill-jaune">{{ f.Type }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="text-align:center;color:#aaa;">Aucun paiement</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ONGLET : SUPERVISION ══ -->
+    <div class="tab-panel" id="tab-supervision">
+      <h3 class="section-title">Relations de supervision</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>Superviseur</th><th>Employé supervisé</th><th>Depuis</th><th>Fin</th></tr></thead>
+          <tbody>
+            {% for s in supervisions %}
+            <tr>
+              <td>{{ s.superviseur.Prenom }} {{ s.superviseur.Nom }}</td>
+              <td>{{ s.employe.Prenom }} {{ s.employe.Nom }}</td>
+              <td>{{ s.Date_debut|date:"d/m/Y" }}</td>
+              <td>{{ s.Date_fin|date:"d/m/Y"|default:"En cours" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:#aaa;">Aucune supervision</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ONGLET : MARKETING ══ -->
+    <div class="tab-panel" id="tab-marketing">
+      <h3 class="section-title">Actions marketing</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>Action</th><th>Type</th><th>Début</th><th>Fin</th><th>Budget</th><th>Responsable</th></tr></thead>
+          <tbody>
+            {% for a in actions_marketing %}
+            <tr>
+              <td>{{ a.Description }}</td>
+              <td><span class="pill pill-jaune">{{ a.Type_Action }}</span></td>
+              <td>{{ a.Date_debut|date:"d/m/Y" }}</td>
+              <td>{{ a.Date_fin|date:"d/m/Y" }}</td>
+              <td>{{ a.Budget }} FCFA</td>
+              <td>{{ a.responsable.Prenom }} {{ a.responsable.Nom }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;color:#aaa;">Aucune action</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ONGLET : VÉHICULES ══ -->
+    <div class="tab-panel" id="tab-vehicules">
+      <h3 class="section-title">Flotte de véhicules</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>Immatriculation</th><th>Marque</th><th>Modèle</th></tr></thead>
+          <tbody>
+            {% for v in vehicules %}
+            <tr>
+              <td><strong>{{ v.Immatriculation }}</strong></td>
+              <td>{{ v.Marque }}</td>
+              <td>{{ v.Modele }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="text-align:center;color:#aaa;">Aucun véhicule</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <h3 class="section-title">Déplacements récents</h3>
+      <div class="card">
+        <table>
+          <thead><tr><th>Date</th><th>Chauffeur</th><th>Véhicule</th><th>Destination</th><th>Distance</th></tr></thead>
+          <tbody>
+            {% for d in deplacements %}
+            <tr>
+              <td>{{ d.Date_depart|date:"d/m/Y H:i" }}</td>
+              <td>{{ d.chauffeur.Prenom }} {{ d.chauffeur.Nom }}</td>
+              <td>{{ d.vehicule.Marque }} {{ d.vehicule.Modele }}</td>
+              <td>{{ d.Destination }}</td>
+              <td>{{ d.Distance_totale }} km</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center;color:#aaa;">Aucun déplacement</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+  /* Date topbar */
+  document.getElementById('dateNow').textContent = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  /* Navigation onglets */
+  function showTab(id, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    el.classList.add('active');
+  }
+</script>
 </body>
 </html>
+

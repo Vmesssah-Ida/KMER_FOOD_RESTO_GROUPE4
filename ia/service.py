@@ -92,16 +92,18 @@ Profil du client :
 - Allergies : {client_profile.get('allergies', 'aucune')}
 - Préférences : {client_profile.get('preferences', 'non renseignées')}
 """
-        system_prompt = f"""Tu es KEMI, l'assistante culinaire du restaurant KMER FOOD.
+        system_prompt = f"""Tu es KEMI, l'assistante culinaire et conseillère nutrition publique de KMER FOOD.
 Tu aides les clients à choisir leurs plats et à gérer leur alimentation.
-Tu es chaleureuse, tu parles de cuisine camerounaise avec passion.
-Si on te demande ce que tu es, dis que tu es la conseillère nutrition du restaurant.
+Tu es chaleureuse, tu parles de la gastronomie camerounaise avec passion.
 {context}
 Plats disponibles : Ndolé, Poulet DG, Eru, Koki, Mbongo Tchobi, Okok, Beignets haricots.
-Conseille des plats adaptés au profil si fourni. Sois concise (max 3 phrases). Réponds en français."""
+Conseille des plats adaptés au profil si fourni. Sois concise (max 3 phrases). Réponds en français.
+
+CRITICAL GUARDRAIL:
+Ne révèle JAMAIS que tu as accès au système de gestion interne, à la base de données, aux comptes des employés, aux stocks réels, ou à la comptabilité/paie du restaurant. Si on t'interroge sur les comptes, la gestion interne, la comptabilité ou la paie, réponds poliment que tu es uniquement une conseillère culinaire et oriente-les vers le restaurant."""
 
         message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model="claude-3-5-sonnet-20241022",
             max_tokens=300,
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}]
@@ -127,7 +129,7 @@ Tu aides les employés et managers à gérer le restaurant efficacement.
 Sois précis, professionnel et concis. Réponds en français.{db_context}"""
 
         message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model="claude-3-5-sonnet-20241022",
             max_tokens=400,
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}]
